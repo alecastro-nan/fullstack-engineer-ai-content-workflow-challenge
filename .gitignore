@@ -12,6 +12,7 @@ build/
 
 # Environment
 .env
+.env.local
 
 # IDE
 .idea/
@@ -21,10 +22,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
-
-# Environment
-.env
-.env.local
 
 # Python
 __pycache__/
