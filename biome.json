@@ -32,6 +32,7 @@
     }
   },
   "files": {
+    "include": ["backend/src", "frontend/src"],
     "ignore": ["dist", "node_modules", ".next", "build", ".venv"]
   }
 }
