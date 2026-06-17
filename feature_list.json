@@ -1,0 +1,640 @@
+[
+  {
+    "id": "F-000",
+    "title": "Initialize monorepo: folder structure, configs, symlinks",
+    "description": "Create the monorepo folder structure, configuration files, and symlinks so that all agents share the same AGENTS.md context.",
+    "dependencies": [],
+    "stack": "infra",
+    "role": "builder",
+    "status": "done",
+    "acceptance_criteria": [
+      "All directories from AGENTS.md section 5 exist",
+      "biome.json is configured at root",
+      ".gitignore exists with node_modules, dist, .env entries",
+      "Symlinks: CLAUDE.md, .cursorrules, .github/copilot-instructions.md point to AGENTS.md",
+      "harness/workflows/runs/.gitkeep exists"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "ls shows all directories match AGENTS.md section 5",
+      "Symlinks resolve correctly to AGENTS.md"
+    ]
+  },
+  {
+    "id": "F-001",
+    "title": "Campaign CRUD API",
+    "description": "REST endpoints to create, read, update, and soft-delete campaigns.",
+    "dependencies": ["F-000"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "POST /api/campaigns creates a campaign and returns 201",
+      "GET /api/campaigns returns paginated list of campaigns",
+      "GET /api/campaigns/:id returns single campaign with content pieces",
+      "PATCH /api/campaigns/:id updates campaign fields",
+      "DELETE /api/campaigns/:id soft-deletes a campaign",
+      "All endpoints return proper HTTP status codes on error (400, 404)",
+      "Input validation rejects malformed payloads with 400",
+      "Database migration creates campaigns table with: id, name, description, status, createdAt, updatedAt"
+    ],
+    "test_requirements": [
+      "Unit test for campaign service: create, findAll, findOne, update, remove",
+      "Integration test for each endpoint (REQUEST → RESPONSE validation)",
+      "Test validation pipe rejects empty name and unknown fields"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass (≥80% coverage on module)",
+      "Code reviewer has approved",
+      "Security reviewer has confirmed no secrets exposed",
+      "API can be tested manually via curl or Swagger"
+    ]
+  },
+  {
+    "id": "F-002",
+    "title": "Content Piece CRUD API",
+    "description": "REST endpoints to create, read, update, and delete content pieces within a campaign.",
+    "dependencies": ["F-001"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "POST /api/campaigns/:id/content creates a content piece and returns 201",
+      "GET /api/campaigns/:id/content returns list of content pieces",
+      "GET /api/content/:id returns single content piece",
+      "PATCH /api/content/:id updates content fields",
+      "DELETE /api/content/:id soft-deletes content",
+      "Content belongs to a campaign (foreign key constraint)",
+      "Content has fields: headline, description, body, language, state",
+      "Content state defaults to 'draft'"
+    ],
+    "test_requirements": [
+      "Unit test for content service: create, findAll, findOne, update, remove",
+      "Integration test for each endpoint",
+      "Test that content cannot be created for non-existent campaign (404)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-003",
+    "title": "PostgreSQL schema & migrations",
+    "description": "Create the database schema, enums, indices, and migration files using Prisma/TypeORM/Alembic.",
+    "dependencies": ["F-000"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Campaigns table with: id (UUID), name, description, status, createdAt, updatedAt, isDeleted",
+      "Content pieces table with: id (UUID), campaignId (FK), headline, description, body, language, state (enum), createdAt, updatedAt, isDeleted",
+      "Review state enum: draft, suggested_by_ai, reviewed, approved, rejected",
+      "Indices on: campaignId, state, isDeleted",
+      "Migration is reversible (up/down or rollback supported)"
+    ],
+    "test_requirements": [
+      "Migration script runs without errors",
+      "Rollback restores previous schema state"
+    ],
+    "done_when": [
+      "Migration applies cleanly on fresh PostgreSQL",
+      "Database reviewer has approved schema",
+      "Rollback works correctly"
+    ]
+  },
+  {
+    "id": "F-004",
+    "title": "AI provider abstraction layer (OpenAI + Anthropic)",
+    "description": "Build an abstract AI service that supports both OpenAI and Anthropic providers with fallback logic.",
+    "dependencies": ["F-000"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "AiService interface/abstraction with generateDraft() and translate() methods",
+      "OpenAI provider implements the interface using OpenAI SDK",
+      "Anthropic provider implements the interface using Anthropic SDK",
+      "Provider selection via environment variable (AI_PROVIDER=openai|anthropic)",
+      "Automatic fallback if primary provider fails (rate limit, timeout)",
+      "Configurable model name, temperature, max tokens",
+      "Prompt templates are externalized (not hardcoded in provider logic)"
+    ],
+    "test_requirements": [
+      "Mock-based test for AiService with OpenAI provider",
+      "Mock-based test for AiService with Anthropic provider",
+      "Test fallback when primary provider throws",
+      "Test that all providers throw when no API key is configured"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All AI unit tests use mocks (no real API calls)",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-005",
+    "title": "AI draft generation endpoint",
+    "description": "Endpoint that takes a content brief and generates an AI-powered draft (headline + description).",
+    "dependencies": ["F-002", "F-004"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "POST /api/content/:id/generate-draft triggers AI generation",
+      "Request body contains brief/instructions for the AI",
+      "Response returns generated headline and description",
+      "Content state transitions from 'draft' to 'suggested_by_ai' on success",
+      "Content state transitions back to 'draft' on AI failure",
+      "Original content fields are preserved as fallback"
+    ],
+    "test_requirements": [
+      "Unit test with mocked AI provider returning valid draft",
+      "Unit test with mocked AI provider throwing error",
+      "Integration test: POST → verify state change"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "AI calls are mocked in tests",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-006",
+    "title": "AI translation/localization endpoint",
+    "description": "Endpoint that translates content into a target language using AI.",
+    "dependencies": ["F-002", "F-004"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "POST /api/content/:id/translate triggers AI translation",
+      "Request specifies targetLanguage (e.g., es, fr, de)",
+      "Response returns translated headline and description",
+      "Creates new content piece in target language linked to original (originalId)",
+      "New content piece starts in 'suggested_by_ai' state"
+    ],
+    "test_requirements": [
+      "Unit test with mocked AI provider returning valid translation",
+      "Unit test with unsupported language returns 400",
+      "Integration test: translate → verify new content piece exists"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "AI calls are mocked in tests",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-007",
+    "title": "Review state machine (state transitions, guards)",
+    "description": "Implement the review state machine with valid transition guards and state enforcement.",
+    "dependencies": ["F-002"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Content state enum: draft, suggested_by_ai, reviewed, approved, rejected",
+      "Valid transitions are enforced at the service layer",
+      "Invalid transitions throw 422 Unprocessable Entity",
+      "State history is logged (optional: state_history table)",
+      "Only the owner/reviewer can change state (if auth is implemented)"
+    ],
+    "test_requirements": [
+      "Test all valid transitions succeed",
+      "Test all invalid transitions are rejected",
+      "Test state persists correctly in database"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All state transitions are tested",
+      "Code reviewer and DB reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-008",
+    "title": "Review endpoints (approve, reject, request edits)",
+    "description": "Endpoints for human reviewers to approve, reject, or request edits on AI-suggested content.",
+    "dependencies": ["F-007"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "PATCH /api/content/:id/review with action: 'approve' sets state to 'approved'",
+      "PATCH /api/content/:id/review with action: 'reject' sets state to 'rejected'",
+      "PATCH /api/content/:id/review with action: 'request_edits' sets state to 'reviewed' and stores feedback",
+      "PATCH /api/content/:id/edit updates content body and resets state to 'draft'",
+      "Invalid action returns 400",
+      "Review feedback is stored (comment field)"
+    ],
+    "test_requirements": [
+      "Unit test for each review action",
+      "Unit test for invalid action returns 400",
+      "Integration test: PATCH → verify state change"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-009",
+    "title": "WebSocket/SSE setup in backend",
+    "description": "Set up WebSocket gateway or SSE endpoint for real-time broadcasting.",
+    "dependencies": ["F-000"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "WebSocket endpoint or SSE endpoint is available at /ws or /events",
+      "Client connects and receives a welcome/connection event",
+      "Server can broadcast events to all connected clients",
+      "Server can send targeted events to specific clients",
+      "Connection lifecycle: connect, disconnect, error handling"
+    ],
+    "test_requirements": [
+      "Test client can connect and receive events",
+      "Test server can broadcast a test event"
+    ],
+    "done_when": [
+      "Client connects successfully",
+      "Events are received by connected clients",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-010",
+    "title": "Real-time broadcast on state changes",
+    "description": "Broadcast content state changes to all connected clients in real-time.",
+    "dependencies": ["F-008", "F-009"],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "When content state changes, an event is broadcast to all WebSocket clients",
+      "Event payload includes: contentId, campaignId, oldState, newState, timestamp",
+      "Events are triggered by: AI draft generated, review action, edit completed",
+      "Events include AI draft preview when applicable",
+      "Frontend receives and can display the event"
+    ],
+    "test_requirements": [
+      "Unit test: state change triggers broadcast",
+      "Integration test: PATCH review → verify WebSocket receives event"
+    ],
+    "done_when": [
+      "State changes produce WebSocket events",
+      "Test verifies event payload structure",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-011",
+    "title": "React project scaffold (Vite, routing, API client)",
+    "description": "Scaffold the React frontend with Vite, React Router, and an API client (axios/fetch).",
+    "dependencies": ["F-000"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Vite + React + TypeScript project compiles and runs",
+      "React Router configured with routes: /, /campaigns, /campaigns/:id, /content/:id",
+      "API client service with base URL from env variable",
+      "Error handling interceptor for API responses",
+      "TypeScript types for Campaign, Content, ReviewState exist",
+      "WebSocket client service exists"
+    ],
+    "test_requirements": [
+      "App renders without crashing",
+      "Router navigates between pages",
+      "API client can be instantiated with correct base URL"
+    ],
+    "done_when": [
+      "pnpm dev starts the dev server",
+      "Router works (pages render placeholder content)",
+      "API client makes requests to backend"
+    ]
+  },
+  {
+    "id": "F-012",
+    "title": "Campaign Dashboard page (list + create)",
+    "description": "Page that lists all campaigns and allows creating new ones.",
+    "dependencies": ["F-001", "F-011"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GET /api/campaigns data is fetched and displayed as a list",
+      "Each campaign shows: name, description, content count, status",
+      "Create Campaign button opens a form/modal",
+      "Form validates required fields",
+      "On submit, POST /api/campaigns is called and list refreshes",
+      "Loading state shows skeleton/spinner",
+      "Error state shows error message"
+    ],
+    "test_requirements": [
+      "Component renders campaign list",
+      "Create form submission calls API and refreshes list"
+    ],
+    "done_when": [
+      "Dashboard loads campaigns from API",
+      "Create campaign works end-to-end",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-013",
+    "title": "Campaign Detail page (content pieces, states)",
+    "description": "Detail page for a single campaign showing its content pieces with their review states.",
+    "dependencies": ["F-002", "F-012"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Fetches GET /api/campaigns/:id and displays campaign details",
+      "Lists all content pieces with: headline, language, state badge",
+      "State badges are color-coded (draft=gray, suggested=blue, reviewed=yellow, approved=green, rejected=red)",
+      "Create Content button opens a form",
+      "Clicking a content piece navigates to content editor",
+      "Add Content form validates required fields"
+    ],
+    "test_requirements": [
+      "Component renders campaign with content list",
+      "State badges render correct colors"
+    ],
+    "done_when": [
+      "Campaign page loads with all content pieces",
+      "State badges are visible and color-coded",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-014",
+    "title": "AI Draft panel (trigger generation, preview)",
+    "description": "Panel on the content editor that allows triggering AI draft generation and previewing the result.",
+    "dependencies": ["F-005", "F-013"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Generate Draft button is visible when content state is 'draft'",
+      "Clicking sends POST /api/content/:id/generate-draft",
+      "Loading state shown during generation",
+      "AI result displays in a preview panel",
+      "User can accept (approve) or reject the AI suggestion",
+      "If rejected, user can edit and resubmit",
+      "If content is already 'suggested_by_ai', show the AI result"
+    ],
+    "test_requirements": [
+      "Component renders generate button only for 'draft' state",
+      "Clicking generate calls the API"
+    ],
+    "done_when": [
+      "AI draft generation works end-to-end",
+      "Preview panel shows AI content",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-015",
+    "title": "Review UI (approve/reject/edit buttons, state badges)",
+    "description": "UI for human reviewers to approve, reject, or request edits on content.",
+    "dependencies": ["F-008", "F-013"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Approve button visible when state is 'suggested_by_ai' or 'reviewed'",
+      "Reject button visible when state is 'suggested_by_ai' or 'reviewed'",
+      "Request Edits button opens a feedback textarea",
+      "Edit button (when 'rejected') resets content to 'draft' for re-editing",
+      "Confirm dialogs for destructive actions",
+      "State badge updates immediately after action"
+    ],
+    "test_requirements": [
+      "Buttons render conditionally based on state",
+      "Clicking approve/reject calls the correct API",
+      "Edit button works for rejected content"
+    ],
+    "done_when": [
+      "All review actions work end-to-end",
+      "State badge updates after review action",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-016",
+    "title": "Translation panel (select language, trigger, preview)",
+    "description": "Panel to trigger AI translation of content into another language.",
+    "dependencies": ["F-006", "F-013"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Translate button visible for approved content",
+      "Language selector (dropdown: es, fr, de, pt, it, ja, zh)",
+      "Clicking translate sends POST /api/content/:id/translate",
+      "Loading state during translation",
+      "Translated content preview shows in a panel",
+      "User can navigate to the translated content piece"
+    ],
+    "test_requirements": [
+      "Component renders translate button and language selector",
+      "Clicking translate calls the API with correct language"
+    ],
+    "done_when": [
+      "Translation works end-to-end",
+      "Translated content piece is created and accessible",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-017",
+    "title": "Real-time status updates on frontend",
+    "description": "Connect frontend to WebSocket/SSE and display live state changes.",
+    "dependencies": ["F-010", "F-011"],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "WebSocket client connects on app load",
+      "State change events update the UI without page refresh",
+      "State badge updates when a real-time event is received",
+      "Notification/toast shown when content state changes",
+      "Connection status indicator (connected/disconnected)",
+      "Auto-reconnect on connection loss"
+    ],
+    "test_requirements": [
+      "Component renders connection status",
+      "Event handler updates state correctly"
+    ],
+    "done_when": [
+      "State changes appear in real-time without refresh",
+      "Connection status is visible",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-018",
+    "title": "Docker Compose (PostgreSQL + Backend + Frontend)",
+    "description": "Create compose.yml that runs PostgreSQL, backend, and frontend with one command.",
+    "dependencies": ["F-001", "F-011"],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "docker compose up starts PostgreSQL, backend, and frontend",
+      "Backend waits for PostgreSQL to be healthy (depends_on + healthcheck)",
+      "Frontend connects to backend via environment variable",
+      "PostgreSQL data persists across restarts (volume mount)",
+      "Ports: PostgreSQL 5432, Backend 3000, Frontend 5173",
+      ".env.example is used for compose variables"
+    ],
+    "test_requirements": [
+      "docker compose up --build exits with code 0",
+      "docker compose ps shows all services as 'Up'"
+    ],
+    "done_when": [
+      "docker compose up --build starts everything",
+      "Backend responds on localhost:3000",
+      "Frontend loads on localhost:5173"
+    ]
+  },
+  {
+    "id": "F-019",
+    "title": "Dockerfiles (backend + frontend multi-stage)",
+    "description": "Multi-stage Dockerfiles for backend and frontend to minimize image size.",
+    "dependencies": ["F-018"],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Backend Dockerfile: builder stage with full SDK, production stage with only runtime",
+      "Frontend Dockerfile: builder stage with Node, production stage with nginx/static",
+      "Images run as non-root user (security)",
+      ".dockerignore files exist to exclude node_modules, dist, .env"
+    ],
+    "test_requirements": [
+      "docker build backend/ succeeds",
+      "docker build frontend/ succeeds"
+    ],
+    "done_when": [
+      "Both images build successfully",
+      "Security reviewer has confirmed non-root user"
+    ]
+  },
+  {
+    "id": "F-020",
+    "title": "GitHub Actions CI (lint, typecheck, test)",
+    "description": "CI pipeline that runs on every PR: Biome check, TypeScript typecheck, and tests.",
+    "dependencies": ["F-019"],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GitHub Actions workflow triggers on push to any branch and PR",
+      "Job: Biome check (lint + format)",
+      "Job: TypeScript typecheck (tsc --noEmit)",
+      "Job: Run unit tests with coverage",
+      "Job: Run integration tests with PostgreSQL service container",
+      "All jobs must pass before merge"
+    ],
+    "test_requirements": [
+      "CI can be tested by pushing to a branch"
+    ],
+    "done_when": [
+      "CI pipeline runs and passes on a test commit"
+    ]
+  },
+  {
+    "id": "F-021",
+    "title": "End-to-end workflow test (Campaign → Content → AI Draft → Review)",
+    "description": "Write a full end-to-end integration test that exercises the entire workflow.",
+    "dependencies": ["F-005", "F-008", "F-010"],
+    "stack": "test",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Test creates a campaign",
+      "Test adds a content piece",
+      "Test generates AI draft (mocked)",
+      "Test approves the draft",
+      "Test triggers translation",
+      "Test verifies final state at each step"
+    ],
+    "test_requirements": [
+      "E2E test file exists in backend/test/e2e/"
+    ],
+    "done_when": [
+      "E2E test passes",
+      "All mocks are used (no real AI calls)"
+    ]
+  },
+  {
+    "id": "F-022",
+    "title": "ADRs (REST vs GraphQL, AI provider, real-time, DB schema)",
+    "description": "Write the four required Architecture Decision Records.",
+    "dependencies": ["F-001", "F-004", "F-009", "F-003"],
+    "stack": "docs",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "ADR-001: REST vs GraphQL — decision and reasoning",
+      "ADR-002: AI Provider selection — OpenAI vs Anthropic vs both",
+      "ADR-003: Real-time mechanism — WebSockets vs SSE vs GraphQL Subscriptions",
+      "ADR-004: Database schema — tables, enums, indices design",
+      "Each ADR follows the template from AGENTS.md section 10.2"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "All 4 ADRs exist in docs/adrs/",
+      "Each ADR has Context, Decision, Consequences, Alternatives"
+    ]
+  },
+  {
+    "id": "F-023",
+    "title": "README update (setup instructions, tech decisions, tradeoffs)",
+    "description": "Update README.md with setup instructions, technology decisions, and tradeoffs made.",
+    "dependencies": ["F-022"],
+    "stack": "docs",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "README includes: Setup instructions (Docker + manual)",
+      "README includes: Tech stack decisions and tradeoffs",
+      "README includes: API documentation overview",
+      "README includes: Architecture diagram or description",
+      "README links to ADRs for detailed decisions"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "README is comprehensive and up to date"
+    ]
+  },
+  {
+    "id": "F-024",
+    "title": "Final smoke test and PR creation",
+    "description": "Run the full stack locally, verify everything works, and create the final PR.",
+    "dependencies": ["F-023", "F-021"],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "docker compose up --build starts all services",
+      "PostgreSQL is healthy and migrations have run",
+      "Backend responds on localhost:3000/health",
+      "Frontend loads on localhost:5173",
+      "Full workflow works manually: Campaign → Content → AI Draft → Review",
+      "PR created with template and checklist filled"
+    ],
+    "test_requirements": [
+      "Manual smoke test walkthrough"
+    ],
+    "done_when": [
+      "Everything runs with docker compose up",
+      "PR is created and ready for review"
+    ]
+  }
+]
