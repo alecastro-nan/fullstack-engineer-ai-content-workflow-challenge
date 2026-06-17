@@ -1,1 +1,11 @@
-export class CreateCampaignDto {}
+import { IsString, IsOptional, MaxLength } from 'class-validator';
+
+export class CreateCampaignDto {
+  @IsString()
+  @MaxLength(255)
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}

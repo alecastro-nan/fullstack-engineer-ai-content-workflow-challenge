@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
+import { DatabaseModule } from './database/database.module';
+import { CampaignModule } from './campaign/campaign.module';
 
 @Module({
   imports: [
@@ -11,6 +13,8 @@ import { LoggerModule } from 'nestjs-pino';
             : undefined,
       },
     }),
+    DatabaseModule,
+    CampaignModule,
   ],
   controllers: [],
   providers: [],
