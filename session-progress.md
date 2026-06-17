@@ -4,8 +4,9 @@ Lightweight index for task execution. Each completed task gets a 1-2 line summar
 
 ---
 
-## F-000 — Initialize monorepo — PENDING
+## F-000 — Initialize monorepo — DONE
 handoff → `harness/workflows/runs/F-000-init-monorepo/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
 ## F-001 — Campaign CRUD API — PENDING
 handoff → `harness/workflows/runs/F-001-campaign-crud/handoff.md`
