@@ -6,7 +6,7 @@
     "dependencies": [],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "All directories from AGENTS.md section 5 exist",
       "biome.json is configured at root",
