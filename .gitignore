@@ -6,6 +6,11 @@ node_modules/
 dist/
 build/
 .next/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Environment
 .env
 
 # IDE
