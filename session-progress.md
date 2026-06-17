@@ -8,8 +8,11 @@ Lightweight index for task execution. Each completed task gets a 1-2 line summar
 handoff → `harness/workflows/runs/F-000-init-monorepo/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 
-## F-001 — Campaign CRUD API — PENDING
+## F-001 — Campaign CRUD API — DONE
 handoff → `harness/workflows/runs/F-001-campaign-crud/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+
+Notes: 10 unit + 10 e2e tests passing. SWC added to vitest configs for DI metadata support.
 
 ## F-002 — Content Piece CRUD API — PENDING
 handoff → `harness/workflows/runs/F-002-content-crud/handoff.md`
