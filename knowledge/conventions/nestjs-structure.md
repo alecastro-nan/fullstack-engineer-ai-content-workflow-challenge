@@ -5,7 +5,7 @@ Every feature module must contain:
 - `*.service.ts` — business logic
 - `*.module.ts` — module definition
 - `dto/` — Data Transfer Objects with class-validator decorators
-- `entities/` — TypeORM entities or Prisma schema references
+- `entities/` — Drizzle ORM schema definitions (plain TypeScript types + drizzle-orm helpers)
 
 ## Naming Rules
 - Controller methods: `create()`, `findAll()`, `findOne()`, `update()`, `remove()`

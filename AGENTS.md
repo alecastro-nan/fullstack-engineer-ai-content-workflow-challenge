@@ -456,8 +456,8 @@ fullstack-engineer-ai-content-workflow-challenge/
 │   │   └── e2e/
 │   │       ├── campaign.e2e-spec.ts
 │   │       └── content.e2e-spec.ts
-│   ├── prisma/                         # Or TypeORM / Alembic migrations
-│   │   └── schema.prisma
+│   ├── drizzle/                         # Drizzle ORM — schema definitions & migrations
+│   │   └── schema.ts                    # Drizzle schema definitions
 │   ├── Dockerfile
 │   ├── package.json                    # Or requirements.txt / go.mod
 │   ├── tsconfig.json                   # Or pyproject.toml
@@ -749,7 +749,7 @@ reviewers: @code-reviewer ⏳
 2. Security Reviewer: verify env var handling
 
 ## Artifacts
-- Migration: `backend/prisma/migrations/20250101_init/`
+- Migration: `backend/drizzle/0000_init/`
 - Decision: `knowledge/decisions/001-campaign-soft-delete.md`
 ```
 

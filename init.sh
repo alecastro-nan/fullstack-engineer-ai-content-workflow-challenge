@@ -47,7 +47,7 @@ echo "[db] Running migrations..."
 if [ -d "backend" ]; then
   cd backend
   if [ -f "package.json" ]; then
-    npx prisma migrate dev --name init 2>/dev/null || npx typeorm migration:run 2>/dev/null || true
+    npx drizzle-kit migrate 2>/dev/null || true
   elif [ -f "requirements.txt" ]; then
     python -m alembic upgrade head 2>/dev/null || true
   fi

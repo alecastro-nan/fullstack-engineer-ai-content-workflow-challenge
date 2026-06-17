@@ -1,7 +1,7 @@
 # Skill: Database Migration Patterns
 
 ## Purpose
-Learn how to create and run database migrations using Prisma, TypeORM, or Alembic.
+Learn how to create and run database migrations using Prisma, TypeORM, Alembic, or Drizzle ORM.
 
 ## When to Use
 - When creating the initial schema (F-003)
@@ -35,7 +35,26 @@ npx typeorm migration:run
 npx typeorm migration:revert
 ```
 
-### 3. Using Alembic (FastAPI/Python)
+### 3. Using Drizzle ORM (NestJS/TypeScript)
+```bash
+# Define schema in src/**/entities/*.entity.ts
+# Generate migration
+npx drizzle-kit generate
+
+# Apply migrations
+npx drizzle-kit migrate
+
+# Push schema directly (dev only — no migration file)
+npx drizzle-kit push
+
+# View database with Drizzle Studio
+npx drizzle-kit studio
+
+# Rollback: Drizzle generates each migration as a separate SQL file.
+# To revert, apply the down migration manually or restore from backup.
+```
+
+### 4. Using Alembic (FastAPI/Python)
 ```bash
 # Auto-generate migration
 alembic revision --autogenerate -m "create_campaigns_table"
@@ -47,7 +66,7 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-### 4. Migration Best Practices
+### 5. Migration Best Practices
 - Test migrations on a clean database before applying to production
 - Each migration should be reversible (up AND down)
 - Never edit existing migrations — create a new one
