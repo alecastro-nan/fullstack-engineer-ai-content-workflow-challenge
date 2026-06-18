@@ -7,14 +7,10 @@ set -euo pipefail
 # ================================================================
 # ⚠️  See knowledge/decisions/002-remove-critical-skills.md for security audit history.
 # ⚠️  Architecture changed from NestJS/TypeScript to Django/Strawberry GraphQL/Python.
-# ⚠️  See knowledge/decisions/003-architecture-replanning.md for details.
+# ⚠️  See docs/adrs/ADR-005-django-strawberry-architecture.md for architecture details.
 # ================================================================
 
 echo "=== Instalando skills del stack ==="
-
-# ── Django + Python ──
-npx skills add your-org/django-skills --skill django-best-practices -y 2>/dev/null || echo "WARNING: django-best-practices skill not available yet"
-npx skills add your-org/strawberry-skills --skill strawberry-graphql -y 2>/dev/null || echo "WARNING: strawberry-graphql skill not available yet"
 
 # ── TypeScript (frontend) ──
 npx skills add wshobson/agents --skill typescript-advanced-types -y
