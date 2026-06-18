@@ -12,8 +12,10 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 handoff → `agentic/runs/F-001-cleanup-backend/handoff.md`
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
-## F-002 — Install Django + Strawberry GraphQL + Python backend stack — PENDING
+## F-002 — Install Django + Strawberry GraphQL + Python backend stack — DONE
 handoff → `agentic/runs/F-002-install-django-stack/handoff.md`
+reviewers: @code-reviewer ✅ @security-reviewer ✅
+Fixes applied: secrets moved to env_file, security headers added, SECRET_KEY guard, dev deps consolidated
 
 ## F-003 — Campaign CRUD GraphQL API — PENDING
 handoff → `agentic/runs/F-003-campaign-crud/handoff.md`
