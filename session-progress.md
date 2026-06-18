@@ -88,3 +88,9 @@ handoff → `harness/workflows/runs/F-024-final-pr/handoff.md`
 ## Security Audit: SkillSpector — DONE
 7 critical/DO_NOT_INSTALL skills removed, `harness/skills/` deleted, lockfile + installer + AGENTS.md updated.
 decision → `knowledge/decisions/002-remove-critical-skills.md`
+
+## F-025 — Architecture replanning: NestJS→Django+Strawberry GraphQL — DONE
+Full architecture migration from NestJS/TypeScript to Django (Python) + Strawberry GraphQL.
+AGENTS.md, feature_list.json, conventions, install-skills.sh, skills-lock.json, ADRs all updated.
+ADR-005 documents the Django+Strawberry decision.
+decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`

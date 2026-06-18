@@ -215,7 +215,7 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 
 | # | Rule | Why |
 |---|---|---|
-| R-001 | Backend must be one of: NestJS (TypeScript), FastAPI (Python), or Fiber (Go). | Challenge requirement |
+| R-001 | Backend must be Django (Python) with Strawberry GraphQL. | Challenge requirement |
 | R-002 | Frontend must be React (Next.js, Remix, or Vite). | Challenge requirement |
 | R-003 | Database must be PostgreSQL. MongoDB is optional supplement only. | Challenge requirement |
 | R-004 | Docker Compose must run the entire stack locally with one command. | Challenge requirement |
@@ -229,11 +229,11 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 |---|---|---|
 | R-008 | Every backend endpoint must have at least one unit test. | Evaluation criterion |
 | R-009 | Every AI integration must have a mock-based unit test (no real API calls in unit tests). | CI reliability |
-| R-010 | TypeScript code must have strict mode enabled. Python code must have type hints. | NaN Labs standard |
-| R-011 | No `any` types in TypeScript. Use proper interfaces, types, or generics. | Type safety |
+| R-010 | All Python code must have strict type hints (PEP 484). Use `mypy` for static type checking. | NaN Labs standard |
+| R-011 | No `Any` types in Python. Use proper type annotations, Protocols, or Generics. | Type safety |
 | R-012 | Every function must handle errors explicitly — no silent `try/catch` with empty block. | Reliability |
 | R-013 | All commits must use conventional commits format: `type(scope): message`. | Traceability |
-| R-014 | No `console.log` in production code. Use proper logger (e.g., Pino for NestJS, structlog for Python). | Production readiness |
+| R-014 | No `print()` in production code. Use Django's built-in logging or structlog. | Production readiness |
 
 ### 3.3 Process
 
@@ -262,10 +262,9 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 
 | Tool | Version | Purpose |
 |---|---|---|
-| Node.js | ≥18 LTS | Backend (NestJS) / Frontend (React/Vite) runtime |
-| Python | ≥3.11 | Backend (FastAPI) alternative |
-| Go | ≥1.22 | Backend (Fiber) alternative |
-| pnpm | ≥9.x | Package manager (preferred over npm) |
+| Python | ≥3.12 | Backend (Django + Strawberry GraphQL) runtime |
+| Node.js | ≥18 LTS | Frontend (React/Vite) runtime |
+| uv | ≥0.5.x | Python package manager (preferred over pip) |
 | Docker | ≥24.x | Containerization (required) |
 | Docker Compose | ≥2.24.x | Multi-container orchestration |
 | psql | ≥16.x | Direct DB inspection and troubleshooting |
@@ -281,26 +280,21 @@ set -euo pipefail
 echo "=== ACME Challenge — Environment Initialization ==="
 
 # 1. Check prerequisites
+command -v python3 >/dev/null 2>&1 || { echo "Python ≥3.12 is required"; exit 1; }
+command -v uv >/dev/null 2>&1 || { echo "uv is required"; exit 1; }
 command -v node >/dev/null 2>&1 || { echo "Node.js is required"; exit 1; }
-command -v pnpm >/dev/null 2>&1 || { echo "pnpm is required"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "Docker is required"; exit 1; }
 
 # 2. Install backend dependencies
 echo "[backend] Installing dependencies..."
 cd backend
-if [ -f "package.json" ]; then
-    pnpm install
-elif [ -f "requirements.txt" ]; then
-    python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-elif [ -f "go.mod" ]; then
-    go mod download
-fi
+uv venv .venv && source .venv/bin/activate && uv sync
 cd ..
 
 # 3. Install frontend dependencies
 echo "[frontend] Installing dependencies..."
 cd frontend
-pnpm install
+corepack enable && pnpm install
 cd ..
 
 # 4. Create .env from example if not exists
@@ -317,17 +311,14 @@ sleep 3
 
 # 6. Run database migrations
 echo "[db] Running migrations..."
-cd backend
-if [ -f "package.json" ]; then
-    npx prisma migrate dev --name init 2>/dev/null || npx typeorm migration:run 2>/dev/null || true
-elif [ -f "requirements.txt" ]; then
-    python -m alembic upgrade head 2>/dev/null || true
-fi
+source backend/.venv/bin/activate
+cd backend && python manage.py migrate
 cd ..
 
 # 7. Verify
 echo "=== Environment ready ==="
-echo "  Backend  → http://localhost:3000"
+echo "  Backend  → http://localhost:8000"
+echo "  GraphQL  → http://localhost:8000/graphql"
 echo "  Frontend → http://localhost:5173"
 echo "  DB       → postgresql://postgres:postgres@localhost:5432/acme"
 ```
@@ -343,9 +334,10 @@ OPENAI_API_KEY=sk-your-openai-key-here
 ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
 
 # ── App ──
-NODE_ENV=development
-PORT=3000
+DJANGO_SETTINGS_MODULE=config.settings.development
+PORT=8000
 FRONTEND_URL=http://localhost:5173
+DEBUG=True
 
 # ── Redis (optional, for async/queues) ──
 REDIS_URL=redis://localhost:6379
@@ -390,68 +382,68 @@ fullstack-engineer-ai-content-workflow-challenge/
 │   └── workflows/
 │       └── ci.yml                    # GitHub Actions: lint, typecheck, test
 │
-├── backend/                          # Backend application (NestJS / FastAPI / Fiber)
-│   ├── src/
-│   │   ├── campaign/
-│   │   │   ├── campaign.controller.ts
-│   │   │   ├── campaign.service.ts
-│   │   │   ├── campaign.module.ts
-│   │   │   └── dto/
-│   │   │       ├── create-campaign.dto.ts
-│   │   │       └── update-campaign.dto.ts
+├── backend/                          # Backend application (Django + Strawberry GraphQL)
+│   ├── config/                         # Django project configuration
+│   │   ├── __init__.py
+│   │   ├── settings/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py                # Base settings (shared)
+│   │   │   ├── development.py         # Dev overrides
+│   │   │   └── production.py          # Production overrides
+│   │   ├── urls.py                    # Root URL configuration
+│   │   ├── wsgi.py
+│   │   └── asgi.py                    # ASGI for WebSocket support
+│   ├── apps/
+│   │   ├── campaigns/
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py              # Campaign model
+│   │   │   ├── schema.py              # Strawberry GraphQL types & mutations
+│   │   │   ├── mutations.py           # GraphQL mutations
+│   │   │   ├── queries.py             # GraphQL queries
+│   │   │   ├── admin.py
+│   │   │   ├── apps.py
+│   │   │   └── tests/
+│   │   │       ├── __init__.py
+│   │   │       ├── test_models.py
+│   │   │       └── test_graphql.py
 │   │   ├── content/
-│   │   │   ├── content.controller.ts
-│   │   │   ├── content.service.ts
-│   │   │   ├── content.module.ts
-│   │   │   ├── entities/
-│   │   │   │   └── content.entity.ts
-│   │   │   └── dto/
-│   │   │       ├── create-content.dto.ts
-│   │   │       └── update-content.dto.ts
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py              # ContentPiece model
+│   │   │   ├── schema.py              # Strawberry GraphQL types & mutations
+│   │   │   ├── mutations.py
+│   │   │   ├── queries.py
+│   │   │   ├── admin.py
+│   │   │   ├── apps.py
+│   │   │   └── tests/
+│   │   │       ├── __init__.py
+│   │   │       ├── test_models.py
+│   │   │       └── test_graphql.py
 │   │   ├── ai/
-│   │   │   ├── ai.module.ts
-│   │   │   ├── ai.service.ts          # Abstraction over OpenAI/Anthropic
-│   │   │   ├── providers/
-│   │   │   │   ├── openai.provider.ts
-│   │   │   │   └── anthropic.provider.ts
-│   │   │   ├── prompts/
-│   │   │   │   ├── draft.prompt.ts
-│   │   │   │   └── translation.prompt.ts
-│   │   │   └── dto/
-│   │   │       ├── generate-draft.dto.ts
-│   │   │       └── translate.dto.ts
-│   │   ├── review/
-│   │   │   ├── review.controller.ts
-│   │   │   ├── review.service.ts
-│   │   │   ├── review.module.ts
-│   │   │   └── entities/
-│   │   │       └── review-state.enum.ts
-│   │   ├── realtime/
-│   │   │   ├── realtime.gateway.ts      # WebSocket gateway
-│   │   │   └── realtime.module.ts
-│   │   ├── common/
-│   │   │   ├── filters/
-│   │   │   │   └── http-exception.filter.ts
-│   │   │   ├── interceptors/
-│   │   │   │   └── logging.interceptor.ts
-│   │   │   └── pipes/
-│   │   │       └── validation.pipe.ts
-│   │   ├── app.module.ts
-│   │   └── main.ts
-│   ├── test/
-│   │   ├── unit/
-│   │   │   ├── campaign.service.spec.ts
-│   │   │   ├── content.service.spec.ts
-│   │   │   └── ai.service.spec.ts
-│   │   └── e2e/
-│   │       ├── campaign.e2e-spec.ts
-│   │       └── content.e2e-spec.ts
-│   ├── drizzle/                         # Drizzle ORM — schema definitions & migrations
-│   │   └── schema.ts                    # Drizzle schema definitions
+│   │   │   ├── __init__.py
+│   │   │   ├── providers.py           # OpenAI/Anthropic provider abstraction
+│   │   │   ├── prompts.py             # Prompt templates
+│   │   │   ├── schema.py              # GraphQL mutations for AI operations
+│   │   │   ├── apps.py
+│   │   │   └── tests/
+│   │   │       ├── __init__.py
+│   │   │       ├── test_providers.py
+│   │   │       └── test_prompts.py
+│   │   └── reviews/
+│   │       ├── __init__.py
+│   │       ├── models.py              # Review state machine
+│   │       ├── schema.py              # GraphQL mutations for review actions
+│   │       ├── apps.py
+│   │       └── tests/
+│   │           ├── __init__.py
+│   │           └── test_state_machine.py
+│   ├── realtime/                       # WebSocket / SSE handling
+│   │   ├── __init__.py
+│   │   ├── consumers.py               # Django Channels consumers
+│   │   └── routing.py                 # WebSocket routing
+│   ├── manage.py                      # Django management
 │   ├── Dockerfile
-│   ├── package.json                    # Or requirements.txt / go.mod
-│   ├── tsconfig.json                   # Or pyproject.toml
-│   ├── biome.json                       # Lint & format config
+│   ├── pyproject.toml                 # Python dependencies
+│   ├── uv.lock                        # Lockfile for uv
 │   └── .env.example
 │
 ├── frontend/                           # React application (Vite / Next.js / Remix)
@@ -555,7 +547,7 @@ fullstack-engineer-ai-content-workflow-challenge/
 │
 ├── compose.yml                         # Docker Compose — PostgreSQL + Backend + Frontend
 ├── .env.example                        # Environment variable template (secrets excluded)
-├── biome.json                          # Lint & format (Biome — fast, zero-config)
+├── biome.json                          # Lint & format (Biome only for frontend)
 ├── .gitignore
 ├── AGENTS.md                           # ← This file (source of truth)
 ├── CLAUDE.md                           # Symlink → AGENTS.md
@@ -801,15 +793,17 @@ A task is atomic when:
 
 | Type | Tool | Location | Target |
 |---|---|---|---|
-| Unit (backend) | Jest / Vitest | `backend/test/unit/` | Services, validators, providers |
+| Type | Tool | Location | Target |
+|---|---|---|---|---|
+| Unit (backend) | pytest | `backend/**/tests/` | Services, models, GraphQL resolvers |
 | Unit (frontend) | Vitest + React Testing Library | `frontend/src/**/*.test.tsx` | Components, hooks, utils |
-| Integration | Supertest (NestJS) / TestClient (FastAPI) | `backend/test/e2e/` | Full endpoint request→response |
-| AI Mock | jest.mock / unittest.mock | In unit test files | AI service with mocked provider |
-| DB | Testcontainers / SQLite in-memory | `backend/test/e2e/` | Repository layer with real DB |
+| Integration | pytest + Django TestClient | `backend/**/tests/` | Full GraphQL request→response |
+| AI Mock | unittest.mock | In unit test files | AI service with mocked provider |
+| DB | pytest-django | `backend/**/tests/` | Model layer with test database |
 
 ### 9.3 Test Pattern References
 
-Full test examples are NOT inlined here. Instead, the skills in `.agents/skills/` (jest-react-testing, vitest, playwright-generate-test) contain runnable examples for:
+Full test examples are NOT inlined here. Instead, the skills in `.agents/skills/` contain runnable examples for:
 
 - **AI service unit test** — mock provider pattern, fallback logic, error propagation
 - **Frontend component test** — render + assert + fireEvent pattern with React Testing Library
@@ -894,23 +888,25 @@ Why we chose this over alternatives.
 
 `knowledge/conventions/` documents team-wide coding standards. Created once, referenced by all agents.
 
-Example — `knowledge/conventions/nestjs-structure.md`:
+Example — `knowledge/conventions/django-structure.md`:
 
 ```markdown
-# NestJS Module Structure Convention
+# Django App Structure Convention
 
-Every feature module must contain:
-- `*.controller.ts` — route handlers
-- `*.service.ts` — business logic
-- `*.module.ts` — module definition
-- `dto/` — Data Transfer Objects with class-validator decorators
-- `entities/` — TypeORM entities or Prisma schema references
+Every Django app must contain:
+- `models.py` — database models with type-annotated fields
+- `schema.py` — Strawberry GraphQL types, queries, and mutations
+- `mutations.py` — GraphQL mutation classes (if complex)
+- `queries.py` — GraphQL query classes (if complex)
+- `apps.py` — Django app configuration
+- `admin.py` — Django admin registration
+- `tests/` — pytest test files
 
 Naming rules:
-- Controller methods: `create()`, `findAll()`, `findOne()`, `update()`, `remove()`
-- Service methods match controller names
-- DTOs: `Create{Entity}Dto`, `Update{Entity}Dto`
-- Always use validation pipes: `@Body(new ValidationPipe())`
+- Model methods: `create()`, `get_by_id()`, `update()`, `delete()`, `list_all()`
+- GraphQL queries use `resolve_*` naming convention
+- Mutations use `Mutation` suffix
+- Always use type hints on all function signatures
 ```
 
 ### 11.2 Learnings Directory
@@ -943,14 +939,14 @@ These are questions that **cannot be decided by agents alone**. The human must m
 
 | # | Question | Options | Deadline |
 |---|---|---|---|
-| H-001 | Which backend framework? | NestJS (TypeScript) / FastAPI (Python) / Fiber (Go) | Before Phase 0 |
+| H-001 | ~~Which backend framework?~~ | **DECIDED:** Django + Strawberry GraphQL | — |
 | H-002 | Which AI provider(s)? | OpenAI only / Anthropic only / Both | Before Phase 1 |
 | H-003 | Which React framework? | Vite / Next.js / Remix | Before Phase 4 |
-| H-004 | API style? | REST only / GraphQL only / Both (REST for CRUD, GraphQL for real-time?) | During ADR-001 |
-| H-005 | ORM / Query builder? | Prisma / TypeORM / Drizzle / Kysely / Raw SQL | Before F-003 |
-| H-006 | Real-time library? | ws (WebSockets) / Socket.io / Server-Sent Events (native) / GraphQL Subscriptions | During ADR-003 |
-| H-007 | Package manager? | pnpm / npm / yarn | Before Phase 0 |
-| H-008 | Test runner? | Jest / Vitest | Before testing |
+| H-004 | ~~API style?~~ | **DECIDED:** Strawberry GraphQL (native GraphQL for Django) | — |
+| H-005 | ~~ORM / Query builder?~~ | **DECIDED:** Django ORM (built-in, no external ORM) | — |
+| H-006 | Real-time library? | Django Channels / SSE (Server-Sent Events) | During ADR-003 |
+| H-007 | ~~Package manager?~~ | **DECIDED:** uv (Python) + pnpm (frontend) | — |
+| H-008 | Test runner? | pytest (backend) / Vitest (frontend) | Before testing |
 
 ### 12.2 Design Decisions
 
@@ -1006,11 +1002,11 @@ gh pr create --draft --title "feat: campaign CRUD API" --body-file .github/PULL_
 cd backend && pnpm test
 cd frontend && pnpm test
 
-# Lint & format (Biome — runs on both backend and frontend)
+# Lint & format (Biome — frontend only)
 pnpm biome check --write .
 
 # Type check
-cd backend && pnpm typecheck
+cd backend && mypy .
 cd frontend && pnpm typecheck
 
 # Rebuild and restart Docker
@@ -1022,30 +1018,31 @@ docker compose logs -f db
 # Connect to PostgreSQL
 psql -h localhost -U postgres -d acme
 
-# Open Swagger UI
-open http://localhost:3000/api
+# Open GraphQL playground
+open http://localhost:8000/graphql
 ```
 
 ### D. State Machine — Valid Transitions
 
-```typescript
-// ReviewState enum
-enum ContentState {
-  DRAFT = 'draft',
-  SUGGESTED_BY_AI = 'suggested_by_ai',
-  REVIEWED = 'reviewed',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-}
+```python
+# ReviewState enum
+from enum import Enum
 
-// Valid transitions map
-const VALID_TRANSITIONS: Record<ContentState, ContentState[]> = {
-  [ContentState.DRAFT]: [ContentState.SUGGESTED_BY_AI],
-  [ContentState.SUGGESTED_BY_AI]: [ContentState.REVIEWED, ContentState.REJECTED],
-  [ContentState.REVIEWED]: [ContentState.APPROVED, ContentState.REJECTED, ContentState.SUGGESTED_BY_AI],
-  [ContentState.APPROVED]: [],
-  [ContentState.REJECTED]: [ContentState.DRAFT, ContentState.SUGGESTED_BY_AI],
-};
+class ContentState(str, Enum):
+    DRAFT = 'draft'
+    SUGGESTED_BY_AI = 'suggested_by_ai'
+    REVIEWED = 'reviewed'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+
+# Valid transitions map
+VALID_TRANSITIONS: dict[ContentState, list[ContentState]] = {
+    ContentState.DRAFT: [ContentState.SUGGESTED_BY_AI],
+    ContentState.SUGGESTED_BY_AI: [ContentState.REVIEWED, ContentState.REJECTED],
+    ContentState.REVIEWED: [ContentState.APPROVED, ContentState.REJECTED, ContentState.SUGGESTED_BY_AI],
+    ContentState.APPROVED: [],
+    ContentState.REJECTED: [ContentState.DRAFT, ContentState.SUGGESTED_BY_AI],
+}
 ```
 
 ---

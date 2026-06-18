@@ -1,5 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
+  "description": "Skills for ACME Content Workflow — Django (Python) + Strawberry GraphQL + React/Vite + PostgreSQL + Docker",
+  "architecture_note": "Architecture changed from NestJS/TypeScript to Django/Strawberry GraphQL/Python (see ADR-005)",
   "skills": {
     "docker-expert": {
       "source": "sickn33/antigravity-awesome-skills",
@@ -25,18 +27,6 @@
       "skillPath": "skills/multi-stage-dockerfile/SKILL.md",
       "computedHash": "698bf93a84dae18fd7bd0b1d35c21427307fde78fbdf4624be9726f5f98189ca"
     },
-    "nestjs-expert": {
-      "source": "jeffallan/claude-skills",
-      "sourceType": "github",
-      "skillPath": "skills/nestjs-expert/SKILL.md",
-      "computedHash": "0775f4ba14e4f372b894cc86feb0bf58a51b2038bc98b3ff18f2021565cea494"
-    },
-    "nestjs-patterns": {
-      "source": "affaan-m/everything-claude-code",
-      "sourceType": "github",
-      "skillPath": "skills/nestjs-patterns/SKILL.md",
-      "computedHash": "b0ba81185468f7c6e950b4de91fae8004a5d56501a31ea63caa5f7cc3854e6a7"
-    },
     "playwright-generate-test": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
@@ -54,18 +44,6 @@
       "sourceType": "github",
       "skillPath": "plugins/database-design/skills/postgresql/SKILL.md",
       "computedHash": "dcace78e5cef7d8dce8ffef7ebee146e6c83a438aa4cf80bf502730e870c02d4"
-    },
-    "prisma-client-api": {
-      "source": "prisma/skills",
-      "sourceType": "github",
-      "skillPath": "prisma-client-api/SKILL.md",
-      "computedHash": "0434410e48fb796bbdc3ad0050654bfc9cf72c89b30dbad098ee5c9f655b7f85"
-    },
-    "prisma-database-setup": {
-      "source": "prisma/skills",
-      "sourceType": "github",
-      "skillPath": "prisma-database-setup/SKILL.md",
-      "computedHash": "46d2dc2f9c968722376bbb6a1a1389c82bd7cceb5973ac1486c54890514b8959"
     },
     "react:components": {
       "source": "google-labs-code/stitch-skills",
