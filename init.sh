@@ -4,59 +4,48 @@ set -euo pipefail
 echo "=== ACME Challenge — Environment Initialization ==="
 
 # 1. Check prerequisites
-command -v node >/dev/null 2>&1 || { echo "Node.js is required"; exit 1; }
-command -v pnpm >/dev/null 2>&1 || { echo "pnpm is required"; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo "Python >=3.12 is required"; exit 1; }
+command -v uv >/dev/null 2>&1 || { echo "uv is required (pip install uv)"; exit 1; }
+command -v node >/dev/null 2>&1 || { echo "Node.js >=18 is required"; exit 1; }
+command -v pnpm >/dev/null 2>&1 || { echo "pnpm is required (corepack enable && corepack prepare pnpm@latest --activate)"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "Docker is required"; exit 1; }
 
 # 2. Install backend dependencies
 echo "[backend] Installing dependencies..."
-if [ -d "backend" ]; then
-  cd backend
-  if [ -f "package.json" ]; then
-    pnpm install
-  elif [ -f "requirements.txt" ]; then
-    python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-  elif [ -f "go.mod" ]; then
-    go mod download
-  fi
-  cd ..
-fi
+cd backend
+uv venv .venv
+source .venv/bin/activate
+uv sync --all-extras
+cd ..
 
 # 3. Install frontend dependencies
 echo "[frontend] Installing dependencies..."
-if [ -d "frontend" ]; then
-  cd frontend
-  pnpm install
-  cd ..
-fi
+cd frontend
+pnpm install
+cd ..
 
 # 4. Create .env from example if not exists
 if [ ! -f ".env" ] && [ -f ".env.example" ]; then
-  cp .env.example .env
-  echo "Created .env from .env.example — edit with your API keys"
+    cp .env.example .env
+    echo "Created .env from .env.example — edit with your API keys"
 fi
 
 # 5. Start infrastructure (PostgreSQL)
 echo "[infra] Starting Docker services..."
-docker compose up -d db 2>/dev/null || docker compose up -d
+docker compose up -d db
 echo "Waiting for PostgreSQL to be ready..."
 sleep 3
 
 # 6. Run database migrations
 echo "[db] Running migrations..."
-if [ -d "backend" ]; then
-  cd backend
-  if [ -f "package.json" ]; then
-    npx drizzle-kit migrate 2>/dev/null || true
-  elif [ -f "requirements.txt" ]; then
-    python -m alembic upgrade head 2>/dev/null || true
-  fi
-  cd ..
-fi
+source backend/.venv/bin/activate
+cd backend && python manage.py migrate
+cd ..
 
 # 7. Verify
 echo "=== Environment ready ==="
-echo "  Backend  → http://localhost:3000"
+echo "  Backend  → http://localhost:8000"
+echo "  GraphQL  → http://localhost:8000/graphql"
 echo "  Frontend → http://localhost:5173"
 echo "  DB       → postgresql://postgres:postgres@localhost:5432/acme"
 echo ""

@@ -12,6 +12,10 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 handoff → `agentic/runs/F-001-cleanup-backend/handoff.md`
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
+## Architecture Fixes — Integration Readiness — DONE
+handoff → `docs/architecture-review.md`
+Fixes applied: CORS config, Dockerfile ASGI, compose.yml ports+frontend, ADR-004 completed, init.sh rewrite, Vite proxy fix, F-001/F-005 cleanup in feature_list
+
 ## F-002 — Install Django + Strawberry GraphQL + Python backend stack — DONE
 handoff → `agentic/runs/F-002-install-django-stack/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
