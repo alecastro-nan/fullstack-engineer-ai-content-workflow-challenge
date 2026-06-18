@@ -82,3 +82,9 @@ handoff → `harness/workflows/runs/F-023-readme/handoff.md`
 
 ## F-024 — Final smoke test and PR — PENDING
 handoff → `harness/workflows/runs/F-024-final-pr/handoff.md`
+
+---
+
+## Security Audit: SkillSpector — DONE
+7 critical/DO_NOT_INSTALL skills removed, `harness/skills/` deleted, lockfile + installer + AGENTS.md updated.
+decision → `knowledge/decisions/002-remove-critical-skills.md`

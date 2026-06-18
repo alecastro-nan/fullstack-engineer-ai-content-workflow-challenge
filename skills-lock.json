@@ -1,12 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "biome": {
-      "source": "bobmatnyc/claude-mpm-skills",
-      "sourceType": "github",
-      "skillPath": "toolchains/javascript/tooling/biome/SKILL.md",
-      "computedHash": "7eeb8068922761916f0b9fdf8a2aba804857ffddd450797d030b8ead90f4f8a5"
-    },
     "docker-expert": {
       "source": "sickn33/antigravity-awesome-skills",
       "sourceType": "github",
@@ -31,12 +25,6 @@
       "skillPath": "skills/multi-stage-dockerfile/SKILL.md",
       "computedHash": "698bf93a84dae18fd7bd0b1d35c21427307fde78fbdf4624be9726f5f98189ca"
     },
-    "nestjs-best-practices": {
-      "source": "kadajett/agent-nestjs-skills",
-      "sourceType": "github",
-      "skillPath": "SKILL.md",
-      "computedHash": "1b6f82e889d19d305e38e35594de08eca0242321f353cafa4cf5e61dd3aa1a73"
-    },
     "nestjs-expert": {
       "source": "jeffallan/claude-skills",
       "sourceType": "github",
@@ -49,23 +37,11 @@
       "skillPath": "skills/nestjs-patterns/SKILL.md",
       "computedHash": "b0ba81185468f7c6e950b4de91fae8004a5d56501a31ea63caa5f7cc3854e6a7"
     },
-    "playwright-best-practices": {
-      "source": "currents-dev/playwright-best-practices-skill",
-      "sourceType": "github",
-      "skillPath": "SKILL.md",
-      "computedHash": "320eaf861e3a0a923bfaad0726cb311a3fe30093378f8d26c89b9c5ae5c42b35"
-    },
     "playwright-generate-test": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
       "skillPath": "skills/playwright-generate-test/SKILL.md",
       "computedHash": "8f963da3e25f705ff39755b8b990f20da0c0320cb86ac83fcc4d2d4eca91f6e4"
-    },
-    "pnpm": {
-      "source": "antfu/skills",
-      "sourceType": "github",
-      "skillPath": "skills/pnpm/SKILL.md",
-      "computedHash": "318f9fca2441a3e06fedc336e195dd18be5dbe901064e4fa71b76b40b096ab3a"
     },
     "postgresql-optimization": {
       "source": "github/awesome-copilot",
@@ -91,12 +67,6 @@
       "skillPath": "prisma-database-setup/SKILL.md",
       "computedHash": "46d2dc2f9c968722376bbb6a1a1389c82bd7cceb5973ac1486c54890514b8959"
     },
-    "prisma-postgres": {
-      "source": "prisma/skills",
-      "sourceType": "github",
-      "skillPath": "prisma-postgres/SKILL.md",
-      "computedHash": "d090d1206fb6a2dd9f7b9f658d851ccd653132512c53c6e0a164110d9ee80005"
-    },
     "react:components": {
       "source": "google-labs-code/stitch-skills",
       "sourceType": "github",
@@ -115,12 +85,6 @@
       "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
       "computedHash": "8cbf2bf600f392d7260e476e3202932a876e2281cda3b15a8b6a5a43f383252d"
     },
-    "typescript-expert": {
-      "source": "sickn33/antigravity-awesome-skills",
-      "sourceType": "github",
-      "skillPath": "skills/typescript-expert/SKILL.md",
-      "computedHash": "525e74a7220ed67832001ca89b46deae8f2bab1abc9d25c56c8716d6550c795f"
-    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
@@ -138,12 +102,6 @@
       "sourceType": "github",
       "skillPath": "skills/vitest/SKILL.md",
       "computedHash": "669c7275f7e1379b06b2bcfa593603aead4c983b951c7e8edbc09640aa38d0a1"
-    },
-    "webapp-testing": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "skillPath": "skills/webapp-testing/SKILL.md",
-      "computedHash": "ad5b1fc52807e9afa4635e59218a026b164dc58b6c3f41b0f7c644dcd6ccf572"
     },
     "websocket-engineer": {
       "source": "jeffallan/claude-skills",

@@ -353,17 +353,7 @@ REDIS_URL=redis://localhost:6379
 
 ### 4.4 Skill Installation for Agents
 
-Skills are reusable procedure files stored in `harness/skills/`. Each skill is a markdown file teaching an agent how to perform a specific repeated task.
-
-| Skill File | Purpose | Used By |
-|---|---|---|
-| `harness/skills/docker-setup.md` | How to write Dockerfiles and compose.yml for this project | Builder |
-| `harness/skills/ai-integration.md` | How to abstract OpenAI/Anthropic calls, prompt templates, retries | Builder |
-| `harness/skills/state-machine.md` | How to implement the review state machine (DB enum + guards) | Builder |
-| `harness/skills/real-time.md` | How to set up WebSockets or SSE in chosen backend framework | Builder |
-| `harness/skills/test-patterns.md` | How to write mock-based AI tests, NestJS e2e tests, React Testing Library | Builder, TDD Guide |
-| `harness/skills/pr-submission.md` | How to create the PR with template, verify checklist, push | Builder |
-| `harness/skills/migration-pattern.md` | How to create and run DB migrations (Prisma, TypeORM, Alembic) | Builder |
+Agent skills (`.agents/skills/`) are installed from community sources. All skills are audited with SkillSpector before installation — see `knowledge/decisions/002-remove-critical-skills.md` for the security audit history.
 
 Each skill file must follow this template:
 
@@ -545,15 +535,7 @@ fullstack-engineer-ai-content-workflow-challenge/
 │   │   ├── tdd-guide.md
 │   │   ├── planner.md
 │   │   └── database-reviewer.md
-│   ├── skills/
-│   │   ├── docker-setup.md
-│   │   ├── ai-integration.md
-│   │   ├── state-machine.md
-│   │   ├── real-time.md
-│   │   ├── test-patterns.md
-│   │   ├── pr-submission.md
-│   │   ├── migration-pattern.md
-│   │   └── biome-setup.md                  # How to configure Biome for monorepo
+│   └── workflows/
 │   └── workflows/
 │       ├── run-task.sh                 # CLI to execute a single task with logging
 │       └── runs/                       # Per-task execution artifacts
@@ -827,7 +809,7 @@ A task is atomic when:
 
 ### 9.3 Test Pattern References
 
-Full test examples are NOT inlined here. Instead, the skill `harness/skills/test-patterns.md` contains runnable examples for:
+Full test examples are NOT inlined here. Instead, the skills in `.agents/skills/` (jest-react-testing, vitest, playwright-generate-test) contain runnable examples for:
 
 - **AI service unit test** — mock provider pattern, fallback logic, error propagation
 - **Frontend component test** — render + assert + fireEvent pattern with React Testing Library
