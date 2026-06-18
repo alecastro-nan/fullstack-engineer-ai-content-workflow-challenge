@@ -9,9 +9,11 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 app && \
     adduser --system --uid 1001 --gid 1001 app
 COPY --from=builder /app /app
+COPY --from=builder /app/.venv /app/.venv
 ENV PYTHONPATH=/app \
     PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=config.settings.production
 EXPOSE 8000
 USER app
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker"]
+ENTRYPOINT ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]

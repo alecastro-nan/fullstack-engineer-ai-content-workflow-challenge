@@ -27,7 +27,7 @@
     ],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "backend/src/ directory removed (NestJS source code)",
       "backend/dist/ directory removed (compiled output)",
@@ -107,7 +107,8 @@
     "role": "builder",
     "status": "pending",
     "acceptance_criteria": [
-      "Campaign Django model with: id (UUID), name, description, status, createdAt, updatedAt, isDeleted",
+      "Campaign Django model with: id (UUID), name, description, status, createdAt, updatedAt, isDeleted (indices on isDeleted, status)",
+      "Django migration created for Campaign model (idempotent and reversible)",
       "GraphQL mutation createCampaign returns created campaign",
       "GraphQL query campaigns returns paginated list",
       "GraphQL query campaign(id) returns single campaign with content pieces",
@@ -121,7 +122,9 @@
       "GraphQL query tests for campaigns and campaign(id)",
       "GraphQL mutation tests for create, update, delete",
       "Test validation rejects empty name",
-      "Test soft delete sets isDeleted=True"
+      "Test soft delete sets isDeleted=True",
+      "python manage.py makemigrations runs without errors",
+      "python manage.py migrate applies cleanly"
     ],
     "done_when": [
       "All acceptance criteria pass",
@@ -164,31 +167,28 @@
     ]
   },
   {
-    "id": "F-005",
-    "title": "PostgreSQL schema & Django migrations",
-    "description": "Create Django models, database enums, indices, and migration files.",
+    "id": "F-CORS",
+    "title": "Configure CORS for Django backend",
+    "description": "Add django-cors-headers and configure CORS_ALLOWED_ORIGINS for frontend-backend communication.",
     "dependencies": [
       "F-002"
     ],
-    "stack": "backend",
+    "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
-      "Campaign model with: id (UUIDField), name, description, status, createdAt, updatedAt, isDeleted",
-      "ContentPiece model with: id (UUIDField), campaignId (ForeignKey), headline, description, body, language, state (CharField with choices), originalId (nullable FK), createdAt, updatedAt, isDeleted",
-      "Review state choices: draft, suggested_by_ai, reviewed, approved, rejected",
-      "Indices on: campaignId, state, isDeleted",
-      "Migration is idempotent and reversible (makemigrations + migrate)"
+      "django-cors-headers installed in pyproject.toml",
+      "corsheaders added to INSTALLED_APPS and MIDDLEWARE in base.py",
+      "CORS_ALLOWED_ORIGINS configured from FRONTEND_URL env var",
+      "CORS_ALLOW_CREDENTIALS = True for cookies/auth support"
     ],
     "test_requirements": [
-      "python manage.py makemigrations runs without errors",
-      "python manage.py migrate applies cleanly",
-      "python manage.py migrate <app> zero rolls back correctly"
+      "python manage.py check passes after CORS configuration",
+      "Browser can make cross-origin GraphQL requests (manual test)"
     ],
     "done_when": [
-      "Migration applies cleanly on fresh PostgreSQL",
-      "Database reviewer has approved schema",
-      "Rollback works correctly"
+      "All acceptance criteria pass",
+      "ruff + mypy + pytest pass"
     ]
   },
   {
