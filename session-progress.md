@@ -8,74 +8,93 @@ Lightweight index for task execution. Each completed task gets a 1-2 line summar
 handoff → `harness/workflows/runs/F-000-init-monorepo/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 
-## F-001 — Campaign CRUD API — PENDING
-handoff → `harness/workflows/runs/F-001-campaign-crud/handoff.md`
+## F-001 — Clean up old NestJS/TypeScript backend artifacts — DONE
+handoff → `harness/workflows/runs/F-001-cleanup-backend/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
-## F-002 — Content Piece CRUD API — PENDING
-handoff → `harness/workflows/runs/F-002-content-crud/handoff.md`
+## F-002 — Install Django + Strawberry GraphQL + Python backend stack — PENDING
+handoff → `harness/workflows/runs/F-002-install-django-stack/handoff.md`
 
-## F-003 — PostgreSQL schema & migrations — PENDING
-handoff → `harness/workflows/runs/F-003-db-schema/handoff.md`
+## F-003 — Campaign CRUD GraphQL API — PENDING
+handoff → `harness/workflows/runs/F-003-campaign-crud/handoff.md`
 
-## F-004 — AI provider abstraction layer — PENDING
-handoff → `harness/workflows/runs/F-004-ai-abstraction/handoff.md`
+## F-004 — Content Piece CRUD GraphQL API — PENDING
+handoff → `harness/workflows/runs/F-004-content-crud/handoff.md`
 
-## F-005 — AI draft generation endpoint — PENDING
-handoff → `harness/workflows/runs/F-005-ai-draft/handoff.md`
+## F-005 — PostgreSQL schema & Django migrations — PENDING
+handoff → `harness/workflows/runs/F-005-db-schema/handoff.md`
 
-## F-006 — AI translation/localization endpoint — PENDING
-handoff → `harness/workflows/runs/F-006-ai-translation/handoff.md`
+## F-006 — AI provider abstraction layer — PENDING
+handoff → `harness/workflows/runs/F-006-ai-abstraction/handoff.md`
 
-## F-007 — Review state machine — PENDING
-handoff → `harness/workflows/runs/F-007-state-machine/handoff.md`
+## F-007 — AI draft generation GraphQL mutation — PENDING
+handoff → `harness/workflows/runs/F-007-ai-draft/handoff.md`
 
-## F-008 — Review endpoints — PENDING
-handoff → `harness/workflows/runs/F-008-review-endpoints/handoff.md`
+## F-008 — AI translation/localization GraphQL mutation — PENDING
+handoff → `harness/workflows/runs/F-008-ai-translation/handoff.md`
 
-## F-009 — WebSocket/SSE setup — PENDING
-handoff → `harness/workflows/runs/F-009-realtime-setup/handoff.md`
+## F-009 — Review state machine — PENDING
+handoff → `harness/workflows/runs/F-009-state-machine/handoff.md`
 
-## F-010 — Real-time broadcast — PENDING
-handoff → `harness/workflows/runs/F-010-realtime-broadcast/handoff.md`
+## F-010 — Review GraphQL mutations — PENDING
+handoff → `harness/workflows/runs/F-010-review-mutations/handoff.md`
 
-## F-011 — React project scaffold — PENDING
-handoff → `harness/workflows/runs/F-011-react-scaffold/handoff.md`
+## F-011 — WebSocket/SSE setup in Django — PENDING
+handoff → `harness/workflows/runs/F-011-realtime-setup/handoff.md`
 
-## F-012 — Campaign Dashboard page — PENDING
-handoff → `harness/workflows/runs/F-012-campaign-dashboard/handoff.md`
+## F-012 — Real-time broadcast on state changes — PENDING
+handoff → `harness/workflows/runs/F-012-realtime-broadcast/handoff.md`
 
-## F-013 — Campaign Detail page — PENDING
-handoff → `harness/workflows/runs/F-013-campaign-detail/handoff.md`
+## F-013 — React project scaffold — PENDING
+handoff → `harness/workflows/runs/F-013-react-scaffold/handoff.md`
 
-## F-014 — AI Draft panel — PENDING
-handoff → `harness/workflows/runs/F-014-ai-draft-panel/handoff.md`
+## F-014 — Campaign Dashboard page — PENDING
+handoff → `harness/workflows/runs/F-014-campaign-dashboard/handoff.md`
 
-## F-015 — Review UI — PENDING
-handoff → `harness/workflows/runs/F-015-review-ui/handoff.md`
+## F-015 — Campaign Detail page — PENDING
+handoff → `harness/workflows/runs/F-015-campaign-detail/handoff.md`
 
-## F-016 — Translation panel — PENDING
-handoff → `harness/workflows/runs/F-016-translation-panel/handoff.md`
+## F-016 — AI Draft panel — PENDING
+handoff → `harness/workflows/runs/F-016-ai-draft-panel/handoff.md`
 
-## F-017 — Real-time status updates — PENDING
-handoff → `harness/workflows/runs/F-017-realtime-frontend/handoff.md`
+## F-017 — Review UI — PENDING
+handoff → `harness/workflows/runs/F-017-review-ui/handoff.md`
 
-## F-018 — Docker Compose — PENDING
-handoff → `harness/workflows/runs/F-018-docker-compose/handoff.md`
+## F-018 — Translation panel — PENDING
+handoff → `harness/workflows/runs/F-018-translation-panel/handoff.md`
 
-## F-019 — Dockerfiles — PENDING
-handoff → `harness/workflows/runs/F-019-dockerfiles/handoff.md`
+## F-019 — Real-time status updates on frontend — PENDING
+handoff → `harness/workflows/runs/F-019-realtime-frontend/handoff.md`
 
-## F-020 — GitHub Actions CI — PENDING
-handoff → `harness/workflows/runs/F-020-ci-pipeline/handoff.md`
+## F-020 — Docker Compose — PENDING
+handoff → `harness/workflows/runs/F-020-docker-compose/handoff.md`
 
-## F-021 — E2E workflow test — PENDING
-handoff → `harness/workflows/runs/F-021-e2e-test/handoff.md`
+## F-021 — Dockerfiles — PENDING
+handoff → `harness/workflows/runs/F-021-dockerfiles/handoff.md`
 
-## F-022 — ADRs — PENDING
-handoff → `harness/workflows/runs/F-022-adrs/handoff.md`
+## F-022 — GitHub Actions CI — PENDING
+handoff → `harness/workflows/runs/F-022-ci-pipeline/handoff.md`
 
-## F-023 — README update — PENDING
-handoff → `harness/workflows/runs/F-023-readme/handoff.md`
+## F-023 — E2E workflow test — PENDING
+handoff → `harness/workflows/runs/F-023-e2e-test/handoff.md`
 
-## F-024 — Final smoke test and PR — PENDING
-handoff → `harness/workflows/runs/F-024-final-pr/handoff.md`
+## F-024 — ADRs — PENDING
+handoff → `harness/workflows/runs/F-024-adrs/handoff.md`
+
+## F-025 — README update — PENDING
+handoff → `harness/workflows/runs/F-025-readme/handoff.md`
+
+## F-026 — Final smoke test and PR — PENDING
+handoff → `harness/workflows/runs/F-026-final-pr/handoff.md`
+
+---
+
+## Security Audit: SkillSpector — DONE
+7 critical/DO_NOT_INSTALL skills removed, `harness/skills/` deleted, lockfile + installer + AGENTS.md updated.
+decision → `knowledge/decisions/002-remove-critical-skills.md`
+
+## F-027 — Architecture replanning: NestJS→Django+Strawberry GraphQL — DONE
+Full architecture migration from NestJS/TypeScript to Django (Python) + Strawberry GraphQL.
+AGENTS.md, feature_list.json, conventions, install-skills.sh, skills-lock.json, ADRs all updated.
+ADR-005 documents the Django+Strawberry decision.
+decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`
