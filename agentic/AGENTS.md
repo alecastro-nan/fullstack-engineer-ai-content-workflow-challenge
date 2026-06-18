@@ -616,7 +616,79 @@ reviewers: @code-reviewer ⏳
 - Decision: `agentic/knowledge/decisions/001-campaign-soft-delete.md`
 ```
 
-### 7.3 Error Recovery Protocol
+### 7.4 Subagent Delegation Strategy
+
+Not all NaNLABS subagents provide equal value for this challenge. The following table defines when each subagent should be invoked during task execution, based on the task's stack, complexity, and quality gate requirements.
+
+#### 7.4.1 Active Subagents (7 of 16)
+
+| Subagent | When | Why | Required |
+|---|---|---|---|
+| `@nanlabs-planner` | Start of complex tasks (>45min) or new phases | Breaks down work into atomic steps with risk assessment | No |
+| `@nanlabs-tdd-guide` | Before implementing any backend feature (F-003, F-004, F-006–F-010) | Writes test stubs first per R-008/R-009 (every endpoint + AI mock tests) | Yes (pre-implementation) |
+| `@nanlabs-code-reviewer` | After every backend or frontend feature task | Mandated by R-017 — no task skips code review | Yes |
+| `@nanlabs-security-reviewer` | After code review for any task touching API keys, user input, or data | Mandated by R-007 — no hardcoded secrets | Yes |
+| `@nanlabs-database-reviewer` | During F-003/F-004 (schema) and F-009 (state machine) | Reviews schema design, indices, N+1 prevention, migration idempotency | Yes (when DB changes) |
+| `@nanlabs-typescript-reviewer` | After every frontend task (F-013 through F-019) | Type safety for React/TypeScript components and hooks | Yes (frontend only) |
+| `@nanlabs-e2e-runner` | During F-023 (end-to-end workflow test) | Playwright E2E test for full Campaign→Content→AI→Review workflow | Yes |
+
+#### 7.4.2 Inactive Subagents (9 of 16)
+
+These subagents are intentionally excluded for this challenge:
+
+| Subagent | Reason for Exclusion |
+|---|---|
+| `@nanlabs-performance-optimizer` | No performance benchmarks or latency requirements in scope |
+| `@nanlabs-refactor-cleaner` | All code is greenfield — no technical debt to remediate |
+| `@nanlabs-tech-assistant` | NaNLABS internal ops procedures, not relevant to ACME challenge |
+| `@nanlabs-client-workflow-bootstrap` | Workflow already configured and documented |
+| `@nanlabs-reference-lookup` | AGENTS.md is the single source of truth (R-019) |
+| `@nanlabs-docs-lookup` | Django/Strawberry/Apollo docs are well-known and directly accessible |
+| `@nanlabs-build-error-resolver` | Reactive only — invoke if a build/CI error occurs |
+| `@nanlabs-assistant` | Redundant — AGENTS.md already provides full context |
+| `@nanlabs-architect` | Invoked once per phase for structural decisions, not per-task |
+
+#### 7.4.3 Task Execution Flow by Type
+
+**Backend feature task (F-003, F-004, F-006, F-007, F-008, F-009, F-010):**
+```
+@planner(?) → @tdd-guide → Builder → @database-reviewer(?) → @code-reviewer → @security-reviewer → done
+  optional      required     code       if DB changes            required        required
+```
+
+**Frontend feature task (F-013, F-014, F-015, F-016, F-017, F-018, F-019):**
+```
+@planner(?) → Builder → @typescript-reviewer → @code-reviewer → done
+  optional               required              required
+```
+
+**Infrastructure task (F-020, F-021, F-022):**
+```
+Builder → @code-reviewer → @security-reviewer → done
+           required          required
+```
+
+**E2E / Quality task (F-023):**
+```
+@e2e-runner → @code-reviewer → done
+  required     required
+```
+
+#### 7.4.4 Quality Gate Mapping
+
+| Gate | Subagent | Enforced |
+|---|---|---|
+| R-007 (no hardcoded secrets) | `@security-reviewer` | Every task |
+| R-008 (unit tests per endpoint) | `@tdd-guide` + `@code-reviewer` | Every backend task |
+| R-009 (AI mock tests) | `@tdd-guide` + `@code-reviewer` | F-006, F-007, F-008 |
+| R-010 (strict type hints) | `@typescript-reviewer` (frontend), mypy (backend) | Every task |
+| R-017 (code review gate) | `@code-reviewer` | Every task |
+
+#### 7.4.5 Reference
+
+Full subagent definitions with purpose, triggers, and verification steps are documented at `agentic/knowledge/conventions/subagent-workflow.md`.
+
+### 7.5 Error Recovery Protocol
 
 When a task fails:
 
