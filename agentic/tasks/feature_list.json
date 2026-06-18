@@ -1,0 +1,811 @@
+[
+  {
+    "id": "F-000",
+    "title": "Initialize monorepo: folder structure, configs, symlinks",
+    "description": "Create the monorepo folder structure, configuration files, and symlinks so that all agents share the same AGENTS.md context.",
+    "dependencies": [],
+    "stack": "infra",
+    "role": "builder",
+    "status": "done",
+    "acceptance_criteria": [
+      "All directories from AGENTS.md section 5 exist",
+      "Symlinks: CLAUDE.md, .cursorrules, .github/copilot-instructions.md point to AGENTS.md",
+      "harness/workflows/runs/.gitkeep exists"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "ls shows all directories match AGENTS.md section 5",
+      "Symlinks resolve correctly to AGENTS.md"
+    ]
+  },
+  {
+    "id": "F-001",
+    "title": "Clean up old NestJS/TypeScript backend artifacts",
+    "description": "Remove all NestJS/Prisma/TypeScript backend code, configuration, and dependencies before scaffolding the new Django+Strawberry stack.",
+    "dependencies": [
+      "F-000"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "backend/src/ directory removed (NestJS source code)",
+      "backend/dist/ directory removed (compiled output)",
+      "backend/node_modules/ removed",
+      "backend/nest-cli.json, package.json, tsconfig*.json, vitest*.config.ts removed",
+      "backend/drizzle/ and drizzle.config.ts removed (Prisma/Drizzle schema)",
+      "backend/pnpm-lock.yaml and pnpm-workspace.yaml removed",
+      "backend/.env.example and backend/.env removed (use root .env instead)",
+      "compose.yml updated: old NestJS backend service removed, placeholder for Django backend added",
+      "Root pnpm-workspace.yaml cleaned up (no backend workspace reference)",
+      "Git rm all tracked NestJS files, gitignore backend artifacts"
+    ],
+    "test_requirements": [
+      "Verify no NestJS files remain (grep nest-cli, tsconfig, NestFactory)",
+      "Verify compose.yml parses correctly (docker compose config)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "Clean git status shows only intentional files",
+      "Code reviewer and security reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-002",
+    "title": "Install Django + Strawberry GraphQL + Python backend stack",
+    "description": "Scaffold the Django project with Strawberry GraphQL, configure settings (base/development/production), install Python dependencies via uv, set up pytest-django, mypy, and ruff. This task replaces the old NestJS backend with a complete Django+Python foundation.",
+    "dependencies": [
+      "F-001"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "pyproject.toml created with dependencies: Django \u22655.1, strawberry-graphql[django], uvicorn, gunicorn, psycopg2-binary, django-environ, pytest, pytest-django, pytest-cov, mypy, ruff, channels, daphne",
+      "uv sync installs all dependencies without errors",
+      "Django project scaffolded at backend/ with: manage.py, config/settings/base.py, config/settings/development.py, config/settings/production.py, config/__init__.py, config/urls.py, config/wsgi.py, config/asgi.py",
+      "config/settings/base.py includes: DATABASES via env, INSTALLED_APPS (strawberry, channels, campaigns, content, ai, reviews), STRAWBERRY schema config, CHANNEL_LAYERS config",
+      "config/settings/development.py: DEBUG=True, SQLite fallback if DATABASE_URL not set",
+      "config/settings/production.py: DEBUG=False, PostgreSQL required, ALLOWED_HOSTS from env",
+      "Strawberry GraphQL schema endpoint at /graphql with GraphQL playground in DEBUG mode",
+      "Django admin configured at /admin/",
+      "App skeleton directories created: backend/apps/campaigns/, backend/apps/content/, backend/apps/ai/, backend/apps/reviews/ \u2014 each with __init__.py, apps.py, models.py, admin.py, schema.py, tests/__init__.py",
+      "pytest-django configured in pyproject.toml (DJANGO_SETTINGS_MODULE, test paths)",
+      "mypy configured in pyproject.toml (strict mode enabled)",
+      "ruff configured in pyproject.toml",
+      "backend/Dockerfile created (multi-stage: builder with uv, production with gunicorn+uvicorn)",
+      "backend/.dockerignore created (exclude __pycache__, .venv, .env, .git)",
+      "compose.yml updated: Django backend service on port 8000, depends_on db, DATABASE_URL env",
+      "Root .env.example updated: DATABASE_URL, DJANGO_SETTINGS_MODULE, PORT, FRONTEND_URL, DEBUG",
+      "backend/.env.example removed (root .env.example is the single source)"
+    ],
+    "test_requirements": [
+      "pytest --version works from backend/",
+      "python manage.py check passes (Django system checks, no errors)",
+      "python manage.py showmigrations runs without error",
+      "mypy backend/ --no-error-summary passes (no type errors on scaffolded code)",
+      "ruff check backend/ passes (no lint errors on scaffolded code)",
+      "GraphQL schema endpoint returns 200 on GET /graphql (playground renders)",
+      "GraphQL schema introspection query returns valid SDL"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All test_requirements pass",
+      "uv sync is reproducible from clean checkout",
+      "docker compose up --build starts Django and responds on localhost:8000/graphql",
+      "Code reviewer and security reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-003",
+    "title": "Campaign CRUD GraphQL API",
+    "description": "GraphQL mutations and queries to create, read, update, and soft-delete campaigns using Django + Strawberry.",
+    "dependencies": [
+      "F-002"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Campaign Django model with: id (UUID), name, description, status, createdAt, updatedAt, isDeleted",
+      "GraphQL mutation createCampaign returns created campaign",
+      "GraphQL query campaigns returns paginated list",
+      "GraphQL query campaign(id) returns single campaign with content pieces",
+      "GraphQL mutation updateCampaign updates campaign fields",
+      "GraphQL mutation deleteCampaign soft-deletes a campaign",
+      "Input validation rejects empty name and malformed payloads",
+      "Django admin registered for Campaign model"
+    ],
+    "test_requirements": [
+      "Unit test for Campaign model: create, get_by_id, update, delete, list_all",
+      "GraphQL query tests for campaigns and campaign(id)",
+      "GraphQL mutation tests for create, update, delete",
+      "Test validation rejects empty name",
+      "Test soft delete sets isDeleted=True"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass (\u226580% coverage on campaigns app)",
+      "Code reviewer has approved",
+      "Security reviewer has confirmed no secrets exposed",
+      "API can be tested via GraphQL playground"
+    ]
+  },
+  {
+    "id": "F-004",
+    "title": "Content Piece CRUD GraphQL API",
+    "description": "GraphQL mutations and queries for content pieces within a campaign using Django + Strawberry.",
+    "dependencies": [
+      "F-003"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "ContentPiece Django model with: id (UUID), campaignId (FK), headline, description, body, language, state, originalId, createdAt, updatedAt, isDeleted",
+      "GraphQL query contentPieces(campaignId) returns list",
+      "GraphQL query content(id) returns single content piece",
+      "GraphQL mutation createContentPiece creates with campaignId",
+      "GraphQL mutation updateContent updates fields",
+      "GraphQL mutation deleteContentPiece soft-deletes",
+      "Content belongs to a campaign (foreign key constraint)",
+      "Content state defaults to 'draft' via Django EnumField"
+    ],
+    "test_requirements": [
+      "Unit test for ContentPiece model",
+      "GraphQL query tests for contentPieces and content(id)",
+      "GraphQL mutation tests for create, update, delete",
+      "Test that content cannot be created for non-existent campaign (404)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-005",
+    "title": "PostgreSQL schema & Django migrations",
+    "description": "Create Django models, database enums, indices, and migration files.",
+    "dependencies": [
+      "F-002"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Campaign model with: id (UUIDField), name, description, status, createdAt, updatedAt, isDeleted",
+      "ContentPiece model with: id (UUIDField), campaignId (ForeignKey), headline, description, body, language, state (CharField with choices), originalId (nullable FK), createdAt, updatedAt, isDeleted",
+      "Review state choices: draft, suggested_by_ai, reviewed, approved, rejected",
+      "Indices on: campaignId, state, isDeleted",
+      "Migration is idempotent and reversible (makemigrations + migrate)"
+    ],
+    "test_requirements": [
+      "python manage.py makemigrations runs without errors",
+      "python manage.py migrate applies cleanly",
+      "python manage.py migrate <app> zero rolls back correctly"
+    ],
+    "done_when": [
+      "Migration applies cleanly on fresh PostgreSQL",
+      "Database reviewer has approved schema",
+      "Rollback works correctly"
+    ]
+  },
+  {
+    "id": "F-006",
+    "title": "AI provider abstraction layer (OpenAI + Anthropic)",
+    "description": "Build an abstract AI service in Python that supports both OpenAI and Anthropic providers with fallback logic.",
+    "dependencies": [
+      "F-002"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Abstract provider class with generate_draft() and translate() methods",
+      "OpenAI provider implements using openai Python SDK",
+      "Anthropic provider implements using anthropic Python SDK",
+      "Provider selection via environment variable (AI_PROVIDER=openai|anthropic)",
+      "Automatic fallback if primary provider fails (rate limit, timeout)",
+      "Configurable model name, temperature, max tokens via Django settings",
+      "Prompt templates externalized in prompts.py module"
+    ],
+    "test_requirements": [
+      "Mock-based test for AI service with OpenAI provider",
+      "Mock-based test for AI service with Anthropic provider",
+      "Test fallback when primary provider throws",
+      "Test that all providers raise error when no API key is configured"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All AI unit tests use mocks (no real API calls)",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-007",
+    "title": "AI draft generation GraphQL mutation",
+    "description": "GraphQL mutation that takes a content brief and generates an AI-powered draft.",
+    "dependencies": [
+      "F-004",
+      "F-006"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GraphQL mutation generateDraft(contentId, brief) triggers AI generation",
+      "Response returns generated headline and description",
+      "Content state transitions from 'draft' to 'suggested_by_ai' on success",
+      "Content state transitions back to 'draft' on AI failure",
+      "Original content fields preserved as fallback"
+    ],
+    "test_requirements": [
+      "Unit test with mocked AI provider returning valid draft",
+      "Unit test with mocked AI provider throwing error",
+      "GraphQL mutation test: verify state change on success/failure"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "AI calls are mocked in tests",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-008",
+    "title": "AI translation/localization GraphQL mutation",
+    "description": "GraphQL mutation that translates content into a target language using AI.",
+    "dependencies": [
+      "F-004",
+      "F-006"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GraphQL mutation translateContent(contentId, targetLanguage) triggers AI translation",
+      "Target language uses ISO 639-1 codes (es, fr, de, etc.)",
+      "Response returns translated headline and description",
+      "Creates new ContentPiece in target language linked via originalId",
+      "New content piece starts in 'suggested_by_ai' state"
+    ],
+    "test_requirements": [
+      "Unit test with mocked AI provider returning valid translation",
+      "Unit test with unsupported language returns error",
+      "GraphQL mutation test: verify new content piece is created"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "AI calls are mocked in tests",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-009",
+    "title": "Review state machine (state transitions, guards)",
+    "description": "Implement the review state machine with valid transition guards in Django model layer.",
+    "dependencies": [
+      "F-004"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Content state uses Django TextChoices with enum: draft, suggested_by_ai, reviewed, approved, rejected",
+      "Valid transitions enforced at the model/service layer",
+      "Invalid transitions raise ValidationError (422 equivalent)",
+      "State history tracked (optional: state_history via Django model)",
+      "Only authorized users can change state"
+    ],
+    "test_requirements": [
+      "Test all valid transitions succeed",
+      "Test all invalid transitions raise ValidationError",
+      "Test state persists correctly in database"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All state transitions are tested",
+      "Code reviewer and DB reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-010",
+    "title": "Review GraphQL mutations (approve, reject, request edits)",
+    "description": "GraphQL mutations for human reviewers to approve, reject, or request edits on AI-suggested content.",
+    "dependencies": [
+      "F-009"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GraphQL mutation reviewContent(contentId, action: APPROVE) sets state to 'approved'",
+      "GraphQL mutation reviewContent(contentId, action: REJECT) sets state to 'rejected'",
+      "GraphQL mutation reviewContent(contentId, action: REQUEST_EDITS) sets state to 'reviewed' and stores feedback",
+      "GraphQL mutation editContent(contentId, ...) updates body and resets state to 'draft'",
+      "Invalid action returns error",
+      "Review feedback stored in state_history"
+    ],
+    "test_requirements": [
+      "Unit test for each review action",
+      "GraphQL mutation test for invalid action",
+      "GraphQL mutation test: verify state change via DB query"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-011",
+    "title": "WebSocket/SSE setup in Django",
+    "description": "Set up Django Channels for WebSocket-based real-time broadcasting.",
+    "dependencies": [
+      "F-002"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Django Channels configured with Redis channel layer",
+      "WebSocket endpoint available at /ws/content/",
+      "Client connects and receives a connection event",
+      "Server can broadcast events to all connected clients",
+      "Server can send targeted events per content piece",
+      "Connection lifecycle: connect, disconnect, error handling"
+    ],
+    "test_requirements": [
+      "Test client can connect and receive events via Channels test helpers",
+      "Test server can broadcast a test event"
+    ],
+    "done_when": [
+      "Client connects successfully",
+      "Events are received by connected clients",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-012",
+    "title": "Real-time broadcast on state changes",
+    "description": "Broadcast content state changes via Django Channels WebSocket to all connected clients.",
+    "dependencies": [
+      "F-010",
+      "F-011"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "When content state changes, an event broadcasts via Django Channels",
+      "Event payload: contentId, campaignId, oldState, newState, timestamp",
+      "Events triggered by: AI draft generated, review action, edit completed",
+      "Events include AI draft preview when applicable",
+      "Frontend receives and can display the event"
+    ],
+    "test_requirements": [
+      "Unit test: state change triggers Channels event",
+      "Integration test: reviewContent mutation triggers WebSocket event"
+    ],
+    "done_when": [
+      "State changes produce WebSocket events",
+      "Test verifies event payload structure",
+      "Code reviewer has approved"
+    ]
+  },
+  {
+    "id": "F-013",
+    "title": "React project scaffold (Vite, routing, GraphQL client)",
+    "description": "Scaffold the React frontend with Vite, React Router, and a GraphQL client (Apollo/URQL).",
+    "dependencies": [
+      "F-000"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Vite + React + TypeScript project compiles and runs",
+      "React Router configured: /, /campaigns, /campaigns/:id, /content/:id",
+      "GraphQL client configured with backend URL from env variable",
+      "Error handling interceptor for GraphQL responses",
+      "TypeScript types for Campaign, Content, ReviewState exist",
+      "WebSocket client service exists"
+    ],
+    "test_requirements": [
+      "App renders without crashing",
+      "Router navigates between pages",
+      "GraphQL client can be instantiated with correct endpoint URL"
+    ],
+    "done_when": [
+      "pnpm dev starts the dev server",
+      "Router works (pages render placeholder content)",
+      "GraphQL client connects to backend"
+    ]
+  },
+  {
+    "id": "F-014",
+    "title": "Campaign Dashboard page (list + create)",
+    "description": "Page that lists all campaigns via GraphQL and allows creating new ones.",
+    "dependencies": [
+      "F-003",
+      "F-013"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GraphQL query campaigns fetches and displays campaign list",
+      "Each campaign shows: name, description, content count, status",
+      "Create Campaign button opens a form/modal",
+      "Form validates required fields",
+      "On submit, GraphQL mutation createCampaign is called and list refreshes",
+      "Loading state shows skeleton/spinner",
+      "Error state shows error message"
+    ],
+    "test_requirements": [
+      "Component renders campaign list from GraphQL",
+      "Create form submission calls mutation and refreshes list"
+    ],
+    "done_when": [
+      "Dashboard loads campaigns from API",
+      "Create campaign works end-to-end",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-015",
+    "title": "Campaign Detail page (content pieces, states)",
+    "description": "Detail page for a single campaign showing its content pieces with review states.",
+    "dependencies": [
+      "F-004",
+      "F-014"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GraphQL query campaign(id) fetches campaign with content pieces",
+      "Lists all content pieces: headline, language, state badge",
+      "State badges color-coded (draft=gray, suggested=blue, reviewed=yellow, approved=green, rejected=red)",
+      "Create Content button opens a form",
+      "Clicking a content piece navigates to content editor"
+    ],
+    "test_requirements": [
+      "Component renders campaign with content list",
+      "State badges render correct colors"
+    ],
+    "done_when": [
+      "Campaign page loads with all content pieces",
+      "State badges visible and color-coded",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-016",
+    "title": "AI Draft panel (trigger generation, preview)",
+    "description": "Panel that allows triggering AI draft generation via GraphQL mutation and previewing the result.",
+    "dependencies": [
+      "F-007",
+      "F-015"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Generate Draft button visible when content state is 'draft'",
+      "Clicking sends GraphQL mutation generateDraft",
+      "Loading state shown during generation",
+      "AI result displays in a preview panel",
+      "User can accept (approve) or reject the AI suggestion",
+      "If rejected, user can edit and resubmit",
+      "If content is already 'suggested_by_ai', show the AI result"
+    ],
+    "test_requirements": [
+      "Component renders generate button only for 'draft' state",
+      "Clicking generate calls the GraphQL mutation"
+    ],
+    "done_when": [
+      "AI draft generation works end-to-end",
+      "Preview panel shows AI content",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-017",
+    "title": "Review UI (approve/reject/edit buttons, state badges)",
+    "description": "UI for human reviewers to approve, reject, or request edits on content via GraphQL mutations.",
+    "dependencies": [
+      "F-010",
+      "F-015"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Approve button visible when state is 'suggested_by_ai' or 'reviewed'",
+      "Reject button visible when state is 'suggested_by_ai' or 'reviewed'",
+      "Request Edits button opens a feedback textarea",
+      "Edit button (when 'rejected') resets content to 'draft'",
+      "Confirm dialogs for destructive actions",
+      "State badge updates immediately after action"
+    ],
+    "test_requirements": [
+      "Buttons render conditionally based on state",
+      "Clicking approve/reject calls correct GraphQL mutation",
+      "Edit button works for rejected content"
+    ],
+    "done_when": [
+      "All review actions work end-to-end",
+      "State badge updates after review action",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-018",
+    "title": "Translation panel (select language, trigger, preview)",
+    "description": "Panel to trigger AI translation via GraphQL mutation and preview the result.",
+    "dependencies": [
+      "F-008",
+      "F-015"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Translate button visible for approved content",
+      "Language selector dropdown (es, fr, de, pt, it, ja, zh)",
+      "Clicking translate sends GraphQL mutation translateContent",
+      "Loading state during translation",
+      "Translated content preview in a panel",
+      "User can navigate to the translated content piece"
+    ],
+    "test_requirements": [
+      "Component renders translate button and language selector",
+      "Clicking translate calls the GraphQL mutation"
+    ],
+    "done_when": [
+      "Translation works end-to-end",
+      "Translated content piece created and accessible",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-019",
+    "title": "Real-time status updates on frontend",
+    "description": "Connect frontend to Django Channels WebSocket and display live state changes.",
+    "dependencies": [
+      "F-012",
+      "F-013"
+    ],
+    "stack": "frontend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "WebSocket client connects to Django Channels on app load",
+      "State change events update the UI without page refresh",
+      "State badge updates when real-time event received",
+      "Notification/toast shown when content state changes",
+      "Connection status indicator (connected/disconnected)",
+      "Auto-reconnect on connection loss"
+    ],
+    "test_requirements": [
+      "Component renders connection status",
+      "Event handler updates state correctly"
+    ],
+    "done_when": [
+      "State changes appear in real-time without refresh",
+      "Connection status is visible",
+      "Tests pass"
+    ]
+  },
+  {
+    "id": "F-020",
+    "title": "Docker Compose (PostgreSQL + Backend + Frontend)",
+    "description": "Create compose.yml that runs PostgreSQL, Django backend, and React frontend with one command.",
+    "dependencies": [
+      "F-003",
+      "F-013"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "docker compose up starts PostgreSQL, Django backend, and frontend",
+      "Backend waits for PostgreSQL to be healthy (depends_on + healthcheck)",
+      "Frontend connects to Django backend via environment variable",
+      "PostgreSQL data persists across restarts (volume mount)",
+      "Ports: PostgreSQL 5432, Django 8000, Frontend 5173",
+      ".env.example is used for compose variables"
+    ],
+    "test_requirements": [
+      "docker compose up --build exits with code 0",
+      "docker compose ps shows all services as 'Up'"
+    ],
+    "done_when": [
+      "docker compose up --build starts everything",
+      "Django responds on localhost:8000/graphql",
+      "Frontend loads on localhost:5173"
+    ]
+  },
+  {
+    "id": "F-021",
+    "title": "Dockerfiles (backend + frontend multi-stage)",
+    "description": "Multi-stage Dockerfiles for Django backend and React frontend.",
+    "dependencies": [
+      "F-020"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Django Dockerfile: builder stage with uv, production stage with gunicorn + uvicorn",
+      "Frontend Dockerfile: builder with Node, production with nginx/static serving",
+      "Images run as non-root user (security)",
+      ".dockerignore files exclude __pycache__, node_modules, .venv, .env"
+    ],
+    "test_requirements": [
+      "docker build backend/ succeeds",
+      "docker build frontend/ succeeds"
+    ],
+    "done_when": [
+      "Both images build successfully",
+      "Security reviewer confirmed non-root user"
+    ]
+  },
+  {
+    "id": "F-022",
+    "title": "GitHub Actions CI (lint, typecheck, test)",
+    "description": "CI pipeline with ruff linting, mypy type checking, and pytest tests.",
+    "dependencies": [
+      "F-021"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "GitHub Actions workflow triggers on push and PR",
+      "Job: ruff lint check (Python backend)",
+      "Job: mypy type check (Python backend)",
+      "Job: pytest unit tests with coverage",
+      "Job: pytest integration tests with PostgreSQL service container",
+      "Job: Vitest frontend tests",
+      "All jobs must pass before merge"
+    ],
+    "test_requirements": [
+      "CI can be tested by pushing to a branch"
+    ],
+    "done_when": [
+      "CI pipeline runs and passes on a test commit"
+    ]
+  },
+  {
+    "id": "F-023",
+    "title": "End-to-end workflow test (Campaign \u2192 Content \u2192 AI Draft \u2192 Review)",
+    "description": "Write a full end-to-end integration test exercising the entire workflow via GraphQL.",
+    "dependencies": [
+      "F-007",
+      "F-010",
+      "F-012"
+    ],
+    "stack": "test",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Test creates a campaign via GraphQL mutation",
+      "Test adds a content piece via GraphQL mutation",
+      "Test generates AI draft (mocked provider)",
+      "Test approves the draft via GraphQL mutation",
+      "Test triggers translation via GraphQL mutation",
+      "Test verifies final state at each step via DB queries"
+    ],
+    "test_requirements": [
+      "E2E test file exists in backend/apps/ai/tests/ or backend/tests/"
+    ],
+    "done_when": [
+      "E2E test passes",
+      "All mocks used (no real AI calls)"
+    ]
+  },
+  {
+    "id": "F-024",
+    "title": "ADRs (GraphQL, AI provider, real-time, DB schema)",
+    "description": "Write the four required Architecture Decision Records for the Django+Strawberry stack.",
+    "dependencies": [
+      "F-003",
+      "F-006",
+      "F-011",
+      "F-005"
+    ],
+    "stack": "docs",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "ADR-001: GraphQL with Strawberry \u2014 decision and reasoning",
+      "ADR-002: AI Provider selection \u2014 OpenAI vs Anthropic vs both",
+      "ADR-003: Real-time mechanism \u2014 Django Channels vs SSE",
+      "ADR-004: Database schema \u2014 Django models, enums, indices design",
+      "Each ADR follows the template from AGENTS.md section 10.2"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "All 4 ADRs exist in docs/adrs/",
+      "Each ADR has Context, Decision, Consequences, Alternatives"
+    ]
+  },
+  {
+    "id": "F-025",
+    "title": "README update (setup instructions, tech decisions, tradeoffs)",
+    "description": "Update README.md with setup instructions, technology decisions, and tradeoffs.",
+    "dependencies": [
+      "F-024"
+    ],
+    "stack": "docs",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "README includes: Setup instructions (Docker + manual)",
+      "README includes: Tech stack decisions and tradeoffs",
+      "README includes: GraphQL API overview",
+      "README includes: Architecture diagram or description",
+      "README links to ADRs for detailed decisions"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "README is comprehensive and up to date"
+    ]
+  },
+  {
+    "id": "F-026",
+    "title": "Final smoke test and PR creation",
+    "description": "Run the full stack locally, verify everything works, and create the final PR.",
+    "dependencies": [
+      "F-025",
+      "F-023"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "docker compose up --build starts all services",
+      "PostgreSQL is healthy and migrations have run",
+      "Django GraphQL playground responds on localhost:8000/graphql",
+      "Frontend loads on localhost:5173",
+      "Full workflow works manually: Campaign \u2192 Content \u2192 AI Draft \u2192 Review",
+      "PR created with template and checklist filled"
+    ],
+    "test_requirements": [
+      "Manual smoke test walkthrough"
+    ],
+    "done_when": [
+      "Everything runs with docker compose up",
+      "PR is created and ready for review"
+    ]
+  },
+  {
+    "id": "F-027",
+    "title": "Architecture replanning: NestJS\u2192Django+Strawberry GraphQL migration",
+    "description": "Rewrite all plans, ADRs, conventions, and documentation to reflect the new Django+Strawberry+Python backend stack. Remove all NestJS/TypeScript references from project plans.",
+    "dependencies": [],
+    "stack": "docs",
+    "role": "planner",
+    "status": "done",
+    "acceptance_criteria": [
+      "AGENTS.md updated: R-001, R-010, R-011, R-014 reflect Django+Python",
+      "AGENTS.md section 4: Prerequisites, init script, env vars updated",
+      "AGENTS.md section 5: Folder structure shows Django apps",
+      "AGENTS.md section 9: Test types use pytest/Django TestClient",
+      "AGENTS.md section 11: Convention file renamed to django-structure.md",
+      "AGENTS.md section 12: Human decisions updated",
+      "AGENTS.md Appendix: Commands and state machine updated",
+      "feature_list.json: All tasks re-scoped for Django+Strawberry GraphQL",
+      "knowledge/conventions/nestjs-structure.md replaced with django-structure.md",
+      "install-skills.sh and skills-lock.json updated for new stack"
+    ],
+    "test_requirements": [],
+    "done_when": [
+      "All acceptance criteria met",
+      "Code reviewer approved",
+      "Changes committed and pushed"
+    ]
+  }
+]

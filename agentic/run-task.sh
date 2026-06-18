@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Run a single task from feature_list.json
-# Usage: ./harness/workflows/run-task.sh F-001
+# Usage: ./agentic/run-task.sh F-001
 
 TASK_ID="${1:-}"
 if [ -z "$TASK_ID" ]; then
@@ -10,7 +10,7 @@ if [ -z "$TASK_ID" ]; then
   exit 1
 fi
 
-RUN_DIR="harness/workflows/runs/$TASK_ID"
+RUN_DIR="agentic/runs/$TASK_ID"
 mkdir -p "$RUN_DIR"
 
 echo "=== Running $TASK_ID ==="
