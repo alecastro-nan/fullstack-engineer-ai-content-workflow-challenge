@@ -9,18 +9,7 @@
       "skillPath": "skills/docker-expert/SKILL.md",
       "computedHash": "0974b5f64fcd284c1bd662810e2388f7beb9be6784c597de4d0ad4213ccbd6af"
     },
-    "javascript-typescript-jest": {
-      "source": "github/awesome-copilot",
-      "sourceType": "github",
-      "skillPath": "skills/javascript-typescript-jest/SKILL.md",
-      "computedHash": "0073d19ab0275eb6a8200aced6789a53744667bd717b5d1f44ce708a1740e5d4"
-    },
-    "jest-react-testing": {
-      "source": "manutej/luxor-claude-marketplace",
-      "sourceType": "github",
-      "skillPath": "plugins/luxor-frontend-essentials/skills/jest-react-testing/SKILL.md",
-      "computedHash": "2f938ce10a81d8583b679d7ce75eb935fffbad5aab4e5d9681285bc3c9b83224"
-    },
+
     "multi-stage-dockerfile": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
