@@ -8,8 +8,9 @@ Lightweight index for task execution. Each completed task gets a 1-2 line summar
 handoff → `harness/workflows/runs/F-000-init-monorepo/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 
-## F-001 — Clean up old NestJS/TypeScript backend artifacts — PENDING
+## F-001 — Clean up old NestJS/TypeScript backend artifacts — DONE
 handoff → `harness/workflows/runs/F-001-cleanup-backend/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
 ## F-002 — Install Django + Strawberry GraphQL + Python backend stack — PENDING
 handoff → `harness/workflows/runs/F-002-install-django-stack/handoff.md`
