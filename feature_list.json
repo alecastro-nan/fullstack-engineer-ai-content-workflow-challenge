@@ -20,9 +20,43 @@
   },
   {
     "id": "F-001",
+    "title": "Clean up old NestJS/TypeScript backend artifacts",
+    "description": "Remove all NestJS/Prisma/TypeScript backend code, configuration, and dependencies before scaffolding the new Django+Strawberry stack.",
+    "dependencies": [
+      "F-000"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "backend/src/ directory removed (NestJS source code)",
+      "backend/dist/ directory removed (compiled output)",
+      "backend/node_modules/ removed",
+      "backend/nest-cli.json, package.json, tsconfig*.json, vitest*.config.ts removed",
+      "backend/drizzle/ and drizzle.config.ts removed (Prisma/Drizzle schema)",
+      "backend/pnpm-lock.yaml and pnpm-workspace.yaml removed",
+      "backend/.env.example and backend/.env removed (use root .env instead)",
+      "compose.yml updated: old NestJS backend service removed, placeholder for Django backend added",
+      "Root pnpm-workspace.yaml cleaned up (no backend workspace reference)",
+      "Git rm all tracked NestJS files, gitignore backend artifacts"
+    ],
+    "test_requirements": [
+      "Verify no NestJS files remain (grep nest-cli, tsconfig, NestFactory)",
+      "Verify compose.yml parses correctly (docker compose config)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "Clean git status shows only intentional files",
+      "Code reviewer and security reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-002",
     "title": "Campaign CRUD GraphQL API",
     "description": "GraphQL mutations and queries to create, read, update, and soft-delete campaigns using Django + Strawberry.",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -45,17 +79,19 @@
     ],
     "done_when": [
       "All acceptance criteria pass",
-      "All tests pass (≥80% coverage on campaigns app)",
+      "All tests pass (\u226580% coverage on campaigns app)",
       "Code reviewer has approved",
       "Security reviewer has confirmed no secrets exposed",
       "API can be tested via GraphQL playground"
     ]
   },
   {
-    "id": "F-002",
+    "id": "F-003",
     "title": "Content Piece CRUD GraphQL API",
     "description": "GraphQL mutations and queries for content pieces within a campaign using Django + Strawberry.",
-    "dependencies": ["F-001"],
+    "dependencies": [
+      "F-002"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -82,10 +118,12 @@
     ]
   },
   {
-    "id": "F-003",
+    "id": "F-004",
     "title": "PostgreSQL schema & Django migrations",
     "description": "Create Django models, database enums, indices, and migration files.",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -108,10 +146,12 @@
     ]
   },
   {
-    "id": "F-004",
+    "id": "F-005",
     "title": "AI provider abstraction layer (OpenAI + Anthropic)",
     "description": "Build an abstract AI service in Python that supports both OpenAI and Anthropic providers with fallback logic.",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -137,10 +177,13 @@
     ]
   },
   {
-    "id": "F-005",
+    "id": "F-006",
     "title": "AI draft generation GraphQL mutation",
     "description": "GraphQL mutation that takes a content brief and generates an AI-powered draft.",
-    "dependencies": ["F-002", "F-004"],
+    "dependencies": [
+      "F-003",
+      "F-005"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -163,10 +206,13 @@
     ]
   },
   {
-    "id": "F-006",
+    "id": "F-007",
     "title": "AI translation/localization GraphQL mutation",
     "description": "GraphQL mutation that translates content into a target language using AI.",
-    "dependencies": ["F-002", "F-004"],
+    "dependencies": [
+      "F-003",
+      "F-005"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -189,10 +235,12 @@
     ]
   },
   {
-    "id": "F-007",
+    "id": "F-008",
     "title": "Review state machine (state transitions, guards)",
     "description": "Implement the review state machine with valid transition guards in Django model layer.",
-    "dependencies": ["F-002"],
+    "dependencies": [
+      "F-003"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -215,10 +263,12 @@
     ]
   },
   {
-    "id": "F-008",
+    "id": "F-009",
     "title": "Review GraphQL mutations (approve, reject, request edits)",
     "description": "GraphQL mutations for human reviewers to approve, reject, or request edits on AI-suggested content.",
-    "dependencies": ["F-007"],
+    "dependencies": [
+      "F-008"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -242,10 +292,12 @@
     ]
   },
   {
-    "id": "F-009",
+    "id": "F-010",
     "title": "WebSocket/SSE setup in Django",
     "description": "Set up Django Channels for WebSocket-based real-time broadcasting.",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -268,10 +320,13 @@
     ]
   },
   {
-    "id": "F-010",
+    "id": "F-011",
     "title": "Real-time broadcast on state changes",
     "description": "Broadcast content state changes via Django Channels WebSocket to all connected clients.",
-    "dependencies": ["F-008", "F-009"],
+    "dependencies": [
+      "F-009",
+      "F-010"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -293,10 +348,12 @@
     ]
   },
   {
-    "id": "F-011",
+    "id": "F-012",
     "title": "React project scaffold (Vite, routing, GraphQL client)",
     "description": "Scaffold the React frontend with Vite, React Router, and a GraphQL client (Apollo/URQL).",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -320,10 +377,13 @@
     ]
   },
   {
-    "id": "F-012",
+    "id": "F-013",
     "title": "Campaign Dashboard page (list + create)",
     "description": "Page that lists all campaigns via GraphQL and allows creating new ones.",
-    "dependencies": ["F-001", "F-011"],
+    "dependencies": [
+      "F-002",
+      "F-012"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -347,10 +407,13 @@
     ]
   },
   {
-    "id": "F-013",
+    "id": "F-014",
     "title": "Campaign Detail page (content pieces, states)",
     "description": "Detail page for a single campaign showing its content pieces with review states.",
-    "dependencies": ["F-002", "F-012"],
+    "dependencies": [
+      "F-003",
+      "F-013"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -372,10 +435,13 @@
     ]
   },
   {
-    "id": "F-014",
+    "id": "F-015",
     "title": "AI Draft panel (trigger generation, preview)",
     "description": "Panel that allows triggering AI draft generation via GraphQL mutation and previewing the result.",
-    "dependencies": ["F-005", "F-013"],
+    "dependencies": [
+      "F-006",
+      "F-014"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -399,10 +465,13 @@
     ]
   },
   {
-    "id": "F-015",
+    "id": "F-016",
     "title": "Review UI (approve/reject/edit buttons, state badges)",
     "description": "UI for human reviewers to approve, reject, or request edits on content via GraphQL mutations.",
-    "dependencies": ["F-008", "F-013"],
+    "dependencies": [
+      "F-009",
+      "F-014"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -426,10 +495,13 @@
     ]
   },
   {
-    "id": "F-016",
+    "id": "F-017",
     "title": "Translation panel (select language, trigger, preview)",
     "description": "Panel to trigger AI translation via GraphQL mutation and preview the result.",
-    "dependencies": ["F-006", "F-013"],
+    "dependencies": [
+      "F-007",
+      "F-014"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -452,10 +524,13 @@
     ]
   },
   {
-    "id": "F-017",
+    "id": "F-018",
     "title": "Real-time status updates on frontend",
     "description": "Connect frontend to Django Channels WebSocket and display live state changes.",
-    "dependencies": ["F-010", "F-011"],
+    "dependencies": [
+      "F-011",
+      "F-012"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -478,10 +553,13 @@
     ]
   },
   {
-    "id": "F-018",
+    "id": "F-019",
     "title": "Docker Compose (PostgreSQL + Backend + Frontend)",
     "description": "Create compose.yml that runs PostgreSQL, Django backend, and React frontend with one command.",
-    "dependencies": ["F-001", "F-011"],
+    "dependencies": [
+      "F-002",
+      "F-012"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "pending",
@@ -504,10 +582,12 @@
     ]
   },
   {
-    "id": "F-019",
+    "id": "F-020",
     "title": "Dockerfiles (backend + frontend multi-stage)",
     "description": "Multi-stage Dockerfiles for Django backend and React frontend.",
-    "dependencies": ["F-018"],
+    "dependencies": [
+      "F-019"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "pending",
@@ -527,10 +607,12 @@
     ]
   },
   {
-    "id": "F-020",
+    "id": "F-021",
     "title": "GitHub Actions CI (lint, typecheck, test)",
     "description": "CI pipeline with ruff linting, mypy type checking, and pytest tests.",
-    "dependencies": ["F-019"],
+    "dependencies": [
+      "F-020"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "pending",
@@ -551,10 +633,14 @@
     ]
   },
   {
-    "id": "F-021",
-    "title": "End-to-end workflow test (Campaign → Content → AI Draft → Review)",
+    "id": "F-022",
+    "title": "End-to-end workflow test (Campaign \u2192 Content \u2192 AI Draft \u2192 Review)",
     "description": "Write a full end-to-end integration test exercising the entire workflow via GraphQL.",
-    "dependencies": ["F-005", "F-008", "F-010"],
+    "dependencies": [
+      "F-006",
+      "F-009",
+      "F-011"
+    ],
     "stack": "test",
     "role": "builder",
     "status": "pending",
@@ -575,18 +661,23 @@
     ]
   },
   {
-    "id": "F-022",
+    "id": "F-023",
     "title": "ADRs (GraphQL, AI provider, real-time, DB schema)",
     "description": "Write the four required Architecture Decision Records for the Django+Strawberry stack.",
-    "dependencies": ["F-001", "F-004", "F-009", "F-003"],
+    "dependencies": [
+      "F-002",
+      "F-005",
+      "F-010",
+      "F-004"
+    ],
     "stack": "docs",
     "role": "builder",
     "status": "pending",
     "acceptance_criteria": [
-      "ADR-001: GraphQL with Strawberry — decision and reasoning",
-      "ADR-002: AI Provider selection — OpenAI vs Anthropic vs both",
-      "ADR-003: Real-time mechanism — Django Channels vs SSE",
-      "ADR-004: Database schema — Django models, enums, indices design",
+      "ADR-001: GraphQL with Strawberry \u2014 decision and reasoning",
+      "ADR-002: AI Provider selection \u2014 OpenAI vs Anthropic vs both",
+      "ADR-003: Real-time mechanism \u2014 Django Channels vs SSE",
+      "ADR-004: Database schema \u2014 Django models, enums, indices design",
       "Each ADR follows the template from AGENTS.md section 10.2"
     ],
     "test_requirements": [],
@@ -596,10 +687,12 @@
     ]
   },
   {
-    "id": "F-023",
+    "id": "F-024",
     "title": "README update (setup instructions, tech decisions, tradeoffs)",
     "description": "Update README.md with setup instructions, technology decisions, and tradeoffs.",
-    "dependencies": ["F-022"],
+    "dependencies": [
+      "F-023"
+    ],
     "stack": "docs",
     "role": "builder",
     "status": "pending",
@@ -616,10 +709,13 @@
     ]
   },
   {
-    "id": "F-024",
+    "id": "F-025",
     "title": "Final smoke test and PR creation",
     "description": "Run the full stack locally, verify everything works, and create the final PR.",
-    "dependencies": ["F-023", "F-021"],
+    "dependencies": [
+      "F-024",
+      "F-022"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "pending",
@@ -628,7 +724,7 @@
       "PostgreSQL is healthy and migrations have run",
       "Django GraphQL playground responds on localhost:8000/graphql",
       "Frontend loads on localhost:5173",
-      "Full workflow works manually: Campaign → Content → AI Draft → Review",
+      "Full workflow works manually: Campaign \u2192 Content \u2192 AI Draft \u2192 Review",
       "PR created with template and checklist filled"
     ],
     "test_requirements": [
@@ -640,8 +736,8 @@
     ]
   },
   {
-    "id": "F-025",
-    "title": "Architecture replanning: NestJS→Django+Strawberry GraphQL migration",
+    "id": "F-026",
+    "title": "Architecture replanning: NestJS\u2192Django+Strawberry GraphQL migration",
     "description": "Rewrite all plans, ADRs, conventions, and documentation to reflect the new Django+Strawberry+Python backend stack. Remove all NestJS/TypeScript references from project plans.",
     "dependencies": [],
     "stack": "docs",
