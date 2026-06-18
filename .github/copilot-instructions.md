@@ -1,1 +1,1 @@
-../../AGENTS.md
+../../agentic/AGENTS.md
