@@ -59,7 +59,7 @@
     ],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "pyproject.toml created with dependencies: Django \u22655.1, strawberry-graphql[django], uvicorn, gunicorn, psycopg2-binary, django-environ, pytest, pytest-django, pytest-cov, mypy, ruff, channels, daphne",
       "uv sync installs all dependencies without errors",
