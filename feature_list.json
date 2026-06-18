@@ -52,10 +52,56 @@
   },
   {
     "id": "F-002",
+    "title": "Install Django + Strawberry GraphQL + Python backend stack",
+    "description": "Scaffold the Django project with Strawberry GraphQL, configure settings (base/development/production), install Python dependencies via uv, set up pytest-django, mypy, and ruff. This task replaces the old NestJS backend with a complete Django+Python foundation.",
+    "dependencies": [
+      "F-001"
+    ],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "pyproject.toml created with dependencies: Django \u22655.1, strawberry-graphql[django], uvicorn, gunicorn, psycopg2-binary, django-environ, pytest, pytest-django, pytest-cov, mypy, ruff, channels, daphne",
+      "uv sync installs all dependencies without errors",
+      "Django project scaffolded at backend/ with: manage.py, config/settings/base.py, config/settings/development.py, config/settings/production.py, config/__init__.py, config/urls.py, config/wsgi.py, config/asgi.py",
+      "config/settings/base.py includes: DATABASES via env, INSTALLED_APPS (strawberry, channels, campaigns, content, ai, reviews), STRAWBERRY schema config, CHANNEL_LAYERS config",
+      "config/settings/development.py: DEBUG=True, SQLite fallback if DATABASE_URL not set",
+      "config/settings/production.py: DEBUG=False, PostgreSQL required, ALLOWED_HOSTS from env",
+      "Strawberry GraphQL schema endpoint at /graphql with GraphQL playground in DEBUG mode",
+      "Django admin configured at /admin/",
+      "App skeleton directories created: backend/apps/campaigns/, backend/apps/content/, backend/apps/ai/, backend/apps/reviews/ \u2014 each with __init__.py, apps.py, models.py, admin.py, schema.py, tests/__init__.py",
+      "pytest-django configured in pyproject.toml (DJANGO_SETTINGS_MODULE, test paths)",
+      "mypy configured in pyproject.toml (strict mode enabled)",
+      "ruff configured in pyproject.toml",
+      "backend/Dockerfile created (multi-stage: builder with uv, production with gunicorn+uvicorn)",
+      "backend/.dockerignore created (exclude __pycache__, .venv, .env, .git)",
+      "compose.yml updated: Django backend service on port 8000, depends_on db, DATABASE_URL env",
+      "Root .env.example updated: DATABASE_URL, DJANGO_SETTINGS_MODULE, PORT, FRONTEND_URL, DEBUG",
+      "backend/.env.example removed (root .env.example is the single source)"
+    ],
+    "test_requirements": [
+      "pytest --version works from backend/",
+      "python manage.py check passes (Django system checks, no errors)",
+      "python manage.py showmigrations runs without error",
+      "mypy backend/ --no-error-summary passes (no type errors on scaffolded code)",
+      "ruff check backend/ passes (no lint errors on scaffolded code)",
+      "GraphQL schema endpoint returns 200 on GET /graphql (playground renders)",
+      "GraphQL schema introspection query returns valid SDL"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All test_requirements pass",
+      "uv sync is reproducible from clean checkout",
+      "docker compose up --build starts Django and responds on localhost:8000/graphql",
+      "Code reviewer and security reviewer have approved"
+    ]
+  },
+  {
+    "id": "F-003",
     "title": "Campaign CRUD GraphQL API",
     "description": "GraphQL mutations and queries to create, read, update, and soft-delete campaigns using Django + Strawberry.",
     "dependencies": [
-      "F-000"
+      "F-002"
     ],
     "stack": "backend",
     "role": "builder",
@@ -86,11 +132,11 @@
     ]
   },
   {
-    "id": "F-003",
+    "id": "F-004",
     "title": "Content Piece CRUD GraphQL API",
     "description": "GraphQL mutations and queries for content pieces within a campaign using Django + Strawberry.",
     "dependencies": [
-      "F-002"
+      "F-003"
     ],
     "stack": "backend",
     "role": "builder",
@@ -118,11 +164,11 @@
     ]
   },
   {
-    "id": "F-004",
+    "id": "F-005",
     "title": "PostgreSQL schema & Django migrations",
     "description": "Create Django models, database enums, indices, and migration files.",
     "dependencies": [
-      "F-000"
+      "F-002"
     ],
     "stack": "backend",
     "role": "builder",
@@ -146,11 +192,11 @@
     ]
   },
   {
-    "id": "F-005",
+    "id": "F-006",
     "title": "AI provider abstraction layer (OpenAI + Anthropic)",
     "description": "Build an abstract AI service in Python that supports both OpenAI and Anthropic providers with fallback logic.",
     "dependencies": [
-      "F-000"
+      "F-002"
     ],
     "stack": "backend",
     "role": "builder",
@@ -177,12 +223,12 @@
     ]
   },
   {
-    "id": "F-006",
+    "id": "F-007",
     "title": "AI draft generation GraphQL mutation",
     "description": "GraphQL mutation that takes a content brief and generates an AI-powered draft.",
     "dependencies": [
-      "F-003",
-      "F-005"
+      "F-004",
+      "F-006"
     ],
     "stack": "backend",
     "role": "builder",
@@ -206,12 +252,12 @@
     ]
   },
   {
-    "id": "F-007",
+    "id": "F-008",
     "title": "AI translation/localization GraphQL mutation",
     "description": "GraphQL mutation that translates content into a target language using AI.",
     "dependencies": [
-      "F-003",
-      "F-005"
+      "F-004",
+      "F-006"
     ],
     "stack": "backend",
     "role": "builder",
@@ -235,11 +281,11 @@
     ]
   },
   {
-    "id": "F-008",
+    "id": "F-009",
     "title": "Review state machine (state transitions, guards)",
     "description": "Implement the review state machine with valid transition guards in Django model layer.",
     "dependencies": [
-      "F-003"
+      "F-004"
     ],
     "stack": "backend",
     "role": "builder",
@@ -263,11 +309,11 @@
     ]
   },
   {
-    "id": "F-009",
+    "id": "F-010",
     "title": "Review GraphQL mutations (approve, reject, request edits)",
     "description": "GraphQL mutations for human reviewers to approve, reject, or request edits on AI-suggested content.",
     "dependencies": [
-      "F-008"
+      "F-009"
     ],
     "stack": "backend",
     "role": "builder",
@@ -292,11 +338,11 @@
     ]
   },
   {
-    "id": "F-010",
+    "id": "F-011",
     "title": "WebSocket/SSE setup in Django",
     "description": "Set up Django Channels for WebSocket-based real-time broadcasting.",
     "dependencies": [
-      "F-000"
+      "F-002"
     ],
     "stack": "backend",
     "role": "builder",
@@ -320,12 +366,12 @@
     ]
   },
   {
-    "id": "F-011",
+    "id": "F-012",
     "title": "Real-time broadcast on state changes",
     "description": "Broadcast content state changes via Django Channels WebSocket to all connected clients.",
     "dependencies": [
-      "F-009",
-      "F-010"
+      "F-010",
+      "F-011"
     ],
     "stack": "backend",
     "role": "builder",
@@ -348,7 +394,7 @@
     ]
   },
   {
-    "id": "F-012",
+    "id": "F-013",
     "title": "React project scaffold (Vite, routing, GraphQL client)",
     "description": "Scaffold the React frontend with Vite, React Router, and a GraphQL client (Apollo/URQL).",
     "dependencies": [
@@ -377,12 +423,12 @@
     ]
   },
   {
-    "id": "F-013",
+    "id": "F-014",
     "title": "Campaign Dashboard page (list + create)",
     "description": "Page that lists all campaigns via GraphQL and allows creating new ones.",
     "dependencies": [
-      "F-002",
-      "F-012"
+      "F-003",
+      "F-013"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -407,12 +453,12 @@
     ]
   },
   {
-    "id": "F-014",
+    "id": "F-015",
     "title": "Campaign Detail page (content pieces, states)",
     "description": "Detail page for a single campaign showing its content pieces with review states.",
     "dependencies": [
-      "F-003",
-      "F-013"
+      "F-004",
+      "F-014"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -435,12 +481,12 @@
     ]
   },
   {
-    "id": "F-015",
+    "id": "F-016",
     "title": "AI Draft panel (trigger generation, preview)",
     "description": "Panel that allows triggering AI draft generation via GraphQL mutation and previewing the result.",
     "dependencies": [
-      "F-006",
-      "F-014"
+      "F-007",
+      "F-015"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -465,12 +511,12 @@
     ]
   },
   {
-    "id": "F-016",
+    "id": "F-017",
     "title": "Review UI (approve/reject/edit buttons, state badges)",
     "description": "UI for human reviewers to approve, reject, or request edits on content via GraphQL mutations.",
     "dependencies": [
-      "F-009",
-      "F-014"
+      "F-010",
+      "F-015"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -495,12 +541,12 @@
     ]
   },
   {
-    "id": "F-017",
+    "id": "F-018",
     "title": "Translation panel (select language, trigger, preview)",
     "description": "Panel to trigger AI translation via GraphQL mutation and preview the result.",
     "dependencies": [
-      "F-007",
-      "F-014"
+      "F-008",
+      "F-015"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -524,12 +570,12 @@
     ]
   },
   {
-    "id": "F-018",
+    "id": "F-019",
     "title": "Real-time status updates on frontend",
     "description": "Connect frontend to Django Channels WebSocket and display live state changes.",
     "dependencies": [
-      "F-011",
-      "F-012"
+      "F-012",
+      "F-013"
     ],
     "stack": "frontend",
     "role": "builder",
@@ -553,12 +599,12 @@
     ]
   },
   {
-    "id": "F-019",
+    "id": "F-020",
     "title": "Docker Compose (PostgreSQL + Backend + Frontend)",
     "description": "Create compose.yml that runs PostgreSQL, Django backend, and React frontend with one command.",
     "dependencies": [
-      "F-002",
-      "F-012"
+      "F-003",
+      "F-013"
     ],
     "stack": "infra",
     "role": "builder",
@@ -582,11 +628,11 @@
     ]
   },
   {
-    "id": "F-020",
+    "id": "F-021",
     "title": "Dockerfiles (backend + frontend multi-stage)",
     "description": "Multi-stage Dockerfiles for Django backend and React frontend.",
     "dependencies": [
-      "F-019"
+      "F-020"
     ],
     "stack": "infra",
     "role": "builder",
@@ -607,11 +653,11 @@
     ]
   },
   {
-    "id": "F-021",
+    "id": "F-022",
     "title": "GitHub Actions CI (lint, typecheck, test)",
     "description": "CI pipeline with ruff linting, mypy type checking, and pytest tests.",
     "dependencies": [
-      "F-020"
+      "F-021"
     ],
     "stack": "infra",
     "role": "builder",
@@ -633,13 +679,13 @@
     ]
   },
   {
-    "id": "F-022",
+    "id": "F-023",
     "title": "End-to-end workflow test (Campaign \u2192 Content \u2192 AI Draft \u2192 Review)",
     "description": "Write a full end-to-end integration test exercising the entire workflow via GraphQL.",
     "dependencies": [
-      "F-006",
-      "F-009",
-      "F-011"
+      "F-007",
+      "F-010",
+      "F-012"
     ],
     "stack": "test",
     "role": "builder",
@@ -661,14 +707,14 @@
     ]
   },
   {
-    "id": "F-023",
+    "id": "F-024",
     "title": "ADRs (GraphQL, AI provider, real-time, DB schema)",
     "description": "Write the four required Architecture Decision Records for the Django+Strawberry stack.",
     "dependencies": [
-      "F-002",
-      "F-005",
-      "F-010",
-      "F-004"
+      "F-003",
+      "F-006",
+      "F-011",
+      "F-005"
     ],
     "stack": "docs",
     "role": "builder",
@@ -687,11 +733,11 @@
     ]
   },
   {
-    "id": "F-024",
+    "id": "F-025",
     "title": "README update (setup instructions, tech decisions, tradeoffs)",
     "description": "Update README.md with setup instructions, technology decisions, and tradeoffs.",
     "dependencies": [
-      "F-023"
+      "F-024"
     ],
     "stack": "docs",
     "role": "builder",
@@ -709,12 +755,12 @@
     ]
   },
   {
-    "id": "F-025",
+    "id": "F-026",
     "title": "Final smoke test and PR creation",
     "description": "Run the full stack locally, verify everything works, and create the final PR.",
     "dependencies": [
-      "F-024",
-      "F-022"
+      "F-025",
+      "F-023"
     ],
     "stack": "infra",
     "role": "builder",
@@ -736,7 +782,7 @@
     ]
   },
   {
-    "id": "F-026",
+    "id": "F-027",
     "title": "Architecture replanning: NestJS\u2192Django+Strawberry GraphQL migration",
     "description": "Rewrite all plans, ADRs, conventions, and documentation to reflect the new Django+Strawberry+Python backend stack. Remove all NestJS/TypeScript references from project plans.",
     "dependencies": [],
