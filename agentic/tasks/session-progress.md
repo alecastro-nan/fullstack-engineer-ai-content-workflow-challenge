@@ -10,7 +10,7 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 
 ## F-001 — Clean up old NestJS/TypeScript backend artifacts — DONE
 handoff → `agentic/runs/F-001-cleanup-backend/handoff.md`
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+reviewers: @code-reviewer ✅ @security-reviewer ✅
 
 ## Architecture Fixes — Integration Readiness — DONE
 handoff → `docs/architecture-review.md`
