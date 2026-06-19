@@ -105,7 +105,7 @@
     ],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "Campaign Django model with: id (UUID), name, description, status, createdAt, updatedAt, isDeleted (indices on isDeleted, status)",
       "Django migration created for Campaign model (idempotent and reversible)",

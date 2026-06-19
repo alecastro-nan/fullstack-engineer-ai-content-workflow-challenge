@@ -42,6 +42,7 @@ disable_error_code = ["var-annotated", "type-arg"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
