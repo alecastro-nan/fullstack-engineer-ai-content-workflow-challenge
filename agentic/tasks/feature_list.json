@@ -327,7 +327,7 @@
     "dependencies": [],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "in-progress",
     "acceptance_criteria": [
       "ContentState uses Django TextChoices: draft, suggested_by_ai, reviewed, approved, rejected",
       "Valid transitions enforced at the model/service layer: draft->suggested_by_ai, suggested_by_ai->reviewed|rejected, reviewed->approved|rejected|suggested_by_ai, approved->[], rejected->draft|suggested_by_ai",
