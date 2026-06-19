@@ -1,129 +1,243 @@
-# 🚀 Fullstack Engineer Challenge – AI Content Workflow
+# ACME GLOBAL MEDIA — AI Content Workflow Platform
 
-Welcome to the **Fullstack Engineer Challenge!** 🤖📝  
-In this challenge, you'll help the fictional company **ACME GLOBAL MEDIA** build a system to manage the **content creation and review workflow** for their international campaigns — powered by **AI**.
+A campaign content management system with AI-powered drafting, translation/localization, and human-in-the-loop review.
 
-## 🎯 Context
+## Tech Stack
 
-ACME GLOBAL MEDIA produces ads, micro-sites, and marketing materials in multiple languages.  
-Traditionally, creating and translating this content is slow and error-prone. They want to experiment with **LLMs** to:
+| Layer | Technology | Rationale |
+|---|---|---|
+| **Backend** | Django 5.1 + Strawberry GraphQL | Python, mature ORM, GraphQL-native |
+| **Frontend** | React 19 + Vite 6 + React Router 7 | Fast dev server, component-based UI |
+| **Database** | PostgreSQL 16 (primary) | ACID, JSONB for AI metadata |
+| **Real-time** | Django Channels (WebSocket) | State change broadcasts |
+| **AI** | OpenAI SDK / Anthropic SDK | Provider abstraction with fallback |
+| **Containers** | Docker + Docker Compose | One-command local setup |
+| **Package Mgmt** | uv (Python) / pnpm (Frontend) | Fast, deterministic installs |
 
-- Generate initial content drafts (headlines, product descriptions, etc.).
-- Translate and localize content into multiple languages.
-- Extract structured data (keywords, tone, sentiment).
-- Keep a **review workflow** where humans can accept, edit, or reject AI suggestions.
+## Architecture
 
-Your task is to build a simple system to:
+```
+┌─ Frontend (Vite + React) ─────────────────────┐
+│  Campaign Dashboard → Campaign Detail →        │
+│  AI Draft Panel → Review UI → Translation      │
+└────────────────────┬───────────────────────────┘
+                     │ GraphQL (HTTP) + WebSocket
+                     ▼
+┌─ Backend (Django + Strawberry GraphQL) ────────┐
+│  campaigns app → content app → ai app →        │
+│                 reviews app                     │
+│  ASGI: HTTP /graphql + WS /ws/content/          │
+└────────────────────┬───────────────────────────┘
+                     │
+                     ▼
+┌─ Infrastructure ───────────────────────────────┐
+│  PostgreSQL 16 ← Redis (optional, for Channels) │
+└─────────────────────────────────────────────────┘
+```
 
-- Manage **campaigns** (each with multiple content pieces).
-- Generate **AI-powered drafts** for a content piece using OpenAI or Anthropic.
-- Provide **translation/localization** suggestions via AI.
-- Track a **review state** (Draft → Suggested by AI → Reviewed → Approved/Rejected).
-- Show updates to all users in real-time.
+## Current Status
 
-## 📌 Requirements
+### Implemented ✅
 
-### ⚙️ Tech Stack
+- **Campaign CRUD** (F-003): Create, read, update, soft-delete campaigns via GraphQL
+- **ContentPiece CRUD** (F-004): Create, read, update, soft-delete content pieces within a campaign via GraphQL
+- **Health check** endpoint at `/graphql`
 
-> ⚡ **Must Include** - Use the following technologies, aligned with our tech stack:
+### In Progress 🔄
 
-- **Backend:** You can use any stack you're comfortable with, but we recommend:
-  - TypeScript + NestJS (Fastify/Koa also valid)  
-  - Python + FastAPI (Flask/Django also valid)  
-  - Go + Fiber (Gin/Echo also valid)  
-- **API:** REST and/or GraphQL (justify your choice if only one)  
-- **Frontend:** React (Next.js, Remix, or Vite)  
-- **Database:** PostgreSQL (primary), MongoDB (optional if needed)  
-- **Containerization:** Docker (required)  
-- **AI Integrations:** OpenAI and/or Anthropic SDKs (required)  
-- **Bonus:** LangChain, Kafka, Redis, ArgoCD, Kubernetes  
+- AI provider abstraction layer (OpenAI + Anthropic)
 
-### 📦 Deliverables
+### Planned 📋
 
-> 📥 **Your submission must be a Pull Request that includes:**
+- AI draft generation
+- AI translation/localization
+- Review state machine (Draft → Suggested by AI → Reviewed → Approved/Rejected)
+- Review mutations (approve, reject, request edits)
+- Real-time WebSocket broadcasts
+- Full React frontend
 
-- A **backend API** that supports:
-  - Creating a campaign and its content pieces.
-  - Generating AI drafts (titles, descriptions, translations).
-  - Updating the review state of content.
-  - Querying campaigns with their content and review states.
-- A **frontend built with React** to:
-  - Display a campaign dashboard.
-  - Trigger AI draft generation.
-  - Provide UI to review/edit/approve/reject drafts.
-  - Show updates in real-time.
-- Docker setup to run the entire app locally.
-- A `README.md` with:
-  - Setup instructions.
-  - Tech decisions and tradeoffs.
-  - If applicable, reasoning for REST, GraphQL, or both.
-- A `docs/` folder for any diagrams, workflows, or extra notes.
+## How to Run
 
-### 📂 Suggested Folder Structure
+### Prerequisites
 
-```txt
-/
-├── .github/
-│   ├── workflows/
-│   └── PULL_REQUEST_TEMPLATE.md
-├── docs/
-├── backend/
-│   ├── src/
-│   ├── test/
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   └── Dockerfile
-├── compose.yml
-├── .env.example
-├── README.md
-├── .prettierrc.js
-├── eslint.config.mjs
-└── ...
-````
+- Python ≥3.12, uv, Node.js ≥18, pnpm, Docker ≥24
 
-## 🌟 Nice to Have
+### Option 1: Manual (for development)
 
-> 💡 **Bonus Points For:**
+```bash
+# 1. Install backend dependencies
+cd backend
+uv venv .venv && source .venv/bin/activate && uv sync
 
-* Using **LangChain** to chain AI tasks (generate → translate → summarize).
-* Supporting **multi-model comparison** (OpenAI vs Anthropic).
-* Real-time features with WebSockets, GraphQL Subscriptions, or SSE.
-* Automated testing & GitHub Actions CI pipeline.
-* Unit/integration tests for API or AI-related logic.
-* Using Redis/Kafka for async event messaging.
-* Deploy manifests for Kubernetes or ArgoCD.
+# 2. Install frontend dependencies
+cd ../frontend && pnpm install
 
-## 🧪 Submission Guidelines
+# 3. Create .env from template
+cd .. && cp .env.example .env  # edit with your API keys
 
-1. **Fork this repository.**
-2. **Create a feature branch** for your implementation.
-3. **Commit your changes** with meaningful commit messages.
-4. **Open a Pull Request** following the provided template.
-5. **Our team will review** and provide feedback.
+# 4. Start PostgreSQL
+docker compose up db -d
 
-## ✅ Evaluation Criteria
+# 5. Run migrations
+cd backend && source .venv/bin/activate && python manage.py migrate
 
-> 🔍 **What we'll be looking at:**
+# 6. Start backend
+python manage.py runserver
 
-* Ability to work **across the stack** (NestJS/FastAPI/Go + PostgreSQL + React).
-* Integration of **AI features** in a clean, modular way.
-* Clear **data modeling** and workflow management.
-* **Human-in-the-loop UX** for reviewing AI content.
-* Documentation of assumptions, tradeoffs, and AI design choices.
-* Creativity in using AI to enhance the workflow.
+# 7. In another terminal, start frontend
+cd frontend && pnpm dev
+```
 
-## 💬 Final Notes
+### Option 2: Docker Compose (full stack)
 
-This challenge is designed to be **flexible**. Some tips:
+```bash
+# Note: Frontend Dockerfile is pending implementation
+docker compose up db backend -d
+```
 
-* If you’re stronger in backend, focus there but add a simple UI.
-* If you’re stronger in frontend, ensure your backend has clean APIs.
-* Time-box your work — we want to see **how you think and solve problems**, not perfection.
-* Surprise us with creative uses of AI! 🎉
+### Option 3: Automated init script
 
-## 🏁 Good luck and have fun building!
+```bash
+./init.sh
+```
 
+## GraphQL API
 
+All API endpoints are available at `http://localhost:8000/graphql` with an interactive GraphQL playground in development mode.
+
+### Campaigns
+
+```graphql
+# Create a campaign
+mutation {
+  createCampaign(input: { name: "Summer Campaign", description: "Q3 marketing" }) {
+    id
+    name
+    description
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+# List campaigns (paginated)
+query {
+  campaigns(page: 1, perPage: 20) {
+    items { id name description status createdAt }
+    totalCount
+    page
+    perPage
+  }
+}
+
+# Get single campaign
+query {
+  campaign(id: "uuid-here") {
+    id
+    name
+    description
+    status
+  }
+}
+
+# Update campaign
+mutation {
+  updateCampaign(id: "uuid-here", input: { name: "Updated Name", status: ARCHIVED }) {
+    id
+    name
+    status
+  }
+}
+
+# Delete campaign (soft-delete)
+mutation {
+  deleteCampaign(id: "uuid-here")
+}
+```
+
+### Content Pieces
+
+```graphql
+# Create a content piece
+mutation {
+  createContentPiece(input: {
+    campaignId: "campaign-uuid",
+    headline: "Amazing Offer",
+    description: "Don't miss this deal",
+    body: "Full content here...",
+    language: "en"
+  }) {
+    id
+    headline
+    description
+    body
+    language
+    state
+    campaignId
+  }
+}
+
+# List content pieces by campaign
+query {
+  contentPieces(campaignId: "campaign-uuid", page: 1, perPage: 20) {
+    items { id headline language state }
+    totalCount
+  }
+}
+
+# Get single content piece
+query {
+  contentPiece(id: "piece-uuid") {
+    id
+    headline
+    description
+    body
+    language
+    state
+  }
+}
+
+# Update content piece
+mutation {
+  updateContentPiece(id: "piece-uuid", input: { headline: "New Headline" }) {
+    id
+    headline
+  }
+}
+
+# Delete content piece (soft-delete)
+mutation {
+  deleteContentPiece(id: "piece-uuid")
+}
+```
+
+### Content States
+
+Content pieces follow a state machine: `DRAFT → SUGGESTED_BY_AI → REVIEWED → APPROVED` or `REJECTED`.
+
+| State | Meaning |
+|---|---|
+| `DRAFT` | Initial state, editable |
+| `SUGGESTED_BY_AI` | AI has generated a draft |
+| `REVIEWED` | Human has reviewed the AI draft |
+| `APPROVED` | Content is approved and final |
+| `REJECTED` | Content rejected, can be revised |
+
+## Documentation
+
+- **Architecture Decision Records**: [`docs/adrs/`](docs/adrs/) — rationale for tech choices
+- **Architecture Overview**: [`docs/architecture-review.md`](docs/architecture-review.md)
+- **Workflow Guide**: [`docs/workflows.md`](docs/workflows.md)
+- **Agentic Workflow**: [`agentic/AGENTS.md`](agentic/AGENTS.md) — task management and quality gates
+
+## Project Structure
+
+```
+backend/          # Django + Strawberry GraphQL
+frontend/         # React + Vite
+agentic/          # Agent workflow ecosystem (tasks, runs, decisions)
+docs/             # ADRs, architecture, workflow docs
+compose.yml       # Docker Compose
+.env.example      # Environment template
+init.sh           # Setup script
 ```
