@@ -289,7 +289,7 @@
     "dependencies": ["F-006"],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "review",
     "acceptance_criteria": [
       "docker compose up --build starts all 3 services without errors",
       "Backend depends_on db with health check (service_healthy)",
