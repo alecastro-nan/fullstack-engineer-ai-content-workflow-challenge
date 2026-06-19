@@ -245,6 +245,7 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 | R-017 | No task can skip Code Review gate. Builder must wait for `@code-reviewer` sign-off before moving to next task. | Quality gate |
 | R-018 | Feature must be testable in isolation before marking done (manual or automated). | Done criteria |
 | R-019 | AGENTS.md is the single source of truth. If conflicting instructions exist elsewhere, AGENTS.md wins. | Governance |
+| R-026 | Branch naming must follow `type/task-id-short-description` (see `agentic/knowledge/conventions/branch-naming.md`). `feat/agentic-plan` is the integration branch — always branch from it. | Traceability |
 
 ### 3.4 Documentation
 
