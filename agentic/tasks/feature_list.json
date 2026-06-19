@@ -256,7 +256,7 @@
     "dependencies": [],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "review",
     "acceptance_criteria": [
       "frontend/Dockerfile exists with multi-stage build (builder + nginx production)",
       "Builder stage: uses node:20-alpine, corepack pnpm, copies package.json + pnpm-lock.yaml, runs pnpm install --frozen-lockfile, copies src, runs pnpm build",
