@@ -176,6 +176,35 @@
     ]
   },
   {
+    "id": "F-005",
+    "title": "PostgreSQL schema & Django migrations",
+    "description": "Create and apply Django migrations for Campaign and ContentPiece models. Completed as part of F-003 and F-004 implementation.",
+    "dependencies": [
+      "F-002"
+    ],
+    "stack": "backend",
+    "role": "builder",
+    "status": "done",
+    "acceptance_criteria": [
+      "Campaign model migration created and applied (0001_initial)",
+      "ContentPiece model migration created and applied (0001_initial)",
+      "ContentPiece model migration 0002 applied (indexes, deleted_at, PROTECT)",
+      "All migrations are idempotent and reversible",
+      "python manage.py showmigrations shows all content migrations as [X]"
+    ],
+    "test_requirements": [
+      "python manage.py makemigrations --check runs without errors (no unapplied migrations)",
+      "python manage.py migrate applies cleanly from scratch"
+    ],
+    "documentation_requirements": [
+      "README.md: no changes needed (schema is documented under each feature)"
+    ],
+    "done_when": [
+      "All migrations applied cleanly",
+      "python manage.py makemigrations --check passes"
+    ]
+  },
+  {
     "id": "F-CORS",
     "title": "Configure CORS for Django backend",
     "description": "Add django-cors-headers and configure CORS_ALLOWED_ORIGINS for frontend-backend communication.",
