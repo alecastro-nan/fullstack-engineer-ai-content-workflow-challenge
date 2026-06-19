@@ -37,9 +37,10 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 
 ## Phase 1: Docker Sandbox (unblocks `docker compose up`)
 
-### F-006 — Frontend Dockerfile — PENDING
+### F-006 — Frontend Dockerfile — IN REVIEW
 handoff → `agentic/runs/F-006-frontend-dockerfile/handoff.md`
-*Missing piece for docker compose up. Creates multi-stage nginx Dockerfile for the Vite frontend.*
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+*Multi-stage builder (node:20-alpine) + production (nginx:alpine), nginx.conf with proxy to backend, .dockerignore. Build not verified (Docker daemon unavailable on host).*
 
 ### F-007 — Finalize Docker Compose — PENDING
 handoff → `agentic/runs/F-007-docker-compose/handoff.md`
