@@ -49,9 +49,9 @@ reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
 ## Phase 2: Backend Engine (parallelizable)
 
-### F-008 — Review state machine + mutations (merged) — PENDING
+### F-008 — Review state machine + mutations (merged) — IN REVIEW
 handoff → `agentic/runs/F-008-review-state-machine-mutations/handoff.md`
-*Merged old F-009+F-010. State machine guards + GraphQL review mutations in one task.*
+*Merged old F-009+F-010. State machine guards + GraphQL review mutations in one task. 32 tests, mypy+ruff clean.*
 
 ### F-009 — AI provider abstraction layer — PENDING
 handoff → `agentic/runs/F-009-ai-abstraction/handoff.md`
