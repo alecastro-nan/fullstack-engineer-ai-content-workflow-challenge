@@ -2,12 +2,15 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.utils import timezone
 
 from apps.campaigns.models import Campaign
 from apps.content.models import ContentPiece
 
 MAX_HEADLINE_LENGTH = 255
 MAX_LANGUAGE_LENGTH = 10
+MAX_DESCRIPTION_LENGTH = 5_000
+MAX_BODY_LENGTH = 50_000
 
 
 class ContentPieceService:
@@ -36,6 +39,26 @@ class ContentPieceService:
         return stripped
 
     @staticmethod
+    def _validate_description(description: str) -> str:
+        stripped = description.strip()
+        if len(stripped) > MAX_DESCRIPTION_LENGTH:
+            raise ValidationError(
+                f"Description too long (max {MAX_DESCRIPTION_LENGTH} characters)",
+                code="invalid",
+            )
+        return stripped
+
+    @staticmethod
+    def _validate_body(body: str) -> str:
+        stripped = body.strip()
+        if len(stripped) > MAX_BODY_LENGTH:
+            raise ValidationError(
+                f"Body too long (max {MAX_BODY_LENGTH} characters)",
+                code="invalid",
+            )
+        return stripped
+
+    @staticmethod
     def _validate_campaign(campaign_id: uuid.UUID) -> Campaign:
         try:
             campaign = Campaign.objects.get(id=campaign_id, is_deleted=False)
@@ -56,19 +79,23 @@ class ContentPieceService:
     ) -> ContentPiece:
         validated_headline = ContentPieceService._validate_headline(headline)
         validated_language = ContentPieceService._validate_language(language)
+        validated_description = ContentPieceService._validate_description(description)
+        validated_body = ContentPieceService._validate_body(body)
         campaign = ContentPieceService._validate_campaign(campaign_id)
         return ContentPiece.objects.create(
             campaign=campaign,
             headline=validated_headline,
-            description=description.strip(),
-            body=body.strip(),
+            description=validated_description,
+            body=validated_body,
             language=validated_language,
         )
 
     @staticmethod
     def get_content_piece_by_id(content_id: uuid.UUID) -> ContentPiece | None:
         try:
-            return ContentPiece.objects.get(id=content_id, is_deleted=False)
+            return ContentPiece.objects.select_related("campaign").get(
+                id=content_id, is_deleted=False
+            )
         except ContentPiece.DoesNotExist:
             return None
 
@@ -76,7 +103,7 @@ class ContentPieceService:
     def list_content_pieces(
         campaign_id: uuid.UUID | None = None,
     ) -> QuerySet[ContentPiece]:
-        qs = ContentPiece.objects.filter(is_deleted=False)
+        qs = ContentPiece.objects.filter(is_deleted=False).select_related("campaign")
         if campaign_id is not None:
             qs = qs.filter(campaign_id=campaign_id)
         return qs.order_by("-created_at")
@@ -92,15 +119,23 @@ class ContentPieceService:
         piece = ContentPieceService.get_content_piece_by_id(content_id)
         if piece is None:
             return None
+
+        update_fields: list[str] = []
         if headline is not None:
             piece.headline = ContentPieceService._validate_headline(headline)
+            update_fields.append("headline")
         if description is not None:
-            piece.description = description.strip()
+            piece.description = ContentPieceService._validate_description(description)
+            update_fields.append("description")
         if body is not None:
-            piece.body = body.strip()
+            piece.body = ContentPieceService._validate_body(body)
+            update_fields.append("body")
         if language is not None:
             piece.language = ContentPieceService._validate_language(language)
-        piece.save()
+            update_fields.append("language")
+
+        if update_fields:
+            piece.save(update_fields=update_fields)
         return piece
 
     @staticmethod
@@ -109,5 +144,6 @@ class ContentPieceService:
         if piece is None:
             return False
         piece.is_deleted = True
-        piece.save(update_fields=["is_deleted", "updated_at"])
+        piece.deleted_at = timezone.now()
+        piece.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
         return True

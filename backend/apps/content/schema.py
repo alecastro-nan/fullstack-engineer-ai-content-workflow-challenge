@@ -52,13 +52,12 @@ class ContentPieceType:
 
     @staticmethod
     def from_model(piece: ContentPiece) -> "ContentPieceType":
-        campaign_id = str(piece.campaign.pk)
         original_id: strawberry.ID | None = None
-        if piece.original is not None:
-            original_id = strawberry.ID(str(piece.original.pk))
+        if piece.original_id is not None:  # type: ignore[attr-defined]
+            original_id = strawberry.ID(str(piece.original_id))  # type: ignore[attr-defined]
         return ContentPieceType(
             id=strawberry.ID(str(piece.id)),
-            campaign_id=strawberry.ID(campaign_id),
+            campaign_id=strawberry.ID(str(piece.campaign_id)),  # type: ignore[attr-defined]
             headline=piece.headline,
             description=piece.description,
             body=piece.body,
@@ -88,15 +87,15 @@ class ContentPieceQueries:
         per_page: int = 20,
     ) -> ContentPiecePage:
         if page < 1:
-            page = 1
+            raise GraphQLError("Page must be >= 1")
         if per_page < 1 or per_page > MAX_PER_PAGE:
-            per_page = 20
+            raise GraphQLError(f"Per page must be between 1 and {MAX_PER_PAGE}")
         cid: uuid.UUID | None = None
         if campaign_id is not None:
             try:
                 cid = uuid.UUID(str(campaign_id))
             except ValueError:
-                return ContentPiecePage(items=[], total_count=0, page=page, per_page=per_page)
+                raise GraphQLError("Invalid campaign ID") from None
         qs = ContentPieceService.list_content_pieces(campaign_id=cid)
         total = qs.count()
         offset = (page - 1) * per_page
@@ -113,7 +112,7 @@ class ContentPieceQueries:
         try:
             piece_id = uuid.UUID(str(id))
         except ValueError:
-            return None
+            raise GraphQLError("Invalid content piece ID") from None
         piece = ContentPieceService.get_content_piece_by_id(piece_id)
         if piece is None:
             return None
@@ -149,7 +148,7 @@ class ContentPieceMutations:
         try:
             piece_id = uuid.UUID(str(id))
         except ValueError:
-            return None
+            raise GraphQLError("Invalid content piece ID") from None
         try:
             piece = ContentPieceService.update_content_piece(
                 content_id=piece_id,
@@ -169,5 +168,5 @@ class ContentPieceMutations:
         try:
             piece_id = uuid.UUID(str(id))
         except ValueError:
-            return False
+            raise GraphQLError("Invalid content piece ID") from None
         return ContentPieceService.soft_delete_content_piece(piece_id)

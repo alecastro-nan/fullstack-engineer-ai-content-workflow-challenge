@@ -336,7 +336,7 @@ class TestContentPieceGraphQL:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["updateContentPiece"] is None
+        assert data.get("errors") is not None
 
     def test_delete_content_mutation(self) -> None:
         client = Client()
@@ -402,4 +402,4 @@ class TestContentPieceGraphQL:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["deleteContentPiece"] is False
+        assert data.get("errors") is not None

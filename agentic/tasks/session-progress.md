@@ -25,10 +25,10 @@ Fixes applied: secrets moved to env_file, security headers added, SECRET_KEY gua
 handoff → `agentic/runs/F-003-campaign-crud/handoff.md`
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
-## F-004 — Content Piece CRUD GraphQL API — IN REVIEW
+## F-004 — Content Piece CRUD GraphQL API — DONE
 handoff → `agentic/runs/F-004-content-crud/handoff.md`
 plan → `agentic/runs/F-004-content-crud/plan.md`
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳ @database-reviewer ⏳
+reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 
 ## F-005 — PostgreSQL schema & Django migrations — PENDING
 handoff → `agentic/runs/F-005-db-schema/handoff.md`

@@ -67,6 +67,38 @@ class TestContentPieceService:
                 headline="x" * 256,
             )
 
+    def test_create_content_piece_rejects_empty_language(self, campaign: Campaign) -> None:
+        with pytest.raises(ValidationError):
+            ContentPieceService.create_content_piece(
+                campaign_id=campaign.id,
+                headline="Test",
+                language="",
+            )
+
+    def test_create_content_piece_rejects_language_too_long(self, campaign: Campaign) -> None:
+        with pytest.raises(ValidationError):
+            ContentPieceService.create_content_piece(
+                campaign_id=campaign.id,
+                headline="Test",
+                language="x" * 11,
+            )
+
+    def test_create_content_piece_rejects_description_too_long(self, campaign: Campaign) -> None:
+        with pytest.raises(ValidationError):
+            ContentPieceService.create_content_piece(
+                campaign_id=campaign.id,
+                headline="Test",
+                description="x" * 5_001,
+            )
+
+    def test_create_content_piece_rejects_body_too_long(self, campaign: Campaign) -> None:
+        with pytest.raises(ValidationError):
+            ContentPieceService.create_content_piece(
+                campaign_id=campaign.id,
+                headline="Test",
+                body="x" * 50_001,
+            )
+
     def test_create_content_piece_nonexistent_campaign(self) -> None:
         with pytest.raises(ValidationError):
             ContentPieceService.create_content_piece(
@@ -147,6 +179,28 @@ class TestContentPieceService:
                 headline="",
             )
 
+    def test_update_content_piece_rejects_blank_headline(self, campaign: Campaign) -> None:
+        created = ContentPieceService.create_content_piece(
+            campaign_id=campaign.id,
+            headline="Keep",
+        )
+        with pytest.raises(ValidationError):
+            ContentPieceService.update_content_piece(
+                content_id=created.id,
+                headline="   ",
+            )
+
+    def test_update_content_piece_rejects_empty_language(self, campaign: Campaign) -> None:
+        created = ContentPieceService.create_content_piece(
+            campaign_id=campaign.id,
+            headline="Keep",
+        )
+        with pytest.raises(ValidationError):
+            ContentPieceService.update_content_piece(
+                content_id=created.id,
+                language="",
+            )
+
     def test_update_content_piece_nonexistent(self) -> None:
         result = ContentPieceService.update_content_piece(
             content_id=uuid.uuid4(),
@@ -159,10 +213,12 @@ class TestContentPieceService:
             campaign_id=campaign.id,
             headline="To Delete",
         )
+        assert created.deleted_at is None
         result = ContentPieceService.soft_delete_content_piece(created.id)
         assert result is True
         deleted = ContentPiece.objects.get(id=created.id)
         assert deleted.is_deleted is True
+        assert deleted.deleted_at is not None
 
     def test_soft_delete_nonexistent(self) -> None:
         result = ContentPieceService.soft_delete_content_piece(uuid.uuid4())

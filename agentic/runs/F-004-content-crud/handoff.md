@@ -16,14 +16,29 @@
 ## Documentation updated
 - README.md: added ContentPiece CRUD API to GraphQL reference, updated Current Status, added Architecture section
 
+## Post-review fixes applied
+- `on_delete=CASCADE` → `PROTECT` (data safety)
+- Composite indexes: `idx_content_campaign_list`, `idx_content_deleted_created`, `idx_content_campaign_state`
+- `deleted_at` field added to ContentPiece model
+- `original` FK: `db_index=True`
+- `select_related("campaign")` in service methods (N+1 prevention)
+- `from_model` uses raw FK column values (`campaign_id`, `original_id`)
+- Body/description length validation (5KB desc, 50KB body)
+- `update_fields` tracking in `update_content_piece` (race condition fix)
+- Pagination raises `GraphQLError` instead of silent clamping
+- UUID error handling: all mutations raise `GraphQLError` for invalid UUIDs
+- Migration `0002` applied (indexes, field changes)
+- 36 tests (6 new), 97% coverage
+- Language validation tests, blank headline update test, body/desc length tests
+
 ## Not done / known issues
 - State transitions not implemented (handled in F-009/F-010)
 - No auth/authorization (out of scope for challenge)
 
 ## Next actions
-1. Code Reviewer: review `backend/apps/content/`, verify README changes
-2. Security Reviewer: verify no secrets exposed, input validation in place
-3. Database Reviewer: verify schema, indices, migration idempotency
+1. Code Reviewer: review `backend/apps/content/`, verify README changes, confirm fixes applied
+2. Security Reviewer: verify M-1 (CASCADE→PROTECT), M-2 (body/desc limits), L-1 (update_fields)
+3. Database Reviewer: verify composite indexes, migration 0002
 
 ## Artifacts
 - Migration: `backend/apps/content/migrations/0001_initial.py`
