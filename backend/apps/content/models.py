@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 
@@ -9,10 +11,10 @@ class ContentPiece(models.Model):
         APPROVED = "approved", "Approved"
         REJECTED = "rejected", "Rejected"
 
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     campaign = models.ForeignKey(
         "campaigns.Campaign",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="content_pieces",
     )
     headline = models.CharField(max_length=255)
@@ -30,7 +32,9 @@ class ContentPiece(models.Model):
         null=True,
         blank=True,
         related_name="translations",
+        db_index=True,
     )
+    deleted_at = models.DateTimeField(null=True, blank=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
@@ -38,9 +42,18 @@ class ContentPiece(models.Model):
     class Meta:
         db_table = "content_pieces"
         indexes = [
-            models.Index(fields=["campaign"]),
-            models.Index(fields=["state"]),
-            models.Index(fields=["is_deleted"]),
+            models.Index(
+                fields=["campaign", "is_deleted", "-created_at"],
+                name="idx_content_campaign_list",
+            ),
+            models.Index(
+                fields=["is_deleted", "-created_at"],
+                name="idx_content_deleted_created",
+            ),
+            models.Index(
+                fields=["campaign", "state"],
+                name="idx_content_campaign_state",
+            ),
         ]
 
     def __str__(self) -> str:
