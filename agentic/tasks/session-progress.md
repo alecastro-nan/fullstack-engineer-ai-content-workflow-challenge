@@ -21,8 +21,9 @@ handoff → `agentic/runs/F-002-install-django-stack/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 Fixes applied: secrets moved to env_file, security headers added, SECRET_KEY guard, dev deps consolidated
 
-## F-003 — Campaign CRUD GraphQL API — PENDING
+## F-003 — Campaign CRUD GraphQL API — DONE
 handoff → `agentic/runs/F-003-campaign-crud/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
 ## F-004 — Content Piece CRUD GraphQL API — PENDING
 handoff → `agentic/runs/F-004-content-crud/handoff.md`
