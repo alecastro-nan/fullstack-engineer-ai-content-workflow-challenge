@@ -101,6 +101,7 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 - Implement AI integrations (OpenAI SDK, Anthropic SDK)
 - Add WebSocket / SSE real-time broadcasting
 - Write unit tests and integration tests alongside code
+- **Update documentation** — README.md, docs/architecture.md, and any `.md` files affected by the change must be updated in the same commit as the code
 
 **Triggers:**
 - `"@builder take task F-001 from feature_list.json and implement it"`
@@ -245,7 +246,7 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 | R-018 | Feature must be testable in isolation before marking done (manual or automated). | Done criteria |
 | R-019 | AGENTS.md is the single source of truth. If conflicting instructions exist elsewhere, AGENTS.md wins. | Governance |
 
-### 3.4 Repository
+### 3.4 Documentation
 
 | # | Rule | Why |
 |---|---|---|
@@ -253,6 +254,8 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 | R-021 | Every PR must use the provided `.github/PULL_REQUEST_TEMPLATE.md`. | Challenge requirement |
 | R-022 | `.env.example` must be committed (without real secrets). | Challenge requirement |
 | R-023 | `compose.yml` must exist at root and work with `docker compose up`. | Challenge requirement |
+| R-024 | `README.md` is a living document — updated after every feature task, not left for a final batch. | Supervisor visibility |
+| R-025 | Every task must include a `documentation_requirements` section in its feature definition specifying what docs to update. | Traceability |
 
 ---
 
@@ -479,6 +482,10 @@ fullstack-engineer-ai-content-workflow-challenge/
     "Integration test for each endpoint (REQUEST → RESPONSE validation)",
     "Test validation pipe rejects empty name and unknown fields"
   ],
+  "documentation_requirements": [
+    "README.md: add new API endpoints to GraphQL reference section",
+    "docs/architecture.md: update workflow diagram if new states were added"
+  ],
   "done_when": [
     "All acceptance criteria pass",
     "All tests pass (≥80% coverage on module)",
@@ -538,7 +545,7 @@ fullstack-engineer-ai-content-workflow-challenge/
   ┌──────────┐     ┌──────────┐     ┌──────────────┐     ┌──────────────────┐
   │ Planner  │────>│ TechLead │────>│  TDD Guide   │────>│     Builder      │
   │ creates  │     │ approves │     │ writes test  │     │ implements code  │
-  │ tasks    │     │ design   │     │ stubs        │     │ + tests          │
+  │ tasks    │     │ design   │     │ stubs        │     │ + tests + docs   │
   └──────────┘     └──────────┘     └──────────────┘     └────────┬─────────┘
                                                                    │
                         ┌─────────────────────<────────────────────┘
@@ -546,7 +553,7 @@ fullstack-engineer-ai-content-workflow-challenge/
               ┌──────────────────┐     ┌──────────────┐     ┌──────────────┐
               │  Code Reviewer   │────>│ Security Rev │────>│  DB Reviewer │
               │ reviews code +   │     │ audits sec   │     │ reviews schema│
-              │ tests            │     │ concerns     │     │ + queries     │
+              │ tests + docs     │     │ concerns     │     │ + queries     │
               └────────┬─────────┘     └──────────────┘     └──────────────┘
                        │
                        ▼
@@ -604,11 +611,15 @@ reviewers: @code-reviewer ⏳
 - PATCH /api/campaigns/:id — partial update (tested)
 - DELETE /api/campaigns/:id — soft delete (tested)
 
+## Documentation updated
+- README.md: added GraphQL API reference for campaigns section
+- docs/architecture.md: updated workflow diagram
+
 ## Not done / known issues
 - Swagger UI not added (out of scope)
 
 ## Next actions
-1. Code Reviewer: review `backend/campaign/`
+1. Code Reviewer: review `backend/campaign/`, verify docs changes
 2. Security Reviewer: verify env var handling
 
 ## Artifacts
@@ -652,26 +663,26 @@ These subagents are intentionally excluded for this challenge:
 
 **Backend feature task (F-003, F-004, F-006, F-007, F-008, F-009, F-010):**
 ```
-@planner(?) → @tdd-guide → Builder → @database-reviewer(?) → @code-reviewer → @security-reviewer → done
-  optional      required     code       if DB changes            required        required
+@planner(?) → @tdd-guide → Builder → @database-reviewer(?) → @code-reviewer → @security-reviewer → Doc update → done
+  optional      required     code       if DB changes            required        required         Builder
 ```
 
 **Frontend feature task (F-013, F-014, F-015, F-016, F-017, F-018, F-019):**
 ```
-@planner(?) → Builder → @typescript-reviewer → @code-reviewer → done
-  optional               required              required
+@planner(?) → Builder → @typescript-reviewer → @code-reviewer → Doc update → done
+  optional               required              required         Builder
 ```
 
 **Infrastructure task (F-020, F-021, F-022):**
 ```
-Builder → @code-reviewer → @security-reviewer → done
-           required          required
+Builder → @code-reviewer → @security-reviewer → Doc update → done
+           required          required            Builder
 ```
 
 **E2E / Quality task (F-023):**
 ```
-@e2e-runner → @code-reviewer → done
-  required     required
+@e2e-runner → @code-reviewer → Doc update → done
+  required     required        Builder
 ```
 
 #### 7.4.4 Quality Gate Mapping
@@ -683,6 +694,8 @@ Builder → @code-reviewer → @security-reviewer → done
 | R-009 (AI mock tests) | `@tdd-guide` + `@code-reviewer` | F-006, F-007, F-008 |
 | R-010 (strict type hints) | `@typescript-reviewer` (frontend), mypy (backend) | Every task |
 | R-017 (code review gate) | `@code-reviewer` | Every task |
+| R-024 (README updated) | `@code-reviewer` | Every task — code reviewer verifies docs were updated |
+| R-025 (doc requirements exist) | `@code-reviewer` | Every task — code reviewer verifies documentation_requirements are defined |
 
 #### 7.4.5 Reference
 
@@ -729,6 +742,7 @@ A task is **DONE** only when:
 8. **Task run directory** created at `agentic/runs/F-XXX/` with `handoff.md`, `plan.md`, `audit.log`
 9. **`agentic/tasks/session-progress.md` updated** with 1-2 line summary pointing to the run directory
 10. **`agentic/knowledge/decisions/` updated** if any design choice was made during implementation
+11. **`README.md` and relevant docs updated** — code reviewer verifies documentation changes match the `documentation_requirements` in the task definition
 
 ### 8.3 Definition of "Atomic"
 

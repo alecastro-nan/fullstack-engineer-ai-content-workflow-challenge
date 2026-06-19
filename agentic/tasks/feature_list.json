@@ -126,9 +126,13 @@
       "python manage.py makemigrations runs without errors",
       "python manage.py migrate applies cleanly"
     ],
+    "documentation_requirements": [
+      "README.md: add Campaign CRUD API to GraphQL reference section",
+      "docs/architecture.md: update if workflow diagram changed"
+    ],
     "done_when": [
       "All acceptance criteria pass",
-      "All tests pass (\u226580% coverage on campaigns app)",
+      "All tests pass (≥80% coverage on campaigns app)",
       "Code reviewer has approved",
       "Security reviewer has confirmed no secrets exposed",
       "API can be tested via GraphQL playground"
@@ -143,7 +147,7 @@
     ],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "in-progress",
     "acceptance_criteria": [
       "ContentPiece Django model with: id (UUID), campaignId (FK), headline, description, body, language, state, originalId, createdAt, updatedAt, isDeleted",
       "GraphQL query contentPieces(campaignId) returns list",
@@ -159,6 +163,11 @@
       "GraphQL query tests for contentPieces and content(id)",
       "GraphQL mutation tests for create, update, delete",
       "Test that content cannot be created for non-existent campaign (404)"
+    ],
+    "documentation_requirements": [
+      "README.md: add ContentPiece CRUD API to GraphQL reference section",
+      "README.md: update GraphQL examples with content mutations",
+      "docs/architecture.md: verify diagram includes ContentPiece flow"
     ],
     "done_when": [
       "All acceptance criteria pass",
