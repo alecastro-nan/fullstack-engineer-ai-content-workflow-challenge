@@ -35,68 +35,89 @@ handoff → `agentic/runs/F-005-db-schema/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 *Completed as part of F-003 and F-004. Migrations: campaigns 0001, content 0001 + 0002.*
 
-## F-006 — AI provider abstraction layer — PENDING
-handoff → `agentic/runs/F-006-ai-abstraction/handoff.md`
+## Phase 1: Docker Sandbox (unblocks `docker compose up`)
 
-## F-007 — AI draft generation GraphQL mutation — PENDING
-handoff → `agentic/runs/F-007-ai-draft/handoff.md`
+### F-006 — Frontend Dockerfile — PENDING
+handoff → `agentic/runs/F-006-frontend-dockerfile/handoff.md`
+*Missing piece for docker compose up. Creates multi-stage nginx Dockerfile for the Vite frontend.*
 
-## F-008 — AI translation/localization GraphQL mutation — PENDING
-handoff → `agentic/runs/F-008-ai-translation/handoff.md`
+### F-007 — Finalize Docker Compose — PENDING
+handoff → `agentic/runs/F-007-docker-compose/handoff.md`
+*Depends on F-006. Verify compose.yml works end-to-end: db + backend + frontend.*
 
-## F-009 — Review state machine — PENDING
-handoff → `agentic/runs/F-009-state-machine/handoff.md`
+## Phase 2: Backend Engine (parallelizable)
 
-## F-010 — Review GraphQL mutations — PENDING
-handoff → `agentic/runs/F-010-review-mutations/handoff.md`
+### F-008 — Review state machine + mutations (merged) — PENDING
+handoff → `agentic/runs/F-008-review-state-machine-mutations/handoff.md`
+*Merged old F-009+F-010. State machine guards + GraphQL review mutations in one task.*
 
-## F-011 — WebSocket/SSE setup in Django — PENDING
-handoff → `agentic/runs/F-011-realtime-setup/handoff.md`
+### F-009 — AI provider abstraction layer — PENDING
+handoff → `agentic/runs/F-009-ai-abstraction/handoff.md`
+*Can run in parallel with F-008. OpenAI + Anthropic SDK wrappers with fallback.*
 
-## F-012 — Real-time broadcast on state changes — PENDING
-handoff → `agentic/runs/F-012-realtime-broadcast/handoff.md`
+### F-010 — AI draft generation mutation — PENDING
+handoff → `agentic/runs/F-010-ai-draft/handoff.md`
+*Depends on F-009. Can run in parallel with F-011.*
 
-## F-013 — React project scaffold — PENDING
-handoff → `agentic/runs/F-013-react-scaffold/handoff.md`
+### F-011 — AI translation mutation — PENDING
+handoff → `agentic/runs/F-011-ai-translation/handoff.md`
+*Depends on F-009. Can run in parallel with F-010.*
 
-## F-014 — Campaign Dashboard page — PENDING
-handoff → `agentic/runs/F-014-campaign-dashboard/handoff.md`
+## Phase 3: Frontend Core (parallel with Phase 2)
 
-## F-015 — Campaign Detail page — PENDING
-handoff → `agentic/runs/F-015-campaign-detail/handoff.md`
+### F-012 — Campaign Dashboard (absorbs scaffold) — PENDING
+handoff → `agentic/runs/F-012-campaign-dashboard/handoff.md`
+*Absorbed old F-013. Routes, API client wiring, campaign list + create page.*
 
-## F-016 — AI Draft panel — PENDING
-handoff → `agentic/runs/F-016-ai-draft-panel/handoff.md`
+### F-013 — Campaign Detail page — PENDING
+handoff → `agentic/runs/F-013-campaign-detail/handoff.md`
+*Depends on F-012. Content pieces list, state badges, create content.*
 
-## F-017 — Review UI — PENDING
-handoff → `agentic/runs/F-017-review-ui/handoff.md`
+## Phase 4: Feature Panels (after Phase 2+3)
 
-## F-018 — Translation panel — PENDING
-handoff → `agentic/runs/F-018-translation-panel/handoff.md`
+### F-014 — AI Draft panel — PENDING
+handoff → `agentic/runs/F-014-ai-draft-panel/handoff.md`
+*Depends on F-010 + F-013. Trigger generation, preview, accept/reject.*
 
-## F-019 — Real-time status updates on frontend — PENDING
-handoff → `agentic/runs/F-019-realtime-frontend/handoff.md`
+### F-015 — Review UI — PENDING
+handoff → `agentic/runs/F-015-review-ui/handoff.md`
+*Depends on F-008 + F-013. Approve/reject/request edits buttons.*
 
-## F-020 — Docker Compose — PENDING
-handoff → `agentic/runs/F-020-docker-compose/handoff.md`
+### F-016 — Translation panel — PENDING
+handoff → `agentic/runs/F-016-translation-panel/handoff.md`
+*Depends on F-011 + F-013. Language selector, trigger, preview.*
 
-## F-021 — Dockerfiles — PENDING
-handoff → `agentic/runs/F-021-dockerfiles/handoff.md`
+## Phase 5: Real-Time
 
-## F-022 — GitHub Actions CI — PENDING
-handoff → `agentic/runs/F-022-ci-pipeline/handoff.md`
+### F-017 — Channels WebSocket + broadcasts (merged) — PENDING
+handoff → `agentic/runs/F-017-channels-websocket/handoff.md`
+*Merged old F-011+F-012. Django Channels setup + state change broadcasts.*
 
-## F-023 — E2E workflow test — PENDING
-handoff → `agentic/runs/F-023-e2e-test/handoff.md`
+### F-018 — Frontend real-time updates — PENDING
+handoff → `agentic/runs/F-018-frontend-realtime/handoff.md`
+*Depends on F-017 + F-013. WebSocket client, auto-refresh, toasts.*
 
-## F-024 — ADRs — PENDING
-handoff → `agentic/runs/F-024-adrs/handoff.md`
+## Phase 6: Quality & Polish
 
-## F-025 — README update — PENDING
-handoff → `agentic/runs/F-025-readme/handoff.md`
+### F-019 — End-to-end workflow test — PENDING
+handoff → `agentic/runs/F-019-e2e-test/handoff.md`
+*Depends on F-010 + F-008 + F-011 + F-017. Full Campaign→Content→AI→Review→Translation test.*
 
-## F-026 — Final smoke test and PR — PENDING
-handoff → `agentic/runs/F-026-final-pr/handoff.md`
+### F-020 — Complete pending ADRs — PENDING
+handoff → `agentic/runs/F-020-adrs/handoff.md`
+*Depends on F-009 + F-017. Complete ADR-002 (AI provider) + ADR-003 (real-time).*
+
+### F-021 — GitHub Actions CI — PENDING
+handoff → `agentic/runs/F-021-ci-pipeline/handoff.md`
+*Depends on F-007. Ruff, mypy, pytest, vitest, Docker build checks.*
+
+### F-022 — README update — PENDING
+handoff → `agentic/runs/F-022-readme/handoff.md`
+*Final comprehensive README with setup, decisions, API reference, architecture.*
+
+### F-023 — Final smoke test + PR — PENDING
+handoff → `agentic/runs/F-023-final-pr/handoff.md`
+*Depends on F-019 + F-020 + F-021 + F-022. docker compose up verify + PR creation.*
 
 ---
 
