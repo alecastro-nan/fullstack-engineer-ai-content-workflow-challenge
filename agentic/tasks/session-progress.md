@@ -30,8 +30,10 @@ handoff → `agentic/runs/F-004-content-crud/handoff.md`
 plan → `agentic/runs/F-004-content-crud/plan.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 
-## F-005 — PostgreSQL schema & Django migrations — PENDING
+## F-005 — PostgreSQL schema & Django migrations — DONE
 handoff → `agentic/runs/F-005-db-schema/handoff.md`
+reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
+*Completed as part of F-003 and F-004. Migrations: campaigns 0001, content 0001 + 0002.*
 
 ## F-006 — AI provider abstraction layer — PENDING
 handoff → `agentic/runs/F-006-ai-abstraction/handoff.md`
