@@ -42,9 +42,10 @@ handoff → `agentic/runs/F-006-frontend-dockerfile/handoff.md`
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 *Multi-stage builder (node:20-alpine) + production (nginx:alpine), nginx.conf with proxy to backend, .dockerignore. Build not verified (Docker daemon unavailable on host).*
 
-### F-007 — Finalize Docker Compose — PENDING
-handoff → `agentic/runs/F-007-docker-compose/handoff.md`
-*Depends on F-006. Verify compose.yml works end-to-end: db + backend + frontend.*
+### F-007 — Finalize Docker Compose — IN REVIEW
+handoff → `agentic/runs/F-007-finalize-compose/handoff.md`
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+*Healthchecks, restart policies, build args for VITE_API_URL, api.ts fallback fix, env.example ports fixed. Build not verified (Docker daemon unavailable).*
 
 ## Phase 2: Backend Engine (parallelizable)
 
