@@ -78,15 +78,15 @@ PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-c
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 *translateContent mutation, SUPPORTED_LANGUAGES (es/fr/de/pt/it/ja/zh), new ContentPiece linked via originalId, 6 tests. Reviews: code+security passed after fixes (str.format() patched in providers, StateHistory assertion added, body propagation verified). 112/112 tests, mypy+ruff clean.*
 
-## Phase 3: Frontend Core (parallel with Phase 2)
+## Phase 3: Frontend Core
 
-### F-012 — Campaign Dashboard (absorbs scaffold) — PENDING
+### F-012 — Campaign Dashboard — IN REVIEW
+branch → `feat/F-012-campaign-dashboard`
+plan → `agentic/runs/F-012-campaign-dashboard/plan.md`
 handoff → `agentic/runs/F-012-campaign-dashboard/handoff.md`
-*Absorbed old F-013. Routes, API client wiring, campaign list + create page.*
-
-### F-013 — Campaign Detail page — PENDING
-handoff → `agentic/runs/F-013-campaign-detail/handoff.md`
-*Depends on F-012. Content pieces list, state badges, create content.*
+PR → (to be created)
+reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳
+*Tailwind v4 setup, graphqlRequest helper, CampaignDashboard page with create/list/pagination/delete. 13 component tests, frontend typecheck+build clean.*
 
 ## Phase 4: Feature Panels (after Phase 2+3)
 
