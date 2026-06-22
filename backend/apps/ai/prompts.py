@@ -23,3 +23,16 @@ TRANSLATION_PROMPT = (
     "\n"
     "Preserve the tone and style of the original."
 )
+
+
+def format_draft_prompt(brief: str) -> str:
+    return DRAFT_PROMPT.replace("{brief}", brief)
+
+
+def format_translation_prompt(text: str, target_language: str) -> str:
+    return (
+        TRANSLATION_PROMPT
+        .replace("{headline}", text)
+        .replace("{description}", text)
+        .replace("{target_language}", target_language)
+    )

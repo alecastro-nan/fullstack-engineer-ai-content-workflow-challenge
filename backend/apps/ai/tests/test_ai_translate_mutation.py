@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 from django.test import Client, TestCase, override_settings
 
 from apps.content.models import ContentPiece
+from apps.reviews.enums import ReviewAction
+from apps.reviews.models import StateHistory
 
 
 def _create_campaign(client: Client) -> str:
@@ -43,7 +45,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
                     "campaignId": campaign_id,
                     "headline": "Original Headline",
                     "description": "Original description for testing translation.",
-                    "body": "",
+                    "body": "Original body content for translation.",
                 }
             },
         },
@@ -107,6 +109,13 @@ class TestAiTranslateMutation(TestCase):
         assert translated.original_id == uuid.UUID(content_id)  # type: ignore[attr-defined]
         assert translated.state == ContentPiece.State.SUGGESTED_BY_AI
         assert translated.language == "es"
+        assert translated.body == "Original body content for translation."
+
+        history = StateHistory.objects.filter(content_piece_id=result["id"]).first()
+        assert history is not None
+        assert history.from_state == ContentPiece.State.DRAFT
+        assert history.to_state == ContentPiece.State.SUGGESTED_BY_AI
+        assert history.action == ReviewAction.GENERATE_AI.value
 
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_translate_content_nonexistent(self, mock_openai: MagicMock) -> None:
@@ -220,3 +229,4 @@ class TestAiTranslateMutation(TestCase):
         )
         data = response.json()
         assert data.get("errors") is not None
+        assert "Invalid content piece ID" in str(data["errors"])
