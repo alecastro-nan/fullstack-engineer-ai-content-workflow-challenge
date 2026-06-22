@@ -84,7 +84,7 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 branch → `feat/F-012-campaign-dashboard`
 plan → `agentic/runs/F-012-campaign-dashboard/plan.md`
 handoff → `agentic/runs/F-012-campaign-dashboard/handoff.md`
-PR → (to be created)
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/19
 reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳
 *Tailwind v4 setup, graphqlRequest helper, CampaignDashboard page with create/list/pagination/delete. 13 component tests, frontend typecheck+build clean.*
 
