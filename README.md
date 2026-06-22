@@ -41,18 +41,18 @@ A campaign content management system with AI-powered drafting, translation/local
 
 - **Campaign CRUD** (F-003): Create, read, update, soft-delete campaigns via GraphQL
 - **ContentPiece CRUD** (F-004): Create, read, update, soft-delete content pieces within a campaign via GraphQL
+- **Review State Machine** (F-008): State transitions with guards, approve/reject/request_edits mutations, full history audit trail
 - **Health check** endpoint at `/graphql`
 
 ### In Progress 🔄
 
 - AI provider abstraction layer (OpenAI + Anthropic)
+- Frontend Dockerfile + Docker Compose finalization (F-006, F-007)
 
 ### Planned 📋
 
 - AI draft generation
 - AI translation/localization
-- Review state machine (Draft → Suggested by AI → Reviewed → Approved/Rejected)
-- Review mutations (approve, reject, request edits)
 - Real-time WebSocket broadcasts
 - Full React frontend
 
@@ -91,8 +91,7 @@ cd frontend && pnpm dev
 ### Option 2: Docker Compose (full stack)
 
 ```bash
-# Note: Frontend Dockerfile is pending implementation
-docker compose up db backend -d
+docker compose up --build
 ```
 
 ### Option 3: Automated init script
@@ -211,17 +210,70 @@ mutation {
 }
 ```
 
+### Review Actions
+
+```graphql
+# Approve content (from suggested_by_ai or reviewed state)
+mutation {
+  reviewContent(contentId: "piece-uuid", action: APPROVE) {
+    id
+    state
+  }
+}
+
+# Reject content with feedback
+mutation {
+  reviewContent(contentId: "piece-uuid", action: REJECT, feedback: "Does not match brand voice") {
+    id
+    state
+  }
+}
+
+# Request edits
+mutation {
+  reviewContent(contentId: "piece-uuid", action: REQUEST_EDITS, feedback: "Please revise tone") {
+    id
+    state
+  }
+}
+
+# Edit rejected content (resets to draft)
+mutation {
+  editContent(contentId: "piece-uuid", headline: "New Headline", description: "New description") {
+    id
+    headline
+    description
+    state
+  }
+}
+
+# View state history for audit trail
+query {
+  contentStateHistory(contentId: "piece-uuid") {
+    fromState
+    toState
+    action
+    feedback
+    createdAt
+  }
+}
+```
+
 ### Content States
 
-Content pieces follow a state machine: `DRAFT → SUGGESTED_BY_AI → REVIEWED → APPROVED` or `REJECTED`.
+Content pieces follow a state machine with valid transitions:
 
-| State | Meaning |
-|---|---|
-| `DRAFT` | Initial state, editable |
-| `SUGGESTED_BY_AI` | AI has generated a draft |
-| `REVIEWED` | Human has reviewed the AI draft |
-| `APPROVED` | Content is approved and final |
-| `REJECTED` | Content rejected, can be revised |
+| From | To | Action |
+|---|---|---|
+| `DRAFT` | `SUGGESTED_BY_AI` | AI draft generation (F-010) |
+| `SUGGESTED_BY_AI` | `APPROVED` | `reviewContent` with `APPROVE` |
+| `SUGGESTED_BY_AI` | `REJECTED` | `reviewContent` with `REJECT` |
+| `SUGGESTED_BY_AI` | `REVIEWED` | `reviewContent` with `REQUEST_EDITS` |
+| `REVIEWED` | `APPROVED` | `reviewContent` with `APPROVE` |
+| `REVIEWED` | `REJECTED` | `reviewContent` with `REJECT` |
+| `REVIEWED` | `REVIEWED` | `reviewContent` with `REQUEST_EDITS` |
+| `REJECTED` | `DRAFT` | `editContent` (reset for revision) |
+| `APPROVED` | — | Terminal state, no transitions |
 
 ## Documentation
 

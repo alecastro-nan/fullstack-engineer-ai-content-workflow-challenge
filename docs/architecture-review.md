@@ -1,6 +1,6 @@
 # Architecture Review Report
 
-**Date:** 2026-06-18
+**Date:** 2026-06-18 (updated 2026-06-19 — F-008 state machine now implemented)
 **Project:** ACME GLOBAL MEDIA — AI Content Workflow Platform
 **Review Type:** Mid-implementation architecture alignment (F-002 complete, F-003 onwards pending)
 **Reviewer:** @tech-lead
@@ -35,7 +35,7 @@
 | R-003: PostgreSQL | ✅ | PostgreSQL 16-alpine in `compose.yml` with healthcheck |
 | R-004: Docker Compose one command | ❌ | Frontend service commented out in `compose.yml`; `docker compose up` does not start full stack |
 | R-005: OpenAI/Anthropic SDK | ✅ | Dependencies installed (`openai>=1.55`, `anthropic>=0.49`); integration code pending |
-| R-006: State machine | ⚠️ | Model defined (`ContentPiece.State` with 5 states); transition guards not implemented |
+| R-006: State machine | ✅ | Transition guards implemented, 32 tests, all valid/invalid transitions enforced |
 | R-007: No hardcoded secrets | ✅ | All keys via `env_file` + `django-environ` |
 | R-008: Every endpoint has a test | ⚠️ | No tests written yet (F-003+ not started) |
 | R-009: AI integration mock tests | ⚠️ | Test planned but not written yet |

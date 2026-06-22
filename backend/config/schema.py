@@ -2,17 +2,18 @@ import strawberry
 
 from apps.campaigns.schema import CampaignMutations, CampaignQueries
 from apps.content.schema import ContentPieceMutations, ContentPieceQueries
+from apps.reviews.schema import ReviewMutation, ReviewQuery
 
 
 @strawberry.type
-class Query(CampaignQueries, ContentPieceQueries):
+class Query(CampaignQueries, ContentPieceQueries, ReviewQuery):
     @strawberry.field
     def health(self) -> str:
         return "ok"
 
 
 @strawberry.type
-class Mutation(CampaignMutations, ContentPieceMutations):
+class Mutation(CampaignMutations, ContentPieceMutations, ReviewMutation):
     @strawberry.mutation
     def ping(self) -> str:
         return "pong"
