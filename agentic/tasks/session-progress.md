@@ -58,9 +58,11 @@ handoff → `agentic/runs/F-008-review-state-machine-mutations/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 *Merged old F-009+F-010. State machine guards + GraphQL review mutations. Review found and fixed: VALID_TRANSITIONS restored, self-import removed, edit_content double-save/TOCTOU bug fixed, EDIT enum added, feedback max_length, on_delete=CASCADE→PROTECT. 32 tests, mypy+ruff clean.*
 
-### F-009 — AI provider abstraction layer — PENDING
+### F-009 — AI provider abstraction layer (OpenAI + Anthropic) — DONE
 handoff → `agentic/runs/F-009-ai-abstraction/handoff.md`
-*Can run in parallel with F-008. OpenAI + Anthropic SDK wrappers with fallback.*
+branch → `feat/F-009-ai-abstraction`
+plan → `agentic/runs/phase-2-plan/plan.md`
+*ABC with DraftResult/TranslationResult, OpenAI and Anthropic providers, provider registry via env, AiService with fallback, 8 mock-based tests. Pushed to origin.*
 
 ### F-010 — AI draft generation mutation — PENDING
 handoff → `agentic/runs/F-010-ai-draft/handoff.md`
