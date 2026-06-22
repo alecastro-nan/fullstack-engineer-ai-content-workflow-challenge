@@ -68,12 +68,12 @@ plan → `agentic/runs/phase-2-plan/plan.md`
 handoff → `agentic/runs/F-010-ai-draft/handoff.md`
 *Depends on F-009. Can run in parallel with F-011.*
 
-### F-011 — AI translation mutation — IN REVIEW
+### F-011 — AI translation mutation — DONE
 handoff → `agentic/runs/F-011-ai-translation/handoff.md`
 branch → `feat/F-011-ai-translation`
 PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/18
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
-*translateContent mutation, SUPPORTED_LANGUAGES (7 ISO codes), new ContentPiece linked via originalId, 6 tests, 112/112 passing, mypy+ruff clean.*
+reviewers: @code-reviewer ✅ @security-reviewer ✅
+*translateContent mutation, SUPPORTED_LANGUAGES (es/fr/de/pt/it/ja/zh), new ContentPiece linked via originalId, 6 tests. Reviews: code+security passed after fixes (str.format() patched in providers, StateHistory assertion added, body propagation verified). 112/112 tests, mypy+ruff clean.*
 
 ## Phase 3: Frontend Core (parallel with Phase 2)
 
