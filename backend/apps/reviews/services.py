@@ -14,7 +14,9 @@ TERMINAL_STATES = {
 MAX_FEEDBACK_LENGTH = 2000
 
 VALID_TRANSITIONS: dict[str, dict[str, str]] = {
-    ContentPiece.State.DRAFT: {},
+    ContentPiece.State.DRAFT: {
+        ReviewAction.GENERATE_AI.value: ContentPiece.State.SUGGESTED_BY_AI,
+    },
     ContentPiece.State.SUGGESTED_BY_AI: {
         ReviewAction.APPROVE.value: ContentPiece.State.APPROVED,
         ReviewAction.REJECT.value: ContentPiece.State.REJECTED,
