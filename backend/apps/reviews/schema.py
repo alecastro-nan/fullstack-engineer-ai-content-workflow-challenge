@@ -6,15 +6,16 @@ from django.core.exceptions import ValidationError
 from graphql import GraphQLError
 
 from apps.content.schema import ContentPieceType
-from apps.reviews.services import ReviewAction as ReviewActionService
+from apps.reviews.enums import ReviewAction
 from apps.reviews.services import ReviewService
 
 
-@strawberry.enum
-class ReviewAction(enum.Enum):
+@strawberry.enum(name='ReviewAction')
+class ReviewActionEnum(enum.Enum):
     APPROVE = "approve"
     REJECT = "reject"
     REQUEST_EDITS = "request_edits"
+    EDIT = "edit"
 
 
 @strawberry.type
@@ -23,7 +24,7 @@ class StateHistoryType:
     content_piece_id: strawberry.ID
     from_state: str
     to_state: str
-    action: str
+    action: ReviewAction
     feedback: str
     created_at: str
 
@@ -47,19 +48,13 @@ class ReviewQuery:
                 content_piece_id=strawberry.ID(str(r.content_piece_id)),  # type: ignore[attr-defined]
                 from_state=r.from_state,
                 to_state=r.to_state,
-                action=r.action,
+                action=ReviewAction(r.action),  # Cast to enum
                 feedback=r.feedback,
                 created_at=r.created_at.isoformat(),
             )
             for r in records
         ]
 
-
-@strawberry.input
-class ReviewContentInput:
-    content_id: strawberry.ID
-    action: ReviewAction
-    feedback: str = ""
 
 
 @strawberry.type
@@ -78,7 +73,7 @@ class ReviewMutation:
         try:
             piece = ReviewService.review_content(
                 content_id=piece_id,
-                action=ReviewActionService(action.value),
+                action=ReviewAction(action.value),
                 feedback=feedback,
             )
         except ValidationError as e:

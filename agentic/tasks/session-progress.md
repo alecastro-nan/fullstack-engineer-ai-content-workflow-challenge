@@ -23,7 +23,7 @@ Fixes applied: secrets moved to env_file, security headers added, SECRET_KEY gua
 
 ## F-003 — Campaign CRUD GraphQL API — DONE
 handoff → `agentic/runs/F-003-campaign-crud/handoff.md`
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 
 ## F-004 — Content Piece CRUD GraphQL API — DONE
 handoff → `agentic/runs/F-004-content-crud/handoff.md`
@@ -37,21 +37,22 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
 
 ## Phase 1: Docker Sandbox (unblocks `docker compose up`)
 
-### F-006 — Frontend Dockerfile — IN REVIEW
+### F-006 — Frontend Dockerfile — DONE
 handoff → `agentic/runs/F-006-frontend-dockerfile/handoff.md`
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
-*Multi-stage builder (node:20-alpine) + production (nginx:alpine), nginx.conf with proxy to backend, .dockerignore. Build not verified (Docker daemon unavailable on host).*
+reviewers: @code-reviewer ✅ @security-reviewer ⏳ (critical: nginx.conf removed from .dockerignore, fixed inline)
+*Multi-stage builder (node:20-alpine) + production (nginx:alpine), nginx.conf with proxy to backend, .dockerignore. Fix applied: removed nginx.conf from .dockerignore (was breaking Docker build).*
 
-### F-007 — Finalize Docker Compose — IN REVIEW
+### F-007 — Finalize Docker Compose — DONE
 handoff → `agentic/runs/F-007-finalize-compose/handoff.md`
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
-*Healthchecks, restart policies, build args for VITE_API_URL, api.ts fallback fix, env.example ports fixed. Build not verified (Docker daemon unavailable).*
+reviewers: @code-reviewer ✅ @security-reviewer ✅
+*Healthchecks, restart policies, build args for VITE_API_URL, api.ts fallback fix, env.example ports fixed. Both reviews passed with production-hardening notes.*
 
 ## Phase 2: Backend Engine (parallelizable)
 
-### F-008 — Review state machine + mutations (merged) — IN REVIEW
+### F-008 — Review state machine + mutations (merged) — DONE
 handoff → `agentic/runs/F-008-review-state-machine-mutations/handoff.md`
-*Merged old F-009+F-010. State machine guards + GraphQL review mutations in one task. 32 tests, mypy+ruff clean.*
+reviewers: @code-reviewer ✅ @security-reviewer ✅ @database-reviewer ✅
+*Merged old F-009+F-010. State machine guards + GraphQL review mutations. Review found and fixed: VALID_TRANSITIONS restored, self-import removed, edit_content double-save/TOCTOU bug fixed, EDIT enum added, feedback max_length, on_delete=CASCADE→PROTECT. 32 tests, mypy+ruff clean.*
 
 ### F-009 — AI provider abstraction layer — PENDING
 handoff → `agentic/runs/F-009-ai-abstraction/handoff.md`

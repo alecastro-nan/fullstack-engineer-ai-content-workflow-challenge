@@ -8,8 +8,9 @@ from apps.campaigns.models import Campaign
 from apps.campaigns.services import CampaignService
 from apps.content.models import ContentPiece
 from apps.content.services import ContentPieceService
+from apps.reviews.enums import ReviewAction
 from apps.reviews.models import StateHistory
-from apps.reviews.services import ReviewAction, ReviewService
+from apps.reviews.services import ReviewService
 
 
 @pytest.fixture
@@ -146,14 +147,13 @@ class TestReviewService:
         assert piece.description == "Edited description"
         assert piece.state == ContentPiece.State.DRAFT
 
-    def test_edit_content_without_changing_state(self, draft_content: ContentPiece) -> None:
-        piece = ReviewService.edit_content(
-            content_id=draft_content.id,
-            headline="New Headline",
-        )
-        assert piece is not None
-        assert piece.headline == "New Headline"
-        assert piece.state == ContentPiece.State.DRAFT
+    def test_edit_approved_raises_error(self, approved_content: ContentPiece) -> None:
+        msg = "Cannot edit content in terminal state 'approved'"
+        with pytest.raises(ValidationError, match=msg):
+            ReviewService.edit_content(
+                content_id=approved_content.id,
+                headline="This should not work",
+            )
 
     def test_approve_from_draft_raises_error(self, draft_content: ContentPiece) -> None:
         msg = "Cannot transition from 'draft' with action 'approve'"

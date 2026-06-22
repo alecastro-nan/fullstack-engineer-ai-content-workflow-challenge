@@ -7,5 +7,4 @@ dist
 .env.*
 coverage
 Dockerfile
-nginx.conf
 tests/

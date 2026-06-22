@@ -256,7 +256,7 @@
     "dependencies": [],
     "stack": "infra",
     "role": "builder",
-    "status": "review",
+    "status": "done",
     "acceptance_criteria": [
       "frontend/Dockerfile exists with multi-stage build (builder + nginx production)",
       "Builder stage: uses node:20-alpine, corepack pnpm, copies package.json + pnpm-lock.yaml, runs pnpm install --frozen-lockfile, copies src, runs pnpm build",
@@ -289,7 +289,7 @@
     "dependencies": ["F-006"],
     "stack": "infra",
     "role": "builder",
-    "status": "review",
+    "status": "done",
     "acceptance_criteria": [
       "docker compose up --build starts all 3 services without errors",
       "Backend depends_on db with health check (service_healthy)",
@@ -327,7 +327,7 @@
     "dependencies": [],
     "stack": "backend",
     "role": "builder",
-    "status": "in-progress",
+    "status": "done",
     "acceptance_criteria": [
       "ContentState uses Django TextChoices: draft, suggested_by_ai, reviewed, approved, rejected",
       "Valid transitions enforced at the model/service layer: draft->suggested_by_ai, suggested_by_ai->reviewed|rejected, reviewed->approved|rejected|suggested_by_ai, approved->[], rejected->draft|suggested_by_ai",

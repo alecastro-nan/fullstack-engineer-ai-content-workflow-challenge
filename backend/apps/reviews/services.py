@@ -1,19 +1,17 @@
-import enum
 import uuid
 
 from django.core.exceptions import ValidationError
 
 from apps.content.models import ContentPiece
 from apps.content.services import ContentPieceService
+from apps.reviews.enums import ReviewAction
 from apps.reviews.models import StateHistory
 
+TERMINAL_STATES = {
+    ContentPiece.State.APPROVED,
+}
 
-class ReviewAction(enum.Enum):
-    APPROVE = "approve"
-    REJECT = "reject"
-    REQUEST_EDITS = "request_edits"
-    EDIT = "edit"
-
+MAX_FEEDBACK_LENGTH = 2000
 
 VALID_TRANSITIONS: dict[str, dict[str, str]] = {
     ContentPiece.State.DRAFT: {},
@@ -73,6 +71,12 @@ class ReviewService:
         if piece is None:
             return None
 
+        if len(feedback) > MAX_FEEDBACK_LENGTH:
+            raise ValidationError(
+                f"Feedback too long (max {MAX_FEEDBACK_LENGTH} characters)",
+                code="invalid",
+            )
+
         action_value = action.value
         from_state = piece.state
         to_state = ReviewService._validate_transition(from_state, action_value)
@@ -90,24 +94,57 @@ class ReviewService:
         description: str | None = None,
         body: str | None = None,
     ) -> ContentPiece | None:
-        piece = ContentPieceService.update_content_piece(
-            content_id=content_id,
-            headline=headline,
-            description=description,
-            body=body,
-        )
+        if headline is None and description is None and body is None:
+            raise ValidationError(
+                "At least one field must be provided to edit content",
+                code="no_changes",
+            )
+
+        piece = ContentPieceService.get_content_piece_by_id(content_id)
         if piece is None:
             return None
 
-        from_state = piece.state
-        if from_state != ContentPiece.State.DRAFT:
-            piece.state = ContentPiece.State.DRAFT
-            piece.save(update_fields=["state", "updated_at"])
-            ReviewService._record_history(
-                piece,
-                from_state,
-                ContentPiece.State.DRAFT,
-                ReviewAction.EDIT.value,
+        if piece.state in TERMINAL_STATES:
+            raise ValidationError(
+                f"Cannot edit content in terminal state '{piece.state}'",
+                code="terminal_state",
             )
+
+        from_state = piece.state
+        update_fields: list[str] = []
+        changed = False
+
+        if headline is not None:
+            validated = ContentPieceService._validate_headline(headline)
+            if validated != piece.headline:
+                piece.headline = validated
+                update_fields.append("headline")
+                changed = True
+        if description is not None:
+            validated = ContentPieceService._validate_description(description)
+            if validated != piece.description:
+                piece.description = validated
+                update_fields.append("description")
+                changed = True
+        if body is not None:
+            validated = ContentPieceService._validate_body(body)
+            if validated != piece.body:
+                piece.body = validated
+                update_fields.append("body")
+                changed = True
+
+        if changed:
+            if from_state != ContentPiece.State.DRAFT:
+                piece.state = ContentPiece.State.DRAFT
+                update_fields.append("state")
+            update_fields.append("updated_at")
+            piece.save(update_fields=update_fields)
+            if from_state != ContentPiece.State.DRAFT:
+                ReviewService._record_history(
+                    piece,
+                    from_state,
+                    ContentPiece.State.DRAFT,
+                    ReviewAction.EDIT.value,
+                )
 
         return piece
