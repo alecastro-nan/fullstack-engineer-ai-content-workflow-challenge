@@ -64,9 +64,12 @@ branch → `feat/F-009-ai-abstraction`
 plan → `agentic/runs/phase-2-plan/plan.md`
 *ABC with DraftResult/TranslationResult, OpenAI and Anthropic providers, provider registry via env, AiService with fallback, 8 mock-based tests. Pushed to origin.*
 
-### F-010 — AI draft generation mutation — PENDING
+### F-010 — AI draft generation mutation — DONE
 handoff → `agentic/runs/F-010-ai-draft/handoff.md`
-*Depends on F-009. Can run in parallel with F-011.*
+branch → `feat/F-010-ai-draft-mutation`
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/17
+reviewers: @code-reviewer ✅ @security-reviewer ✅
+*generateDraft mutation, GENERATE_AI action, state transition. Reviews: code+security passed after fixes (prompt injection patched, exception narrowed, duplicate enum removed, missing tests added). 112/112 tests, mypy+ruff clean.*
 
 ### F-011 — AI translation mutation — PENDING
 handoff → `agentic/runs/F-011-ai-translation/handoff.md`

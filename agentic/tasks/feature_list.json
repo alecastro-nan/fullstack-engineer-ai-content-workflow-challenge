@@ -365,7 +365,7 @@
     "dependencies": [],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "Abstract provider class (ABC) with generate_draft() and translate() methods",
       "OpenAI provider implements using openai Python SDK",
@@ -402,7 +402,7 @@
     "dependencies": ["F-009"],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "GraphQL mutation generateDraft(contentId) triggers AI generation for existing content",
       "AI generates headline and description using the content's brief/description as prompt",

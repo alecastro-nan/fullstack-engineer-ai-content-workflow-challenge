@@ -3,7 +3,7 @@ import json
 from anthropic import Anthropic
 
 from apps.ai.exceptions import MalformedResponseError, RateLimitError
-from apps.ai.prompts import DRAFT_PROMPT, TRANSLATION_PROMPT
+from apps.ai.prompts import format_draft_prompt, format_translation_prompt
 from apps.ai.providers.base import AIProvider, DraftResult, TranslationResult
 
 
@@ -21,16 +21,12 @@ class AnthropicProvider(AIProvider):
         self.max_tokens = max_tokens
 
     def generate_draft(self, brief: str) -> DraftResult:
-        prompt = DRAFT_PROMPT.format(brief=brief)
+        prompt = format_draft_prompt(brief)
         response = self._call_api(prompt)
         return self._parse_draft_response(response)
 
     def translate(self, text: str, target_language: str) -> TranslationResult:
-        prompt = TRANSLATION_PROMPT.format(
-            headline=text,
-            description=text,
-            target_language=target_language,
-        )
+        prompt = format_translation_prompt(text, target_language)
         response = self._call_api(prompt)
         return self._parse_translation_response(response)
 
