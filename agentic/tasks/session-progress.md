@@ -47,6 +47,10 @@ handoff → `agentic/runs/F-007-finalize-compose/handoff.md`
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 *Healthchecks, restart policies, build args for VITE_API_URL, api.ts fallback fix, env.example ports fixed. Both reviews passed with production-hardening notes.*
 
+## Phase 2 Plan Registered
+plan → `agentic/runs/phase-2-plan/plan.md`
+*15 remaining tasks across 4 parallel tracks. Estimated ~11.5h total.*
+
 ## Phase 2: Backend Engine (parallelizable)
 
 ### F-008 — Review state machine + mutations (merged) — DONE
