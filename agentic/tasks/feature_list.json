@@ -402,7 +402,7 @@
     "dependencies": ["F-009"],
     "stack": "backend",
     "role": "builder",
-    "status": "review",
+    "status": "done",
     "acceptance_criteria": [
       "GraphQL mutation generateDraft(contentId) triggers AI generation for existing content",
       "AI generates headline and description using the content's brief/description as prompt",
