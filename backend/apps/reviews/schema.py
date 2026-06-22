@@ -1,4 +1,3 @@
-import enum
 import uuid
 
 import strawberry
@@ -8,15 +7,6 @@ from graphql import GraphQLError
 from apps.content.schema import ContentPieceType
 from apps.reviews.enums import ReviewAction
 from apps.reviews.services import ReviewService
-
-
-@strawberry.enum(name='ReviewAction')
-class ReviewActionEnum(enum.Enum):
-    APPROVE = "approve"
-    REJECT = "reject"
-    REQUEST_EDITS = "request_edits"
-    EDIT = "edit"
-    GENERATE_AI = "generate_ai"
 
 
 @strawberry.type

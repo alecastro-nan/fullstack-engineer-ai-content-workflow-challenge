@@ -1,14 +1,18 @@
+import logging
 import uuid
 
 import strawberry
 from graphql import GraphQLError
 
+from apps.ai.exceptions import AIProviderError
 from apps.ai.services import AiService
 from apps.content.models import ContentPiece
 from apps.content.schema import ContentPieceType
 from apps.content.services import ContentPieceService
 from apps.reviews.enums import ReviewAction
 from apps.reviews.models import StateHistory
+
+logger = logging.getLogger(__name__)
 
 
 @strawberry.type
@@ -41,8 +45,9 @@ class AiMutation:
 
         try:
             draft = AiService.generate_draft(brief)
-        except Exception as e:
-            raise GraphQLError(f"AI draft generation failed: {e}") from e
+        except AIProviderError as e:
+            logger.error("AI draft generation failed", exc_info=True)
+            raise GraphQLError("AI draft generation failed. Please try again later.") from e
 
         from_state = piece.state
         piece.headline = draft.headline

@@ -120,6 +120,62 @@ class TestAiDraftMutation(TestCase):
         assert data.get("errors") is not None
         assert "must be in 'draft' state" in str(data["errors"])
 
+    @patch("apps.ai.providers.openai_provider.OpenAI")
+    def test_generate_draft_ai_failure_state_preserved(self, mock_openai: MagicMock) -> None:
+        mock_openai.return_value.chat.completions.create.side_effect = Exception("API timeout")
+
+        campaign_id = _create_campaign(self.client)
+        content_id = _create_content(self.client, campaign_id)
+
+        response = self.client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($id: ID!) {
+                        generateDraft(contentId: $id) {
+                            id
+                            headline
+                            description
+                            state
+                        }
+                    }
+                """,
+                "variables": {"id": content_id},
+            },
+            content_type="application/json",
+        )
+        data = response.json()
+        assert data.get("errors") is not None
+        content = ContentPiece.objects.get(id=content_id)
+        assert content.state == ContentPiece.State.DRAFT
+
+    @patch("apps.ai.providers.openai_provider.OpenAI")
+    def test_generate_draft_malformed_response(self, mock_openai: MagicMock) -> None:
+        mock_instance = mock_openai.return_value
+        mock_choice = mock_instance.chat.completions.create.return_value.choices[0]
+        mock_choice.message.content = "not valid json"
+
+        campaign_id = _create_campaign(self.client)
+        content_id = _create_content(self.client, campaign_id)
+
+        response = self.client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($id: ID!) {
+                        generateDraft(contentId: $id) {
+                            id
+                        }
+                    }
+                """,
+                "variables": {"id": content_id},
+            },
+            content_type="application/json",
+        )
+        data = response.json()
+        assert data.get("errors") is not None
+        assert "AI draft generation failed" in str(data["errors"])
+
     def test_generate_draft_invalid_id(self) -> None:
         response = self.client.post(
             "/graphql",
