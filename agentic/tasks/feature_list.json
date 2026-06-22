@@ -434,7 +434,7 @@
     "dependencies": ["F-009"],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "GraphQL mutation translateContent(contentId, targetLanguage) triggers AI translation",
       "Target language uses ISO 639-1 codes (es, fr, de, pt, it, ja, zh)",
