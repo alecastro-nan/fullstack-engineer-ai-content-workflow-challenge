@@ -286,4 +286,51 @@ describe('ContentPieceCard', () => {
     );
     expect(screen.getByText('No actions available')).toBeInTheDocument();
   });
+
+  it('shows Translate button when content is approved and onTranslate is provided', () => {
+    const approvedContent = { ...mockContent, state: 'approved' as const };
+    render(
+      <ContentPieceCard
+        content={approvedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onTranslate={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Translate')).toBeInTheDocument();
+  });
+
+  it('hides Translate button when content is not approved', () => {
+    const draftContent = { ...mockContent, state: 'draft' as const };
+    render(
+      <ContentPieceCard
+        content={draftContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onTranslate={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('Translate')).not.toBeInTheDocument();
+  });
+
+  it('calls onTranslate with correct language when translation is submitted', async () => {
+    const onTranslate = vi.fn().mockResolvedValue(undefined);
+    const approvedContent = { ...mockContent, state: 'approved' as const };
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={approvedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onTranslate={onTranslate}
+      />,
+    );
+    await user.click(screen.getByText('Translate'));
+    await user.selectOptions(screen.getByRole('combobox'), 'es');
+    await user.click(screen.getByText('Start Translation'));
+    expect(onTranslate).toHaveBeenCalledWith('1', 'es');
+  });
 });

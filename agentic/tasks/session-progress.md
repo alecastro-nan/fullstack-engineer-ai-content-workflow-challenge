@@ -106,9 +106,10 @@ handoff → `feat/F-015-review-ui`
 PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/22
 *ConfirmDialog + ReviewActions components. Approve (with confirm), Reject (with feedback), Request Edits (with feedback), Edit & Reset to Draft for rejected content. 56 tests, typecheck+build clean.*
 
-### F-016 — Translation panel — PENDING
-handoff → `agentic/runs/F-016-translation-panel/handoff.md`
-*Depends on F-011 + F-013. Language selector, trigger, preview.*
+### F-016 — Translation panel — DONE
+branch → `feat/F-016-translation-panel`
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/23
+*TranslatePanel component with language selector (es/fr/de/pt/it/ja/zh). Translate button visible when content is approved. Starts with current language excluded. 8 panel tests + 3 card tests. 67 total tests.*
 
 ## Phase 5: Real-Time
 
