@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.content",
     "apps.ai",
     "apps.reviews",
+    "apps.ws",
 ]
 
 MIDDLEWARE = [

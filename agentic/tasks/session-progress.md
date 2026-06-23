@@ -113,9 +113,9 @@ PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-c
 
 ## Phase 5: Real-Time
 
-### F-017 — Channels WebSocket + broadcasts (merged) — PENDING
-handoff → `agentic/runs/F-017-channels-websocket/handoff.md`
-*Merged old F-011+F-012. Django Channels setup + state change broadcasts.*
+### F-017 — Channels WebSocket + broadcasts (merged) — DONE
+branch → `feat/F-017-channels-websocket`
+*Django Channels WebSocket at /ws/content/<contentId>/. ContentConsumer (connect/ack/disconnect/state_change), signal broadcast on StateHistory post_save, event payload with contentId/campaignId/oldState/newState/action/timestamp. 7 tests. All 125 backend tests pass.*
 
 ### F-018 — Frontend real-time updates — PENDING
 handoff → `agentic/runs/F-018-frontend-realtime/handoff.md`
