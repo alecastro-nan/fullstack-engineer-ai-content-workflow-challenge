@@ -809,7 +809,7 @@
     "dependencies": [],
     "stack": "docs",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "README includes: Setup instructions (Docker Compose and manual development)",
       "README includes: Prerequisites (Python 3.12, Node 18, uv, Docker)",

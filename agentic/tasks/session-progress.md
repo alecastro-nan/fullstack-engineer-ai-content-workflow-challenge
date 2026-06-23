@@ -135,8 +135,9 @@ branch → `feat/F-020-complete-pending-adrs`
 branch → `feat/F-021-ci-pipeline`
 *5 jobs: ruff-lint, mypy-typecheck, pytest-backend (with PostgreSQL service), vitest-frontend, docker-build. CI badge + pipeline docs in README.*
 
-### F-022 — README update — PENDING
-handoff → `agentic/runs/F-022-readme/handoff.md`
+### F-022 — README update — DONE
+branch → `feat/F-022-readme-update`
+*Complete README.md rewrite: setup instructions, prerequisites table, env vars reference, available scripts, ADR-linked tech stack, AI draft/translate GraphQL examples, WebSocket docs, expanded project structure, CI pipeline docs.*
 *Final comprehensive README with setup, decisions, API reference, architecture.*
 
 ### F-023 — Final smoke test + PR — PENDING
