@@ -123,9 +123,9 @@ branch → `feat/F-018-frontend-realtime`
 
 ## Phase 6: Quality & Polish
 
-### F-019 — End-to-end workflow test — PENDING
-handoff → `agentic/runs/F-019-e2e-test/handoff.md`
-*Depends on F-010 + F-008 + F-011 + F-017. Full Campaign→Content→AI→Review→Translation test.*
+### F-019 — End-to-end workflow test — DONE
+branch → `feat/F-019-e2e-workflow-test`
+*5 new E2E tests in backend/tests/test_e2e_workflow.py: create→approve, create→translate, reject→edit→regenerate, WS broadcast verification, contentPieces listing. All 130 backend tests pass.*
 
 ### F-020 — Complete pending ADRs — PENDING
 handoff → `agentic/runs/F-020-adrs/handoff.md`
