@@ -151,7 +151,7 @@ describe('ContentPieceCard', () => {
     expect(onGenerateDraft).toHaveBeenCalledWith('1');
   });
 
-  it('shows Approve and Reject buttons when state is suggested_by_ai', () => {
+  it('shows Approve, Reject, and Request Edits buttons when state is suggested_by_ai', () => {
     const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
     render(
       <ContentPieceCard
@@ -164,9 +164,26 @@ describe('ContentPieceCard', () => {
     );
     expect(screen.getByText('Approve')).toBeInTheDocument();
     expect(screen.getByText('Reject')).toBeInTheDocument();
+    expect(screen.getByText('Request Edits')).toBeInTheDocument();
   });
 
-  it('calls onReview with APPROVE when Approve is clicked', async () => {
+  it('shows Approve and Reject buttons when state is reviewed (no Request Edits)', () => {
+    const reviewedContent = { ...mockContent, state: 'reviewed' as const };
+    render(
+      <ContentPieceCard
+        content={reviewedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Approve')).toBeInTheDocument();
+    expect(screen.getByText('Reject')).toBeInTheDocument();
+    expect(screen.queryByText('Request Edits')).not.toBeInTheDocument();
+  });
+
+  it('calls onReview with APPROVE after confirm dialog', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined);
     const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
     const user = userEvent.setup();
@@ -180,10 +197,12 @@ describe('ContentPieceCard', () => {
       />,
     );
     await user.click(screen.getByText('Approve'));
-    expect(onReview).toHaveBeenCalledWith('1', 'APPROVE');
+    expect(screen.getByText((c) => c.includes('Are you sure you want to approve'))).toBeInTheDocument();
+    await user.click(screen.getAllByText('Approve')[1]);
+    expect(onReview).toHaveBeenCalledWith('1', 'APPROVE', '');
   });
 
-  it('calls onReview with REJECT when Reject is clicked', async () => {
+  it('calls onReview with REJECT and feedback after submitting feedback', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined);
     const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
     const user = userEvent.setup();
@@ -197,6 +216,74 @@ describe('ContentPieceCard', () => {
       />,
     );
     await user.click(screen.getByText('Reject'));
-    expect(onReview).toHaveBeenCalledWith('1', 'REJECT');
+    const textarea = screen.getByPlaceholderText('Optional feedback...');
+    await user.type(textarea, 'Not good enough');
+    await user.click(screen.getByText('Submit'));
+    expect(onReview).toHaveBeenCalledWith('1', 'REJECT', 'Not good enough');
+  });
+
+  it('calls onReview with REQUEST_EDITS and feedback', async () => {
+    const onReview = vi.fn().mockResolvedValue(undefined);
+    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={suggestedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={onReview}
+      />,
+    );
+    await user.click(screen.getByText('Request Edits'));
+    const textarea = screen.getByPlaceholderText('Optional feedback...');
+    await user.type(textarea, 'Make it shorter');
+    await user.click(screen.getByText('Submit'));
+    expect(onReview).toHaveBeenCalledWith('1', 'REQUEST_EDITS', 'Make it shorter');
+  });
+
+  it('shows Edit & Reset to Draft button when state is rejected', () => {
+    const rejectedContent = { ...mockContent, state: 'rejected' as const };
+    render(
+      <ContentPieceCard
+        content={rejectedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onEditContent={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Edit & Reset to Draft')).toBeInTheDocument();
+  });
+
+  it('calls onEditContent when Edit button is clicked', async () => {
+    const onEditContent = vi.fn().mockResolvedValue(undefined);
+    const rejectedContent = { ...mockContent, state: 'rejected' as const };
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={rejectedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onEditContent={onEditContent}
+      />,
+    );
+    await user.click(screen.getByText('Edit & Reset to Draft'));
+    expect(onEditContent).toHaveBeenCalledWith('1');
+  });
+
+  it('shows no actions message for approved content', () => {
+    const approvedContent = { ...mockContent, state: 'approved' as const };
+    render(
+      <ContentPieceCard
+        content={approvedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('No actions available')).toBeInTheDocument();
   });
 });

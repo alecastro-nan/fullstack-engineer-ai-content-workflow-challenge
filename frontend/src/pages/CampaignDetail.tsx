@@ -8,6 +8,7 @@ import {
   UPDATE_CONTENT_PIECE_MUTATION,
   GENERATE_DRAFT_MUTATION,
   REVIEW_CONTENT_MUTATION,
+  EDIT_CONTENT_MUTATION,
 } from '../services/queries';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece, ContentPiecePage } from '../types/content';
@@ -105,15 +106,30 @@ export function CampaignDetail() {
     );
   }, []);
 
-  const handleReview = useCallback(async (pieceId: string, action: 'APPROVE' | 'REJECT') => {
-    const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
-      REVIEW_CONTENT_MUTATION,
-      { contentId: pieceId, action, feedback: '' },
+  const handleReview = useCallback(
+    async (pieceId: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => {
+      const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
+        REVIEW_CONTENT_MUTATION,
+        { contentId: pieceId, action, feedback },
+      );
+      setPieces((prev) =>
+        prev.map((p) => (p.id === pieceId ? data.reviewContent : p)),
+      );
+      if (action === 'APPROVE') {
+        setSelectedPieceId(null);
+      }
+    },
+    [],
+  );
+
+  const handleEditContent = useCallback(async (pieceId: string) => {
+    const data = await graphqlRequest<{ editContent: ContentPiece }>(
+      EDIT_CONTENT_MUTATION,
+      { contentId: pieceId, headline: '', description: '', body: '' },
     );
     setPieces((prev) =>
-      prev.map((p) => (p.id === pieceId ? data.reviewContent : p)),
+      prev.map((p) => (p.id === pieceId ? data.editContent : p)),
     );
-    setSelectedPieceId(null);
   }, []);
 
   if (loading) {
@@ -201,6 +217,7 @@ export function CampaignDetail() {
         onUpdate={handleUpdate}
         onGenerateDraft={handleGenerateDraft}
         onReview={handleReview}
+        onEditContent={handleEditContent}
         loading={false}
         onCreateClick={() => setCreateModalOpen(true)}
       />
