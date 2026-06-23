@@ -9,6 +9,7 @@ interface ContentListProps {
   onGenerateDraft?: (id: string) => Promise<void>;
   onReview?: (id: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => Promise<void>;
   onEditContent?: (id: string) => Promise<void>;
+  onTranslate?: (id: string, targetLanguage: string) => Promise<void>;
   loading: boolean;
   onCreateClick: () => void;
 }
@@ -21,6 +22,7 @@ export function ContentList({
   onGenerateDraft,
   onReview,
   onEditContent,
+  onTranslate,
   loading,
   onCreateClick,
 }: ContentListProps) {
@@ -64,6 +66,7 @@ export function ContentList({
            onGenerateDraft={onGenerateDraft}
            onReview={onReview}
            onEditContent={onEditContent}
+           onTranslate={onTranslate}
          />
       ))}
     </div>

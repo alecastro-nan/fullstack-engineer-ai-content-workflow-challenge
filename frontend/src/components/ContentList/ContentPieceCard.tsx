@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ContentPiece } from '../../types/content';
 import { ContentStateBadge } from './ContentStateBadge';
 import { ReviewActions } from '../ReviewActions/ReviewActions';
+import { TranslatePanel } from '../TranslatePanel/TranslatePanel';
 
 interface ContentPieceCardProps {
   content: ContentPiece;
@@ -11,6 +12,7 @@ interface ContentPieceCardProps {
   onGenerateDraft?: (id: string) => Promise<void>;
   onReview?: (id: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => Promise<void>;
   onEditContent?: (id: string) => Promise<void>;
+  onTranslate?: (id: string, targetLanguage: string) => Promise<void>;
 }
 
 export function ContentPieceCard({
@@ -21,6 +23,7 @@ export function ContentPieceCard({
   onGenerateDraft,
   onReview,
   onEditContent,
+  onTranslate,
 }: ContentPieceCardProps) {
   const [headline, setHeadline] = useState(content.headline);
   const [description, setDescription] = useState(content.description);
@@ -35,6 +38,7 @@ export function ContentPieceCard({
 
   const isDraft = content.state === 'draft';
   const isSuggested = content.state === 'suggested_by_ai';
+  const isApproved = content.state === 'approved';
 
   const handleSave = async () => {
     if (!headline.trim()) return;
@@ -75,6 +79,15 @@ export function ContentPieceCard({
       await onReview(content.id, action, feedback);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to review');
+      throw err;
+    }
+  };
+
+  const handleTranslate = async (targetLanguage: string) => {
+    if (!onTranslate) return;
+    try {
+      await onTranslate(content.id, targetLanguage);
+    } catch (err) {
       throw err;
     }
   };
@@ -199,6 +212,13 @@ export function ContentPieceCard({
               state={content.state}
               onReview={handleReview}
               onEditContent={handleEditContent}
+            />
+          )}
+
+          {isApproved && onTranslate && (
+            <TranslatePanel
+              currentLanguage={content.language}
+              onTranslate={handleTranslate}
             />
           )}
 

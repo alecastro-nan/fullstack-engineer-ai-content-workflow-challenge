@@ -9,6 +9,7 @@ import {
   GENERATE_DRAFT_MUTATION,
   REVIEW_CONTENT_MUTATION,
   EDIT_CONTENT_MUTATION,
+  TRANSLATE_CONTENT_MUTATION,
 } from '../services/queries';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece, ContentPiecePage } from '../types/content';
@@ -122,6 +123,17 @@ export function CampaignDetail() {
     [],
   );
 
+  const handleTranslate = useCallback(
+    async (pieceId: string, targetLanguage: string) => {
+      const data = await graphqlRequest<{ translateContent: ContentPiece }>(
+        TRANSLATE_CONTENT_MUTATION,
+        { contentId: pieceId, targetLanguage },
+      );
+      setPieces((prev) => [...prev, data.translateContent]);
+    },
+    [],
+  );
+
   const handleEditContent = useCallback(async (pieceId: string) => {
     const data = await graphqlRequest<{ editContent: ContentPiece }>(
       EDIT_CONTENT_MUTATION,
@@ -218,6 +230,7 @@ export function CampaignDetail() {
         onGenerateDraft={handleGenerateDraft}
         onReview={handleReview}
         onEditContent={handleEditContent}
+        onTranslate={handleTranslate}
         loading={false}
         onCreateClick={() => setCreateModalOpen(true)}
       />
