@@ -101,9 +101,10 @@ branch → `feat/F-014-ai-draft-panel`
 PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/21
 *Generate Draft button in ContentPieceCard when state=draft. Approve/Reject when state=suggested_by_ai. 51 frontend tests, typecheck+build clean.*
 
-### F-015 — Review UI — PENDING
-handoff → `agentic/runs/F-015-review-ui/handoff.md`
-*Depends on F-008 + F-013. Approve/reject/request edits buttons.*
+### F-015 — Review UI — DONE
+handoff → `feat/F-015-review-ui`
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/22
+*ConfirmDialog + ReviewActions components. Approve (with confirm), Reject (with feedback), Request Edits (with feedback), Edit & Reset to Draft for rejected content. 56 tests, typecheck+build clean.*
 
 ### F-016 — Translation panel — PENDING
 handoff → `agentic/runs/F-016-translation-panel/handoff.md`
