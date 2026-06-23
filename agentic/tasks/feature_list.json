@@ -683,7 +683,7 @@
     "dependencies": ["F-017", "F-013"],
     "stack": "frontend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "WebSocket client connects to Django Channels on app load (or when on detail page)",
       "State change events update the UI without page refresh",
