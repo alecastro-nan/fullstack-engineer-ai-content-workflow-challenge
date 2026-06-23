@@ -88,6 +88,10 @@ PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-c
 reviewers: @code-reviewer ✅ @typescript-reviewer ✅
 *Tailwind v4 setup, graphqlRequest helper, CampaignDashboard page with create/list/pagination/delete. 19 component+page tests, frontend typecheck+build clean. Fixes applied: race condition guard, CampaignStatus union type, axios timeout, page test coverage. Code review + TypeScript review findings addressed.*
 
+### F-013 — Campaign Detail page — DONE
+handoff → `agentic/runs/F-013-campaign-detail/plan.md`
+*Campaign Detail at /campaigns/:id. ContentStateBadge (5 states), ContentPieceCard (collapsed/expanded/inline edit), ContentList, CreateContentModal, CampaignDetail page. 5 component files + 5 test files. No backend changes. 44 frontend tests, typecheck+build clean.*
+
 ## Phase 4: Feature Panels (after Phase 2+3)
 
 ### F-014 — AI Draft panel — PENDING
