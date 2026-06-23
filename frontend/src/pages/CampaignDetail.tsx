@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { graphqlRequest } from '../services/api';
+import { wsService } from '../services/websocket';
 import {
   CAMPAIGN_QUERY,
   CONTENT_PIECES_QUERY,
@@ -13,7 +14,9 @@ import {
 } from '../services/queries';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece, ContentPiecePage } from '../types/content';
+import type { ConnectionStatus, StateChangeEvent, WSInboundEvent, WSSubscriber } from '../types/websocket';
 import { ContentList, CreateContentModal } from '../components/ContentList';
+import { ConnectionIndicator, StateChangeToast } from '../components/RealtimeStatus';
 
 interface CampaignDetailData {
   campaign: Campaign | null;
@@ -29,6 +32,10 @@ export function CampaignDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [stateChangeEvent, setStateChangeEvent] = useState<StateChangeEvent | null>(null);
+  const unsubscribersRef = useRef<Map<string, () => void>>(new Map());
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -70,6 +77,58 @@ export function CampaignDetail() {
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  const pieceIds = useMemo(() => pieces.map((p) => p.id), [pieces]);
+
+  useEffect(() => {
+    const unsubscribers = unsubscribersRef.current;
+    const currentIds = new Set(pieceIds);
+
+    for (const [id, unsub] of unsubscribers) {
+      if (!currentIds.has(id)) {
+        unsub();
+        unsubscribers.delete(id);
+      }
+    }
+
+    if (pieceIds.length === 0) {
+      setConnectionStatus('disconnected');
+      return;
+    }
+
+    const subscriber: WSSubscriber = {
+      onEvent: (event: WSInboundEvent) => {
+        if (!mountedRef.current) return;
+        if (event.type === 'state.change') {
+          setPieces((prev) =>
+            prev.map((p) =>
+              p.id === event.contentId
+                ? { ...p, state: event.newState as ContentPiece['state'] }
+                : p,
+            ),
+          );
+          setStateChangeEvent(event);
+        }
+      },
+      onStatusChange: (status: ConnectionStatus) => {
+        if (mountedRef.current) setConnectionStatus(status);
+      },
+    };
+
+    for (const id of pieceIds) {
+      if (!unsubscribers.has(id)) {
+        const unsub = wsService.subscribe(id, subscriber);
+        unsubscribers.set(id, unsub);
+      }
+    }
+
+    return () => {
+      for (const [, unsub] of unsubscribers) {
+        unsub();
+      }
+      unsubscribers.clear();
+    };
+  }, [pieceIds]);
 
   const handleCreate = useCallback(
     async (headline: string, description: string) => {
@@ -203,7 +262,10 @@ export function CampaignDetail() {
       </button>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
+          {pieces.length > 0 && <ConnectionIndicator status={connectionStatus} />}
+        </div>
         {campaign.description && (
           <p className="mt-1 text-sm text-gray-500">{campaign.description}</p>
         )}
@@ -240,6 +302,8 @@ export function CampaignDetail() {
         onClose={() => setCreateModalOpen(false)}
         onCreate={handleCreate}
       />
+
+      <StateChangeToast event={stateChangeEvent} />
     </div>
   );
 }

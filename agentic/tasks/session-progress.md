@@ -117,9 +117,9 @@ PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-c
 branch → `feat/F-017-channels-websocket`
 *Django Channels WebSocket at /ws/content/<contentId>/. ContentConsumer (connect/ack/disconnect/state_change), signal broadcast on StateHistory post_save, event payload with contentId/campaignId/oldState/newState/action/timestamp. 7 tests. All 125 backend tests pass.*
 
-### F-018 — Frontend real-time updates — PENDING
-handoff → `agentic/runs/F-018-frontend-realtime/handoff.md`
-*Depends on F-017 + F-013. WebSocket client, auto-refresh, toasts.*
+### F-018 — Frontend real-time updates — DONE
+branch → `feat/F-018-frontend-realtime`
+*WebSocket client service with reconnect, ConnectionIndicator, StateChangeToast, content state auto-sync in CampaignDetail. 21 new tests (11 WS service, 5 ConnectionIndicator, 5 StateChangeToast). 88 total frontend tests pass.*
 
 ## Phase 6: Quality & Polish
 
