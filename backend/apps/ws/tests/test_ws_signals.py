@@ -8,7 +8,6 @@ from apps.campaigns.services import CampaignService
 from apps.content.models import ContentPiece
 from apps.content.services import ContentPieceService
 from apps.reviews.enums import ReviewAction
-from apps.reviews.models import StateHistory
 from apps.reviews.services import ReviewService
 
 
@@ -47,7 +46,7 @@ class TestStateChangeBroadcast:
             assert message["type"] == "state.change"
             payload = message["payload"]
             assert payload["contentId"] == str(content_piece.id)
-            assert payload["campaignId"] == str(content_piece.campaign_id)
+            assert payload["campaignId"] == str(content_piece.campaign.pk)
             assert payload["oldState"] == "draft"
             assert payload["newState"] == "suggested_by_ai"
             assert payload["action"] == "generate_ai"
