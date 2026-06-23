@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CampaignCard, CreateCampaignModal } from '../components/CampaignList';
 import { graphqlRequest } from '../services/api';
 import {
@@ -32,7 +32,17 @@ export function CampaignDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const perPage = 20;
 
+  const mountedRef = useRef(true);
+  const fetchIdRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const fetchCampaigns = useCallback(async (pageNum: number) => {
+    const fetchId = ++fetchIdRef.current;
     setLoading(true);
     setError(null);
     try {
@@ -40,13 +50,17 @@ export function CampaignDashboard() {
         page: pageNum,
         perPage,
       });
+      if (fetchId !== fetchIdRef.current || !mountedRef.current) return;
       setCampaigns(data.campaigns.items);
       setTotalCount(data.campaigns.totalCount);
       setPage(data.campaigns.page);
     } catch (err) {
+      if (fetchId !== fetchIdRef.current || !mountedRef.current) return;
       setError(err instanceof Error ? err.message : 'Failed to load campaigns');
     } finally {
-      setLoading(false);
+      if (fetchId === fetchIdRef.current && mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -54,16 +68,16 @@ export function CampaignDashboard() {
     fetchCampaigns(1);
   }, [fetchCampaigns]);
 
-  const handleCreate = async (name: string, description: string) => {
+  const handleCreate = useCallback(async (name: string, description: string) => {
     const data = await graphqlRequest<CreateCampaignData>(
       CREATE_CAMPAIGN_MUTATION,
       { input: { name, description } },
     );
     setCampaigns((prev) => [data.createCampaign, ...prev]);
     setTotalCount((prev) => prev + 1);
-  };
+  }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     try {
       await graphqlRequest<{ deleteCampaign: boolean }>(
         DELETE_CAMPAIGN_MUTATION,
@@ -76,7 +90,7 @@ export function CampaignDashboard() {
         err instanceof Error ? err.message : 'Failed to delete campaign',
       );
     }
-  };
+  }, []);
 
   const totalPages = Math.ceil(totalCount / perPage);
 

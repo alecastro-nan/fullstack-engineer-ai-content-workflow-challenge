@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { StatusBadge } from './StatusBadge';
+import type { CampaignStatus } from '../../types/campaign';
 
 describe('StatusBadge', () => {
   it('renders active status with correct styling', () => {
@@ -19,7 +20,7 @@ describe('StatusBadge', () => {
   });
 
   it('renders unknown status with fallback styling', () => {
-    render(<StatusBadge status="unknown" />);
+    render(<StatusBadge status={'unknown' as CampaignStatus} />);
     const badge = screen.getByText('unknown');
     expect(badge).toBeInTheDocument();
   });
