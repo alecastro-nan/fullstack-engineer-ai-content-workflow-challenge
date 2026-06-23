@@ -103,3 +103,37 @@ export const UPDATE_CONTENT_PIECE_MUTATION = `
     }
   }
 `;
+
+export const GENERATE_DRAFT_MUTATION = `
+  mutation GenerateDraft($contentId: ID!) {
+    generateDraft(contentId: $contentId) {
+      id
+      campaignId
+      headline
+      description
+      body
+      language
+      state
+      originalId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const REVIEW_CONTENT_MUTATION = `
+  mutation ReviewContent($contentId: ID!, $action: ReviewAction!, $feedback: String!) {
+    reviewContent(contentId: $contentId, action: $action, feedback: $feedback) {
+      id
+      campaignId
+      headline
+      description
+      body
+      language
+      state
+      originalId
+      createdAt
+      updatedAt
+    }
+  }
+`;

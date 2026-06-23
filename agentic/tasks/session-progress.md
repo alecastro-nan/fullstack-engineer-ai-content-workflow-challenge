@@ -90,13 +90,16 @@ reviewers: @code-reviewer ✅ @typescript-reviewer ✅
 
 ### F-013 — Campaign Detail page — DONE
 handoff → `agentic/runs/F-013-campaign-detail/plan.md`
+branch → `feat/F-013-campaign-detail`
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/20
 *Campaign Detail at /campaigns/:id. ContentStateBadge (5 states), ContentPieceCard (collapsed/expanded/inline edit), ContentList, CreateContentModal, CampaignDetail page. 5 component files + 5 test files. No backend changes. 44 frontend tests, typecheck+build clean.*
 
 ## Phase 4: Feature Panels (after Phase 2+3)
 
-### F-014 — AI Draft panel — PENDING
-handoff → `agentic/runs/F-014-ai-draft-panel/handoff.md`
-*Depends on F-010 + F-013. Trigger generation, preview, accept/reject.*
+### F-014 — AI Draft panel — PR
+branch → `feat/F-014-ai-draft-panel`
+PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/21
+*Generate Draft button in ContentPieceCard when state=draft. Approve/Reject when state=suggested_by_ai. 51 frontend tests, typecheck+build clean.*
 
 ### F-015 — Review UI — PENDING
 handoff → `agentic/runs/F-015-review-ui/handoff.md`

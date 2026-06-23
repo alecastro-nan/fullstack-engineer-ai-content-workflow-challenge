@@ -6,6 +6,8 @@ import {
   CONTENT_PIECES_QUERY,
   CREATE_CONTENT_PIECE_MUTATION,
   UPDATE_CONTENT_PIECE_MUTATION,
+  GENERATE_DRAFT_MUTATION,
+  REVIEW_CONTENT_MUTATION,
 } from '../services/queries';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece, ContentPiecePage } from '../types/content';
@@ -93,6 +95,27 @@ export function CampaignDetail() {
     [],
   );
 
+  const handleGenerateDraft = useCallback(async (pieceId: string) => {
+    const data = await graphqlRequest<{ generateDraft: ContentPiece }>(
+      GENERATE_DRAFT_MUTATION,
+      { contentId: pieceId },
+    );
+    setPieces((prev) =>
+      prev.map((p) => (p.id === pieceId ? data.generateDraft : p)),
+    );
+  }, []);
+
+  const handleReview = useCallback(async (pieceId: string, action: 'APPROVE' | 'REJECT') => {
+    const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
+      REVIEW_CONTENT_MUTATION,
+      { contentId: pieceId, action, feedback: '' },
+    );
+    setPieces((prev) =>
+      prev.map((p) => (p.id === pieceId ? data.reviewContent : p)),
+    );
+    setSelectedPieceId(null);
+  }, []);
+
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -176,6 +199,8 @@ export function CampaignDetail() {
         selectedId={selectedPieceId}
         onSelect={setSelectedPieceId}
         onUpdate={handleUpdate}
+        onGenerateDraft={handleGenerateDraft}
+        onReview={handleReview}
         loading={false}
         onCreateClick={() => setCreateModalOpen(true)}
       />
