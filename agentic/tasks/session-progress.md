@@ -80,13 +80,13 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 
 ## Phase 3: Frontend Core
 
-### F-012 — Campaign Dashboard — IN REVIEW
+### F-012 — Campaign Dashboard — READY TO MERGE
 branch → `feat/F-012-campaign-dashboard`
 plan → `agentic/runs/F-012-campaign-dashboard/plan.md`
 handoff → `agentic/runs/F-012-campaign-dashboard/handoff.md`
 PR → https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/19
-reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳
-*Tailwind v4 setup, graphqlRequest helper, CampaignDashboard page with create/list/pagination/delete. 13 component tests, frontend typecheck+build clean.*
+reviewers: @code-reviewer ✅ @typescript-reviewer ✅
+*Tailwind v4 setup, graphqlRequest helper, CampaignDashboard page with create/list/pagination/delete. 19 component+page tests, frontend typecheck+build clean. Fixes applied: race condition guard, CampaignStatus union type, axios timeout, page test coverage. Code review + TypeScript review findings addressed.*
 
 ## Phase 4: Feature Panels (after Phase 2+3)
 
