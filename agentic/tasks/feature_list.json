@@ -839,7 +839,7 @@
     "dependencies": ["F-019", "F-020", "F-021", "F-022"],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "docker compose up --build starts all services cleanly on first run",
       "PostgreSQL is healthy and migrations have run automatically",

@@ -6,7 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 logger = logging.getLogger(__name__)
 
 
-class ContentConsumer(AsyncWebsocketConsumer):
+class ContentConsumer(AsyncWebsocketConsumer):  # type: ignore[misc]
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.content_id: str = ""
@@ -33,7 +33,6 @@ class ContentConsumer(AsyncWebsocketConsumer):
 
     async def state_change(self, event: dict[str, object]) -> None:
         payload = event.get("payload", {})
-        await self.send_json({
-            "type": "state.change",
-            **payload,  # type: ignore[arg-type]
-        })
+        msg: dict[str, object] = {"type": "state.change"}
+        msg.update(payload)  # type: ignore[call-overload]
+        await self.send_json(msg)

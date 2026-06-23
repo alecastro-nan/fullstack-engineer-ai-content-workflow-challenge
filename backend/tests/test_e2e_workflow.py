@@ -4,9 +4,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 
-from apps.campaigns.models import Campaign
-from apps.content.models import ContentPiece
-
 
 def _create_campaign(client: Client) -> str:
     response = client.post(
