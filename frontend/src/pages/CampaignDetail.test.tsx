@@ -103,6 +103,31 @@ describe('CampaignDetail', () => {
     expect(await screen.findByText('Network error')).toBeInTheDocument();
   });
 
+  it('generates an AI draft and updates the piece state', async () => {
+    const updatedPiece: ContentPiece = {
+      ...mockPieces[0]!,
+      headline: 'AI Generated Headline',
+      description: 'AI generated description',
+      state: 'suggested_by_ai',
+    };
+
+    vi.mocked(graphqlRequest)
+      .mockResolvedValueOnce({ campaign: mockCampaign })
+      .mockResolvedValueOnce({ contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 } })
+      .mockResolvedValueOnce({ generateDraft: updatedPiece });
+
+    const user = userEvent.setup();
+    renderWithRoute('/campaigns/camp-1');
+
+    await screen.findByText('Test Campaign');
+
+    await user.click(screen.getByText('Piece One'));
+    await user.click(screen.getByText('Generate with AI'));
+
+    expect(await screen.findByDisplayValue('AI Generated Headline')).toBeInTheDocument();
+    expect(screen.getByText('Suggested')).toBeInTheDocument();
+  });
+
   it('creates a content piece and updates the list', async () => {
     const newPiece: ContentPiece = {
       id: 'piece-3',

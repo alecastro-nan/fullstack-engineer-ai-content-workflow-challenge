@@ -107,4 +107,96 @@ describe('ContentPieceCard', () => {
     await user.click(screen.getByText('Cancel'));
     expect(onSelect).toHaveBeenCalledWith('');
   });
+
+  it('shows Generate Draft button when content is draft and selected', () => {
+    render(
+      <ContentPieceCard
+        content={mockContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onGenerateDraft={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Generate with AI')).toBeInTheDocument();
+  });
+
+  it('hides Generate Draft button when content is suggested_by_ai', () => {
+    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    render(
+      <ContentPieceCard
+        content={suggestedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onGenerateDraft={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('Generate with AI')).not.toBeInTheDocument();
+  });
+
+  it('calls onGenerateDraft when Generate button is clicked', async () => {
+    const onGenerateDraft = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={mockContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onGenerateDraft={onGenerateDraft}
+      />,
+    );
+    await user.click(screen.getByText('Generate with AI'));
+    expect(onGenerateDraft).toHaveBeenCalledWith('1');
+  });
+
+  it('shows Approve and Reject buttons when state is suggested_by_ai', () => {
+    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    render(
+      <ContentPieceCard
+        content={suggestedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Approve')).toBeInTheDocument();
+    expect(screen.getByText('Reject')).toBeInTheDocument();
+  });
+
+  it('calls onReview with APPROVE when Approve is clicked', async () => {
+    const onReview = vi.fn().mockResolvedValue(undefined);
+    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={suggestedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={onReview}
+      />,
+    );
+    await user.click(screen.getByText('Approve'));
+    expect(onReview).toHaveBeenCalledWith('1', 'APPROVE');
+  });
+
+  it('calls onReview with REJECT when Reject is clicked', async () => {
+    const onReview = vi.fn().mockResolvedValue(undefined);
+    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const user = userEvent.setup();
+    render(
+      <ContentPieceCard
+        content={suggestedContent}
+        isSelected={true}
+        onSelect={vi.fn()}
+        onUpdate={vi.fn()}
+        onReview={onReview}
+      />,
+    );
+    await user.click(screen.getByText('Reject'));
+    expect(onReview).toHaveBeenCalledWith('1', 'REJECT');
+  });
 });

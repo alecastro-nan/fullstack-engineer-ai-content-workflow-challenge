@@ -6,6 +6,8 @@ interface ContentListProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onUpdate: (id: string, headline: string, description: string) => Promise<void>;
+  onGenerateDraft?: (id: string) => Promise<void>;
+  onReview?: (id: string, action: 'APPROVE' | 'REJECT') => Promise<void>;
   loading: boolean;
   onCreateClick: () => void;
 }
@@ -15,6 +17,8 @@ export function ContentList({
   selectedId,
   onSelect,
   onUpdate,
+  onGenerateDraft,
+  onReview,
   loading,
   onCreateClick,
 }: ContentListProps) {
@@ -55,6 +59,8 @@ export function ContentList({
           isSelected={selectedId === piece.id}
           onSelect={onSelect}
           onUpdate={onUpdate}
+          onGenerateDraft={onGenerateDraft}
+          onReview={onReview}
         />
       ))}
     </div>
