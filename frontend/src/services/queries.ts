@@ -137,3 +137,20 @@ export const REVIEW_CONTENT_MUTATION = `
     }
   }
 `;
+
+export const EDIT_CONTENT_MUTATION = `
+  mutation EditContent($contentId: ID!, $headline: String, $description: String, $body: String) {
+    editContent(contentId: $contentId, headline: $headline, description: $description, body: $body) {
+      id
+      campaignId
+      headline
+      description
+      body
+      language
+      state
+      originalId
+      createdAt
+      updatedAt
+    }
+  }
+`;

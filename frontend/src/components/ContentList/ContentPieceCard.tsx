@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ContentPiece } from '../../types/content';
 import { ContentStateBadge } from './ContentStateBadge';
+import { ReviewActions } from '../ReviewActions/ReviewActions';
 
 interface ContentPieceCardProps {
   content: ContentPiece;
@@ -8,7 +9,8 @@ interface ContentPieceCardProps {
   onSelect: (id: string) => void;
   onUpdate: (id: string, headline: string, description: string) => Promise<void>;
   onGenerateDraft?: (id: string) => Promise<void>;
-  onReview?: (id: string, action: 'APPROVE' | 'REJECT') => Promise<void>;
+  onReview?: (id: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => Promise<void>;
+  onEditContent?: (id: string) => Promise<void>;
 }
 
 export function ContentPieceCard({
@@ -18,13 +20,13 @@ export function ContentPieceCard({
   onUpdate,
   onGenerateDraft,
   onReview,
+  onEditContent,
 }: ContentPieceCardProps) {
   const [headline, setHeadline] = useState(content.headline);
   const [description, setDescription] = useState(content.description);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
-  const [reviewing, setReviewing] = useState(false);
 
   useEffect(() => {
     setHeadline(content.headline);
@@ -67,16 +69,24 @@ export function ContentPieceCard({
     }
   };
 
-  const handleReview = async (action: 'APPROVE' | 'REJECT') => {
+  const handleReview = async (action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => {
     if (!onReview) return;
-    setReviewing(true);
-    setError(null);
     try {
-      await onReview(content.id, action);
+      await onReview(content.id, action, feedback);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to review');
-    } finally {
-      setReviewing(false);
+      throw err;
+    }
+  };
+
+  const handleEditContent = async () => {
+    if (!onEditContent) return;
+    setError(null);
+    try {
+      await onEditContent(content.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to edit content');
+      throw err;
     }
   };
 
@@ -184,28 +194,12 @@ export function ContentPieceCard({
             </div>
           )}
 
-          {isSuggested && onReview && (
-            <div className="mt-3 border-t border-gray-100 pt-3">
-              <p className="mb-2 text-xs font-medium text-gray-500">AI-generated draft — review:</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleReview('APPROVE')}
-                  disabled={reviewing}
-                  className="flex-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {reviewing ? 'Processing...' : 'Approve'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleReview('REJECT')}
-                  disabled={reviewing}
-                  className="flex-1 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {reviewing ? 'Processing...' : 'Reject'}
-                </button>
-              </div>
-            </div>
+          {(onReview || onEditContent) && (
+            <ReviewActions
+              state={content.state}
+              onReview={handleReview}
+              onEditContent={handleEditContent}
+            />
           )}
 
           {error && (
@@ -216,7 +210,7 @@ export function ContentPieceCard({
             <button
               type="button"
               onClick={handleCancel}
-              disabled={reviewing}
+              disabled={saving}
               className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
