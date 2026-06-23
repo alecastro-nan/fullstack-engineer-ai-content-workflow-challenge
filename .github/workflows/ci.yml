@@ -7,32 +7,65 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  ruff-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: astral-sh/setup-uv@v5
         with:
-          node-version: 22
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint:ci
-
-  typecheck-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+          version: "latest"
+          python-version: "3.12"
+      - run: uv sync
+        working-directory: backend
+      - run: uv run ruff check backend/
         working-directory: backend
 
-  typecheck-frontend:
+  mypy-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: "3.12"
+      - run: uv sync
+        working-directory: backend
+      - run: uv run mypy backend/
+        working-directory: backend
+
+  pytest-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: acme
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: "3.12"
+      - run: uv sync
+        working-directory: backend
+      - run: uv run pytest --cov --cov-report=term-missing --no-header
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/acme
+          DJANGO_SETTINGS_MODULE: config.settings.development
+          OPENAI_API_KEY: sk-test-fake-key
+          ANTHROPIC_API_KEY: sk-ant-test-fake-key
+
+  vitest-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,20 +73,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+        working-directory: frontend
+      - run: pnpm test
         working-directory: frontend
 
-  test-backend:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-        working-directory: backend
+      - run: docker compose build

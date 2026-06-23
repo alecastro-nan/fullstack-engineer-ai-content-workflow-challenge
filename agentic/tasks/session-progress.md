@@ -131,9 +131,9 @@ branch → `feat/F-019-e2e-workflow-test`
 branch → `feat/F-020-complete-pending-adrs`
 *Completed ADR-002 (AI Provider: both OpenAI + Anthropic with abstraction layer) and ADR-003 (Real-Time: Django Channels WebSockets). Verified ADR-001, ADR-004, ADR-005, ADR-006 are current.*
 
-### F-021 — GitHub Actions CI — PENDING
-handoff → `agentic/runs/F-021-ci-pipeline/handoff.md`
-*Depends on F-007. Ruff, mypy, pytest, vitest, Docker build checks.*
+### F-021 — GitHub Actions CI — DONE
+branch → `feat/F-021-ci-pipeline`
+*5 jobs: ruff-lint, mypy-typecheck, pytest-backend (with PostgreSQL service), vitest-frontend, docker-build. CI badge + pipeline docs in README.*
 
 ### F-022 — README update — PENDING
 handoff → `agentic/runs/F-022-readme/handoff.md`

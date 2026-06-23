@@ -1,5 +1,7 @@
 # ACME GLOBAL MEDIA — AI Content Workflow Platform
 
+[![CI](https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/actions/workflows/ci.yml/badge.svg)](https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/actions/workflows/ci.yml)
+
 A campaign content management system with AI-powered drafting, translation/localization, and human-in-the-loop review.
 
 ## Tech Stack
@@ -292,4 +294,39 @@ docs/             # ADRs, architecture, workflow docs
 compose.yml       # Docker Compose
 .env.example      # Environment template
 init.sh           # Setup script
+```
+
+## Contributing
+
+### CI Pipeline
+
+Every push and pull request runs the following checks via GitHub Actions:
+
+| Job | Tool | What it checks |
+|---|---|---|
+| `ruff-lint` | ruff | Python code style and lint rules |
+| `mypy-typecheck` | mypy | Python type annotations (strict mode) |
+| `pytest-backend` | pytest + coverage | Django unit tests (requires PostgreSQL service) |
+| `vitest-frontend` | vitest | React component and hook tests |
+| `docker-build` | Docker Compose | Both backend and frontend images build successfully |
+
+All jobs must pass before a PR can merge. The pipeline typically completes in under 5 minutes.
+
+Run the same checks locally:
+
+```bash
+# Backend
+cd backend
+uv sync
+uv run ruff check .
+uv run mypy .
+uv run pytest --cov --no-header
+
+# Frontend
+cd frontend
+pnpm install --frozen-lockfile
+pnpm test
+
+# Docker
+docker compose build
 ```

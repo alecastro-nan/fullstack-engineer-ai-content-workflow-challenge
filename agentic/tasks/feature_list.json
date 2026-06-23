@@ -777,7 +777,7 @@
     "dependencies": ["F-007"],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "GitHub Actions workflow at .github/workflows/ci.yml",
       "Triggers: push to any branch and pull_request to main",
