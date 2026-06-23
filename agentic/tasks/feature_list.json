@@ -750,7 +750,7 @@
     "dependencies": ["F-009", "F-017"],
     "stack": "docs",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "ADR-002 (AI Provider Selection) completed with final decision (both OpenAI + Anthropic with abstraction)",
       "ADR-002 includes: context, decision, positive/negative consequences, alternatives considered",
