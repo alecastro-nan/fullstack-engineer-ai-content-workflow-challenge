@@ -127,9 +127,9 @@ branch → `feat/F-018-frontend-realtime`
 branch → `feat/F-019-e2e-workflow-test`
 *5 new E2E tests in backend/tests/test_e2e_workflow.py: create→approve, create→translate, reject→edit→regenerate, WS broadcast verification, contentPieces listing. All 130 backend tests pass.*
 
-### F-020 — Complete pending ADRs — PENDING
-handoff → `agentic/runs/F-020-adrs/handoff.md`
-*Depends on F-009 + F-017. Complete ADR-002 (AI provider) + ADR-003 (real-time).*
+### F-020 — Complete pending ADRs — DONE
+branch → `feat/F-020-complete-pending-adrs`
+*Completed ADR-002 (AI Provider: both OpenAI + Anthropic with abstraction layer) and ADR-003 (Real-Time: Django Channels WebSockets). Verified ADR-001, ADR-004, ADR-005, ADR-006 are current.*
 
 ### F-021 — GitHub Actions CI — PENDING
 handoff → `agentic/runs/F-021-ci-pipeline/handoff.md`
