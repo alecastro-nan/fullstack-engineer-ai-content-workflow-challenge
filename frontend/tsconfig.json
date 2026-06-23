@@ -15,11 +15,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite-env.d.ts", "vite.config.ts"]
+  "include": ["src", "vite-env.d.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
 }

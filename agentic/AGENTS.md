@@ -246,6 +246,7 @@ Each role is defined using the **TDPC framework** (Title, Domain, Priority, Comm
 | R-018 | Feature must be testable in isolation before marking done (manual or automated). | Done criteria |
 | R-019 | AGENTS.md is the single source of truth. If conflicting instructions exist elsewhere, AGENTS.md wins. | Governance |
 | R-026 | Branch naming must follow `type/task-id-short-description` (see `agentic/knowledge/conventions/branch-naming.md`). `feat/agentic-plan` is the integration branch — always branch from it. | Traceability |
+| R-027 | Never merge open PRs without explicit human approval. Always ask before merging any pull request. | Governance |
 
 ### 3.4 Documentation
 
