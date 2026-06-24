@@ -85,8 +85,8 @@ describe('WebSocketService', () => {
       type: 'state.change',
       contentId: 'content-123',
       campaignId: 'camp-1',
-      oldState: 'draft',
-      newState: 'suggested_by_ai',
+      oldState: 'DRAFT',
+      newState: 'SUGGESTED_BY_AI',
       action: 'GENERATE_AI',
       timestamp: '2025-01-01T00:00:00Z',
     });
@@ -96,8 +96,8 @@ describe('WebSocketService', () => {
       type: 'state.change',
       contentId: 'content-123',
       campaignId: 'camp-1',
-      oldState: 'draft',
-      newState: 'suggested_by_ai',
+      oldState: 'DRAFT',
+      newState: 'SUGGESTED_BY_AI',
       action: 'GENERATE_AI',
       timestamp: '2025-01-01T00:00:00Z',
     });
