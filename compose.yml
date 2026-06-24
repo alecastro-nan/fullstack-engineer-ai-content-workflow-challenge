@@ -32,13 +32,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "python3",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/graphql')",
-        ]
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost',8000)); s.close()"]
       interval: 10s
       timeout: 5s
       retries: 10
