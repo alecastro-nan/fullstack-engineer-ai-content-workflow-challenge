@@ -869,7 +869,7 @@
     "dependencies": ["F-007"],
     "stack": "test",
     "role": "builder",
-    "status": "pending",
+    "status": "in-progress",
     "acceptance_criteria": [
       "Playwright test file exists at frontend/tests/e2e/workflow.spec.ts (or similar convention)",
       "Playwright config (playwright.config.ts) set up for Docker Compose environment",
