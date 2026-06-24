@@ -861,5 +861,124 @@
       "All quality checks pass",
       "PR is created and ready for final review"
     ]
+  },
+  {
+    "id": "F-028",
+    "title": "Comprehensive Playwright E2E test — full content workflow",
+    "description": "Write an exhaustive end-to-end test suite using Playwright that validates the entire ACME Content Workflow from a user's perspective. Covers infrastructure readiness, the full campaign→content→AI draft→review→translation flow, real-time WebSocket updates, error/edge cases, and regression checks for all recently applied fixes (CSRF, enum case alignment, nginx config, Docker build, health checks).",
+    "dependencies": ["F-007"],
+    "stack": "test",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "Playwright test file exists at frontend/tests/e2e/workflow.spec.ts (or similar convention)",
+      "Playwright config (playwright.config.ts) set up for Docker Compose environment",
+      "Suite runs against running docker compose up services (db + backend + frontend)",
+
+      "=== Infrastructure Verification ===",
+      "Test: All 3 Docker containers are running and healthy within timeout",
+      "Test: Backend GraphQL endpoint responds 200 (health check passes)",
+      "Test: Frontend serves HTML at localhost:5173 with 200 OK",
+
+      "=== Campaign Management ===",
+      "Test: Campaign Dashboard loads with empty state ('No campaigns yet')",
+      "Test: Create Campaign modal opens, validates empty name, rejects with error",
+      "Test: Create Campaign with valid name+description succeeds, appears in list",
+      "Test: Campaign card shows name, description, status badge ('ACTIVE'), created date",
+      "Test: Clicking a campaign navigates to /campaigns/:id detail page",
+      "Test: Delete campaign removes it from list (soft delete)",
+
+      "=== Content Piece Management ===",
+      "Test: Campaign Detail page shows content list (empty state initially)",
+      "Test: Create Content modal validates required headline field",
+      "Test: Create Content with headline+description succeeds, appears in list",
+      "Test: Content card shows headline, language tag, state badge ('DRAFT', bg-gray-100)",
+      "Test: Content card can expand to show editable fields",
+      "Test: Content card can save edited headline/description",
+
+      "=== AI Draft Generation ===",
+      "Test: 'Generate Draft' button visible when content state is 'DRAFT'",
+      "Test: Clicking 'Generate Draft' shows loading state, calls mutation",
+      "Test: After successful generation, state badge changes to 'SUGGESTED_BY_AI' (bg-blue-100)",
+      "Test: 'Generate Draft' button hidden after state changes from DRAFT",
+      "Test: Error state shown if AI generation fails (state reverts to DRAFT)",
+
+      "=== Review Workflow ===",
+      "Test: Approve/Reject/Request Edits buttons visible for SUGGESTED_BY_AI content",
+      "Test: Approve action shows confirmation dialog before executing",
+      "Test: After approve, state badge updates to 'APPROVED' (bg-emerald-100)",
+      "Test: Reject action with feedback changes state to 'REJECTED' (bg-red-100)",
+      "Test: Request Edits with feedback changes state to 'REVIEWED' (bg-yellow-100)",
+      "Test: 'Edit & Reset to Draft' button visible for REJECTED content",
+      "Test: Editing rejected content resets state to DRAFT and re-enables Generate Draft",
+      "Test: Review buttons are correctly hidden/disabled based on state",
+      "Test: State transitions enforce valid state machine rules (invalid transitions return errors)",
+
+      "=== Translation ===",
+      "Test: 'Translate' button visible when content state is 'APPROVED'",
+      "Test: Language selector shows supported ISO codes (es, fr, de, pt, it, ja, zh)",
+      "Test: Selecting a language and clicking Translate creates new content piece",
+      "Test: Translated content piece has correct language tag and originalId link",
+      "Test: Translated content appears in the content list",
+
+      "=== Real-Time WebSocket ===",
+      "Test: WebSocket connection indicator shows green (connected) on detail page",
+      "Test: State changes via API broadcast via WebSocket (verified via toast/notification)",
+      "Test: Disconnecting and reconnecting shows connection state changes",
+
+      "=== State Badge Rendering ===",
+      "Test: All 5 state badges render with correct colors: DRAFT (gray), SUGGESTED_BY_AI (blue), REVIEWED (yellow), APPROVED (green), REJECTED (red)",
+      "Test: Unknown/invalid state falls back gracefully (does not crash)",
+
+      "=== Edge Cases & Error Handling ===",
+      "Test: Creating campaign with empty name shows validation error",
+      "Test: Creating content with empty headline shows validation error",
+      "Test: Deleting a campaign with no content succeeds gracefully",
+      "Test: AI draft on non-existent content returns error gracefully",
+      "Test: Review action on non-existent content returns error gracefully",
+
+      "=== Regression: Recent Fixes ===",
+      "Test: CSRF exemption — GraphQL mutations work via frontend nginx proxy (no 403)",
+      "Test: Enum case alignment — state values returned as UPPERCASE match frontend expectations (no 'Cannot read properties of undefined (reading 'bg')' crash)",
+      "Test: nginx config — access_log directive in http block, server starts without crash",
+      "Test: Docker health check — backend health succeeds via TCP port check",
+      "Test: STATIC_ROOT — collectstatic runs without PermissionError",
+      "Test: uv.lock — backend Docker build succeeds with frozen lockfile",
+
+      "=== Data Integrity ===",
+      "Test: After full workflow (create→draft→approve→translate), all data persists across container restart",
+      "Test: Pagination works for campaigns list if more than default page size",
+
+      "=== Bug / Blocker Reporting ===",
+      "Test runner outputs a structured bug/blocker report file (agentic/runs/F-028-playwright-e2e/bug-report.md) listing every failed test with: test name, error message, stack trace, suspected root cause, and severity (blocker / major / minor)",
+      "For each failed test, the report includes a proposed new task ID (F-029, F-030, etc.) with title, stack, and estimated fix effort",
+      "Report is generated automatically as part of the test run (not a manual document)",
+      "If all tests pass, the report states 'All 45+ acceptance criteria pass — 0 bugs found'"
+    ],
+    "test_requirements": [
+      "Playwright installed as devDependency in frontend/package.json",
+      "Playwright config targets running Docker Compose services (localhost:5173, localhost:8000/graphql)",
+      "AI providers mocked at the network level (Playwright route interception) to avoid real API calls",
+      "Test uses Playwright fixtures for GraphQL helpers (mutation/query wrapper)",
+      "All tests run headless chromium",
+      "Tests are idempotent — can run multiple times against the same database",
+      "Tests clean up created data where possible (or use unique names per run)",
+      "No hardcoded sleeps — use Playwright waitForSelector/waitForResponse patterns",
+      "Test suite includes a post-run hook that generates agentic/runs/F-028-playwright-e2e/bug-report.md with structured failure details"
+    ],
+    "documentation_requirements": [
+      "README.md: add 'Playwright E2E Tests' section under Testing with run command and description",
+      "README.md: add 'Bug Reporting' note explaining that failed E2E tests produce structured bug reports in agentic/runs/",
+      "docs/architecture.md: no changes needed (tests don't change architecture)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass (all test cases green) OR bug-report.md accurately lists every failure with root cause and proposed task",
+      "bug-report.md exists at agentic/runs/F-028-playwright-e2e/ with structured failure details",
+      "For each bug found, a corresponding task (F-029, F-030, ...) has been created in feature_list.json with estimate and stack assignment",
+      "Playwright run completes in under 5 minutes against Docker Compose stack",
+      "Code reviewer has approved test quality (proper waits, no flakiness, good assertions)",
+      "Security reviewer has confirmed no real API keys used in tests (AI routes intercepted)",
+      "README.md updated with E2E test instructions and bug reporting process"
+    ]
   }
 ]
