@@ -71,7 +71,7 @@ describe('StateChangeToast', () => {
 
     render(<StateChangeToast event={event} />);
     expect(screen.getByText(/draft/i)).toBeInTheDocument();
-    expect(screen.getByText(/approved/)).toBeInTheDocument();
+    expect(screen.getByText(/approved/i)).toBeInTheDocument();
   });
 
   it('removes toast after 4 seconds', () => {
