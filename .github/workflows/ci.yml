@@ -18,7 +18,7 @@ jobs:
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync --group dev
+      - run: uv sync --extra dev
         env:
           VIRTUAL_ENV: ""
       - run: uv run ruff check .
@@ -36,7 +36,7 @@ jobs:
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync --group dev
+      - run: uv sync --extra dev
         env:
           VIRTUAL_ENV: ""
       - run: uv run mypy .
@@ -68,7 +68,7 @@ jobs:
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync --group dev
+      - run: uv sync --extra dev
         env:
           VIRTUAL_ENV: ""
       - run: uv run pytest --cov --cov-report=term-missing --no-header
@@ -84,8 +84,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
