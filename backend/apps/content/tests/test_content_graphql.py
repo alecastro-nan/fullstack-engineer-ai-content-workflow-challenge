@@ -20,7 +20,7 @@ class TestContentPieceGraphQL:
             {"query": CREATE_CAMPAIGN_MUTATION},
             content_type="application/json",
         )
-        return cast(str, resp.json()["data"]["createCampaign"]["id"])
+        return cast("str", resp.json()["data"]["createCampaign"]["id"])
 
     def test_create_content_mutation(self) -> None:
         client = Client()

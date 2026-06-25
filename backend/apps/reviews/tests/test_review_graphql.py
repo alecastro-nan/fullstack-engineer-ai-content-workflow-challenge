@@ -21,7 +21,7 @@ def _create_campaign(client: Client) -> str:
         {"query": CREATE_CAMPAIGN_MUTATION},
         content_type="application/json",
     )
-    return cast(str, resp.json()["data"]["createCampaign"]["id"])
+    return cast("str", resp.json()["data"]["createCampaign"]["id"])
 
 
 def _create_content(client: Client, campaign_id: str, headline: str = "Test") -> str:
@@ -43,7 +43,7 @@ def _create_content(client: Client, campaign_id: str, headline: str = "Test") ->
         },
         content_type="application/json",
     )
-    return cast(str, resp.json()["data"]["createContentPiece"]["id"])
+    return cast("str", resp.json()["data"]["createContentPiece"]["id"])
 
 
 def _set_state(content_id: str, state: str) -> None:

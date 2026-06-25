@@ -22,7 +22,7 @@ def _create_campaign(client: Client) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createCampaign"]["id"])
+    return cast("str", response.json()["data"]["createCampaign"]["id"])
 
 
 def _create_content(client: Client, campaign_id: str) -> str:
@@ -48,7 +48,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createContentPiece"]["id"])
+    return cast("str", response.json()["data"]["createContentPiece"]["id"])
 
 
 @override_settings(
