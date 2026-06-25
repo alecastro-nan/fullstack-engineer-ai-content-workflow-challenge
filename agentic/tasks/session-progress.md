@@ -164,8 +164,10 @@ handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
 
 ## Phase 7: Post-Review Quality (review findings from F-024–F-027)
 
-### F-024 — Authentication & access control — PENDING
-*JWT auth, User model, login/register/refresh mutations, per-resolver auth checks, WebSocket auth. Largest task — estimated 45-60min.*
+### F-024 — Authentication & access control — PLAN READY
+plan → `agentic/runs/F-024-auth-access-control/plan.md`
+branch → `feat/F-024-auth-access-control`
+*JWT auth via PyJWT, Django User model + owner FKs, login/register/refresh mutations, per-resolver auth checks, WebSocket auth, frontend auth hooks. Estimated 45-60min.*
 deps: none | stack: backend
 
 ### F-025 — Security hardening — PENDING
