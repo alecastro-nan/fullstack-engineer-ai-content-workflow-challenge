@@ -13,6 +13,7 @@ def get_provider() -> AIProvider:
         from apps.ai.providers.openai_provider import OpenAIProvider
         return OpenAIProvider(
             api_key=api_key,
+            base_url=getattr(settings, "OPENAI_BASE_URL", None) or None,
             model=getattr(settings, "OPENAI_MODEL", "gpt-4o"),
             temperature=getattr(settings, "AI_TEMPERATURE", 0.7),
             max_tokens=getattr(settings, "AI_MAX_TOKENS", 2048),

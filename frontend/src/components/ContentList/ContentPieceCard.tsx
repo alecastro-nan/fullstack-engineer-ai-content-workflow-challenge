@@ -36,9 +36,9 @@ export function ContentPieceCard({
     setDescription(content.description);
   }, [content.headline, content.description]);
 
-  const isDraft = content.state === 'draft';
-  const isSuggested = content.state === 'suggested_by_ai';
-  const isApproved = content.state === 'approved';
+  const isDraft = content.state === 'DRAFT';
+  const isSuggested = content.state === 'SUGGESTED_BY_AI';
+  const isApproved = content.state === 'APPROVED';
 
   const handleSave = async () => {
     if (!headline.trim()) return;

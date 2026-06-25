@@ -27,7 +27,7 @@ const mockPieces: ContentPiece[] = [
     description: 'Description one',
     body: '',
     language: 'en',
-    state: 'draft',
+    state: 'DRAFT',
     originalId: null,
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-02T00:00:00Z',
@@ -39,7 +39,7 @@ const mockPieces: ContentPiece[] = [
     description: 'Description two',
     body: '',
     language: 'fr',
-    state: 'approved',
+    state: 'APPROVED',
     originalId: null,
     createdAt: '2025-01-03T00:00:00Z',
     updatedAt: '2025-01-04T00:00:00Z',
@@ -108,7 +108,7 @@ describe('CampaignDetail', () => {
       ...mockPieces[0]!,
       headline: 'AI Generated Headline',
       description: 'AI generated description',
-      state: 'suggested_by_ai',
+      state: 'SUGGESTED_BY_AI',
     };
 
     vi.mocked(graphqlRequest)
@@ -136,7 +136,7 @@ describe('CampaignDetail', () => {
       description: 'New description',
       body: '',
       language: 'en',
-      state: 'draft',
+      state: 'DRAFT',
       originalId: null,
       createdAt: '2025-01-05T00:00:00Z',
       updatedAt: '2025-01-05T00:00:00Z',

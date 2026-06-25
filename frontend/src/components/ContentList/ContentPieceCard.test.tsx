@@ -10,7 +10,7 @@ const mockContent: ContentPiece = {
   description: 'A test description',
   body: '',
   language: 'en',
-  state: 'draft',
+  state: 'DRAFT',
   originalId: null,
   createdAt: '2025-01-01T00:00:00Z',
   updatedAt: '2025-01-02T00:00:00Z',
@@ -122,7 +122,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('hides Generate Draft button when content is suggested_by_ai', () => {
-    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const suggestedContent = { ...mockContent, state: 'SUGGESTED_BY_AI' as const };
     render(
       <ContentPieceCard
         content={suggestedContent}
@@ -152,7 +152,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('shows Approve, Reject, and Request Edits buttons when state is suggested_by_ai', () => {
-    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const suggestedContent = { ...mockContent, state: 'SUGGESTED_BY_AI' as const };
     render(
       <ContentPieceCard
         content={suggestedContent}
@@ -168,7 +168,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('shows Approve and Reject buttons when state is reviewed (no Request Edits)', () => {
-    const reviewedContent = { ...mockContent, state: 'reviewed' as const };
+    const reviewedContent = { ...mockContent, state: 'REVIEWED' as const };
     render(
       <ContentPieceCard
         content={reviewedContent}
@@ -185,7 +185,7 @@ describe('ContentPieceCard', () => {
 
   it('calls onReview with APPROVE after confirm dialog', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined);
-    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const suggestedContent = { ...mockContent, state: 'SUGGESTED_BY_AI' as const };
     const user = userEvent.setup();
     render(
       <ContentPieceCard
@@ -204,7 +204,7 @@ describe('ContentPieceCard', () => {
 
   it('calls onReview with REJECT and feedback after submitting feedback', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined);
-    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const suggestedContent = { ...mockContent, state: 'SUGGESTED_BY_AI' as const };
     const user = userEvent.setup();
     render(
       <ContentPieceCard
@@ -224,7 +224,7 @@ describe('ContentPieceCard', () => {
 
   it('calls onReview with REQUEST_EDITS and feedback', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined);
-    const suggestedContent = { ...mockContent, state: 'suggested_by_ai' as const };
+    const suggestedContent = { ...mockContent, state: 'SUGGESTED_BY_AI' as const };
     const user = userEvent.setup();
     render(
       <ContentPieceCard
@@ -243,7 +243,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('shows Edit & Reset to Draft button when state is rejected', () => {
-    const rejectedContent = { ...mockContent, state: 'rejected' as const };
+    const rejectedContent = { ...mockContent, state: 'REJECTED' as const };
     render(
       <ContentPieceCard
         content={rejectedContent}
@@ -258,7 +258,7 @@ describe('ContentPieceCard', () => {
 
   it('calls onEditContent when Edit button is clicked', async () => {
     const onEditContent = vi.fn().mockResolvedValue(undefined);
-    const rejectedContent = { ...mockContent, state: 'rejected' as const };
+    const rejectedContent = { ...mockContent, state: 'REJECTED' as const };
     const user = userEvent.setup();
     render(
       <ContentPieceCard
@@ -274,7 +274,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('shows no actions message for approved content', () => {
-    const approvedContent = { ...mockContent, state: 'approved' as const };
+    const approvedContent = { ...mockContent, state: 'APPROVED' as const };
     render(
       <ContentPieceCard
         content={approvedContent}
@@ -288,7 +288,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('shows Translate button when content is approved and onTranslate is provided', () => {
-    const approvedContent = { ...mockContent, state: 'approved' as const };
+    const approvedContent = { ...mockContent, state: 'APPROVED' as const };
     render(
       <ContentPieceCard
         content={approvedContent}
@@ -302,7 +302,7 @@ describe('ContentPieceCard', () => {
   });
 
   it('hides Translate button when content is not approved', () => {
-    const draftContent = { ...mockContent, state: 'draft' as const };
+    const draftContent = { ...mockContent, state: 'DRAFT' as const };
     render(
       <ContentPieceCard
         content={draftContent}
@@ -317,7 +317,7 @@ describe('ContentPieceCard', () => {
 
   it('calls onTranslate with correct language when translation is submitted', async () => {
     const onTranslate = vi.fn().mockResolvedValue(undefined);
-    const approvedContent = { ...mockContent, state: 'approved' as const };
+    const approvedContent = { ...mockContent, state: 'APPROVED' as const };
     const user = userEvent.setup();
     render(
       <ContentPieceCard

@@ -18,8 +18,8 @@ export function ReviewActions({ state, onReview, onEditContent, disabled }: Revi
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [mutating, setMutating] = useState(false);
 
-  const isApprovable = state === 'suggested_by_ai' || state === 'reviewed';
-  const isEditable = state === 'rejected';
+  const isApprovable = state === 'SUGGESTED_BY_AI' || state === 'REVIEWED';
+  const isEditable = state === 'REJECTED';
 
   const handleConfirmApprove = async () => {
     setMutating(true);
@@ -114,7 +114,7 @@ export function ReviewActions({ state, onReview, onEditContent, disabled }: Revi
             >
               Reject
             </button>
-            {state === 'suggested_by_ai' && (
+            {state === 'SUGGESTED_BY_AI' && (
               <button
                 type="button"
                 onClick={() => openConfirm('REQUEST_EDITS')}
@@ -138,7 +138,7 @@ export function ReviewActions({ state, onReview, onEditContent, disabled }: Revi
           </button>
         )}
 
-        {!isApprovable && !isEditable && state !== 'draft' && (
+        {!isApprovable && !isEditable && state !== 'DRAFT' && (
           <p className="text-xs text-gray-400 italic">No actions available</p>
         )}
       </div>

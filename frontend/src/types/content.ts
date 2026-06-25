@@ -1,9 +1,9 @@
 export type ContentState =
-  | 'draft'
-  | 'suggested_by_ai'
-  | 'reviewed'
-  | 'approved'
-  | 'rejected';
+  | 'DRAFT'
+  | 'SUGGESTED_BY_AI'
+  | 'REVIEWED'
+  | 'APPROVED'
+  | 'REJECTED';
 
 export interface ContentPiece {
   id: string;

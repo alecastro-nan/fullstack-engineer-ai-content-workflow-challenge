@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 WORKDIR /app
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock .
 RUN uv sync --no-dev --frozen
 COPY . .
 
@@ -14,6 +14,7 @@ ENV PYTHONPATH=/app \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=config.settings.production
+RUN mkdir -p /app/staticfiles && chown -R app:app /app
 EXPOSE 8000
 USER app
 ENTRYPOINT ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]

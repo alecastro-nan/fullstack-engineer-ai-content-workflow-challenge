@@ -155,3 +155,7 @@ Full architecture migration from NestJS/TypeScript to Django (Python) + Strawber
 AGENTS.md, feature_list.json, conventions, install-skills.sh, skills-lock.json, ADRs all updated.
 ADR-005 documents the Django+Strawberry decision.
 decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`
+
+## F-028 — Comprehensive Playwright E2E test — DRAFTED (no code yet)
+handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
+*Task definition created in feature_list.json. Covers full workflow + regression checks for recent infra fixes (CSRF, enum case, nginx, Docker health checks, collectstatic, uv.lock). Not yet implemented.*

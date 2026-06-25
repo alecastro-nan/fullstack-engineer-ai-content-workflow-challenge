@@ -22,8 +22,8 @@ describe('StateChangeToast', () => {
       type: 'state.change',
       contentId: 'abc-123-def',
       campaignId: 'camp-1',
-      oldState: 'draft',
-      newState: 'suggested_by_ai',
+      oldState: 'DRAFT',
+      newState: 'SUGGESTED_BY_AI',
       action: 'GENERATE_AI',
       timestamp: '2025-01-01T00:00:00Z',
     };
@@ -47,8 +47,8 @@ describe('StateChangeToast', () => {
         type: 'state.change',
         contentId: 'test-id',
         campaignId: 'camp-1',
-        oldState: 'draft',
-        newState: 'suggested_by_ai',
+        oldState: 'DRAFT',
+        newState: 'SUGGESTED_BY_AI',
         action,
         timestamp: '2025-01-01T00:00:00Z',
       };
@@ -63,15 +63,15 @@ describe('StateChangeToast', () => {
       type: 'state.change',
       contentId: 'test-id',
       campaignId: 'camp-1',
-      oldState: 'draft',
-      newState: 'approved',
+      oldState: 'DRAFT',
+      newState: 'APPROVED',
       action: 'APPROVE',
       timestamp: '2025-01-01T00:00:00Z',
     };
 
     render(<StateChangeToast event={event} />);
-    expect(screen.getByText(/draft/)).toBeInTheDocument();
-    expect(screen.getByText(/approved/)).toBeInTheDocument();
+    expect(screen.getByText(/draft/i)).toBeInTheDocument();
+    expect(screen.getByText(/APPROVED/)).toBeInTheDocument();
   });
 
   it('removes toast after 4 seconds', () => {
@@ -79,8 +79,8 @@ describe('StateChangeToast', () => {
       type: 'state.change',
       contentId: 'test-id',
       campaignId: 'camp-1',
-      oldState: 'draft',
-      newState: 'approved',
+      oldState: 'DRAFT',
+      newState: 'APPROVED',
       action: 'APPROVE',
       timestamp: '2025-01-01T00:00:00Z',
     };
