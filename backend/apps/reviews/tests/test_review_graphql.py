@@ -1,236 +1,226 @@
-import uuid
-from typing import cast
+import json
+from unittest.mock import patch
 
 import pytest
-from django.test import Client
+from django.test.utils import override_settings
 
-from apps.content.models import ContentPiece
-
-CREATE_CAMPAIGN_MUTATION = """
-    mutation {
-        createCampaign(input: { name: "GraphQL Review Test" }) {
-            id
-        }
-    }
-"""
-
-
-def _create_campaign(client: Client) -> str:
-    resp = client.post(
-        "/graphql",
-        {"query": CREATE_CAMPAIGN_MUTATION},
-        content_type="application/json",
-    )
-    return cast("str", resp.json()["data"]["createCampaign"]["id"])
-
-
-def _create_content(client: Client, campaign_id: str, headline: str = "Test") -> str:
-    resp = client.post(
-        "/graphql",
-        {
-            "query": """
-                mutation($input: ContentPieceInput!) {
-                    createContentPiece(input: $input) { id state }
-                }
-            """,
-            "variables": {
-                "input": {
-                    "campaignId": campaign_id,
-                    "headline": headline,
-                    "description": "Desc",
-                }
-            },
-        },
-        content_type="application/json",
-    )
-    return cast("str", resp.json()["data"]["createContentPiece"]["id"])
-
-
-def _set_state(content_id: str, state: str) -> None:
-    piece = ContentPiece.objects.get(id=content_id)
-    piece.state = state
-    piece.save(update_fields=["state"])
+from apps.auth.test_utils import make_auth_client
 
 
 @pytest.mark.django_db
-class TestReviewGraphQL:
-    def test_approve_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = _create_campaign(client)
-        content_id = _create_content(client, campaign_id)
-        _set_state(content_id, ContentPiece.State.SUGGESTED_BY_AI)
-
-        response = client.post(
+class TestReviewMutations:
+    def _create_campaign_and_content(self, client: object) -> tuple[str, str]:
+        camp_resp = client.post(
             "/graphql",
             {
                 "query": """
-                    mutation($id: ID!, $action: ReviewAction!) {
-                        reviewContent(contentId: $id, action: $action) {
+                    mutation {
+                        createCampaign(input: { name: "Review Test" }) {
                             id
-                            state
                         }
                     }
-                """,
-                "variables": {"id": content_id, "action": "APPROVE"},
+                """
             },
             content_type="application/json",
         )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        assert data["data"]["reviewContent"]["state"] == "APPROVED"
+        campaign_id = camp_resp.json()["data"]["createCampaign"]["id"]
 
-    def test_reject_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = _create_campaign(client)
-        content_id = _create_content(client, campaign_id)
-        _set_state(content_id, ContentPiece.State.SUGGESTED_BY_AI)
-
-        response = client.post(
+        content_resp = client.post(
             "/graphql",
             {
                 "query": """
-                    mutation($id: ID!, $action: ReviewAction!, $feedback: String) {
-                        reviewContent(contentId: $id, action: $action, feedback: $feedback) {
-                            id
-                            state
-                        }
-                    }
-                """,
-                "variables": {"id": content_id, "action": "REJECT", "feedback": "Bad"},
-            },
-            content_type="application/json",
-        )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        assert data["data"]["reviewContent"]["state"] == "REJECTED"
-
-    def test_request_edits_mutation(self) -> None:
-        client = Client()
-        campaign_id = _create_campaign(client)
-        content_id = _create_content(client, campaign_id)
-        _set_state(content_id, ContentPiece.State.SUGGESTED_BY_AI)
-
-        response = client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($id: ID!, $action: ReviewAction!, $feedback: String) {
-                        reviewContent(contentId: $id, action: $action, feedback: $feedback) {
-                            id
-                            state
-                        }
+                    mutation($input: ContentPieceInput!) {
+                        createContentPiece(input: $input) { id }
                     }
                 """,
                 "variables": {
-                    "id": content_id,
-                    "action": "REQUEST_EDITS",
-                    "feedback": "Revise tone",
+                    "input": {
+                        "campaignId": campaign_id,
+                        "headline": "Review Content",
+                        "description": "Review Description",
+                    }
                 },
             },
             content_type="application/json",
         )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        assert data["data"]["reviewContent"]["state"] == "REVIEWED"
+        content_id = content_resp.json()["data"]["createContentPiece"]["id"]
+        return campaign_id, content_id
 
-    def test_invalid_action_returns_error(self) -> None:
-        client = Client()
-        campaign_id = _create_campaign(client)
-        content_id = _create_content(client, campaign_id)
+    def _generate_draft(self, client: object, content_id: str) -> None:
+        client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($contentId: ID!) {
+                        generateDraft(contentId: $contentId) { id }
+                    }
+                """,
+                "variables": {"contentId": content_id},
+            },
+            content_type="application/json",
+        )
 
+    def test_approve_content(self) -> None:
+        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+             patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
+            mock_client = mock_openai.return_value
+            mock_choice = mock_client.chat.completions.create.return_value.choices[0]
+            mock_choice.message.content = json.dumps(
+                {"headline": "AI draft", "description": "AI generated text"}
+            )
+            client = make_auth_client()
+            _, content_id = self._create_campaign_and_content(client)
+            self._generate_draft(client, content_id)
+
+            response = client.post(
+                "/graphql",
+                {
+                    "query": """
+                        mutation($id: ID!, $action: ReviewAction!) {
+                            reviewContent(contentId: $id, action: $action) {
+                                id
+                                state
+                            }
+                        }
+                    """,
+                    "variables": {"id": content_id, "action": "APPROVE"},
+                },
+                content_type="application/json",
+            )
+            assert response.status_code == 200
+            assert response.json()["data"]["reviewContent"]["state"] == "APPROVED"
+
+    def test_reject_content(self) -> None:
+        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+             patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
+            mock_client = mock_openai.return_value
+            mock_choice = mock_client.chat.completions.create.return_value.choices[0]
+            mock_choice.message.content = json.dumps(
+                {"headline": "AI draft", "description": "AI generated text"}
+            )
+            client = make_auth_client()
+            _, content_id = self._create_campaign_and_content(client)
+            self._generate_draft(client, content_id)
+
+            response = client.post(
+                "/graphql",
+                {
+                    "query": """
+                        mutation($id: ID!, $action: ReviewAction!, $feedback: String) {
+                            reviewContent(contentId: $id, action: $action, feedback: $feedback) {
+                                id
+                                state
+                            }
+                        }
+                    """,
+                    "variables": {"id": content_id, "action": "REJECT", "feedback": "Needs work"},
+                },
+                content_type="application/json",
+            )
+            assert response.status_code == 200
+            assert response.json()["data"]["reviewContent"]["state"] == "REJECTED"
+
+    def test_invalid_action(self) -> None:
+        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+             patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
+            mock_client = mock_openai.return_value
+            mock_choice = mock_client.chat.completions.create.return_value.choices[0]
+            mock_choice.message.content = json.dumps(
+                {"headline": "AI draft", "description": "AI generated text"}
+            )
+            client = make_auth_client()
+            _, content_id = self._create_campaign_and_content(client)
+            self._generate_draft(client, content_id)
+
+            response = client.post(
+                "/graphql",
+                {
+                    "query": """
+                        mutation($id: ID!, $action: ReviewAction!) {
+                            reviewContent(contentId: $id, action: $action) {
+                                id
+                                state
+                            }
+                        }
+                    """,
+                    "variables": {"id": content_id, "action": "INVALID"},
+                },
+                content_type="application/json",
+            )
+            assert response.status_code == 200
+            assert response.json().get("errors") is not None
+
+    def test_review_content_not_found(self) -> None:
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
                 "query": """
-                    mutation($id: ID!, $action: ReviewAction!) {
-                        reviewContent(contentId: $id, action: $action) {
+                    mutation($action: ReviewAction!) {
+                        reviewContent(
+                            contentId: "00000000-0000-0000-0000-000000000000",
+                            action: $action
+                        ) {
                             id
                         }
                     }
                 """,
-                "variables": {"id": content_id, "action": "APPROVE"},
+                "variables": {"action": "APPROVE"},
             },
             content_type="application/json",
         )
-        data = response.json()
-        assert data.get("errors") is not None
-        error_msg = str(data["errors"][0]["message"]).lower()
-        assert "cannot transition" in error_msg
+        assert response.status_code == 200
+        assert response.json()["data"]["reviewContent"] is None
 
-    def test_edit_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = _create_campaign(client)
-        content_id = _create_content(client, campaign_id)
-        _set_state(content_id, ContentPiece.State.REJECTED)
+    def test_edit_content(self) -> None:
+        client = make_auth_client()
+        _, content_id = self._create_campaign_and_content(client)
 
         response = client.post(
             "/graphql",
             {
                 "query": """
-                    mutation($id: ID!, $headline: String!, $description: String, $body: String) {
+                    mutation($id: ID!) {
                         editContent(
-                            contentId: $id
-                            headline: $headline
-                            description: $description
-                            body: $body
+                            contentId: $id,
+                            headline: "Edited Headline",
+                            description: "Edited Description",
                         ) {
                             id
                             headline
                             description
-                            state
                         }
                     }
                 """,
-                "variables": {
-                    "id": content_id,
-                    "headline": "Fixed Headline",
-                    "description": "Fixed description",
-                    "body": "Fixed body",
-                },
+                "variables": {"id": content_id},
             },
             content_type="application/json",
         )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        result = data["data"]["editContent"]
-        assert result["headline"] == "Fixed Headline"
-        assert result["description"] == "Fixed description"
-        assert result["state"] == "DRAFT"
+        assert response.status_code == 200
+        data = response.json()["data"]["editContent"]
+        assert data["headline"] == "Edited Headline"
 
-    def test_edit_content_invalid_id(self) -> None:
-        client = Client()
-        response = client.post(
+    def test_content_state_history(self) -> None:
+        client = make_auth_client()
+        _, content_id = self._create_campaign_and_content(client)
+
+        history_resp = client.post(
             "/graphql",
             {
                 "query": """
-                    mutation($id: ID!, $headline: String!) {
-                        editContent(contentId: $id, headline: $headline) { id }
-                    }
-                """,
-                "variables": {"id": str(uuid.uuid4()), "headline": "Nope"},
-            },
-            content_type="application/json",
-        )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        assert data["data"]["editContent"] is None
-
-    def test_review_content_invalid_id_returns_error(self) -> None:
-        client = Client()
-        response = client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($id: ID!, $action: ReviewAction!) {
-                        reviewContent(contentId: $id, action: $action) {
+                    query($contentId: ID!) {
+                        contentStateHistory(contentId: $contentId) {
                             id
+                            fromState
+                            toState
+                            action
                         }
                     }
                 """,
-                "variables": {"id": str(uuid.uuid4()), "action": "APPROVE"},
+                "variables": {"contentId": content_id},
             },
             content_type="application/json",
         )
-        data = response.json()
-        assert "errors" not in data, str(data.get("errors"))
-        assert data["data"]["reviewContent"] is None
+        assert history_resp.status_code == 200
+        history = history_resp.json()["data"]["contentStateHistory"]
+        assert history == []

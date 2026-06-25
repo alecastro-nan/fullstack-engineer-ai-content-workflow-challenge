@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 
+from apps.auth.test_utils import make_auth_client
 from apps.content.models import ContentPiece
 from apps.reviews.enums import ReviewAction
 from apps.reviews.models import StateHistory
@@ -61,7 +62,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
 )
 class TestAiTranslateMutation(TestCase):
     def setUp(self) -> None:
-        self.client = Client()
+        self.client = make_auth_client()
 
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_translate_content_success(self, mock_openai: MagicMock) -> None:

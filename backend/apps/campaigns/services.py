@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
@@ -31,11 +32,12 @@ class CampaignService:
         return status
 
     @staticmethod
-    def create_campaign(name: str, description: str = "") -> Campaign:
+    def create_campaign(name: str, description: str = "", owner: User | None = None) -> Campaign:
         validated_name = CampaignService._validate_name(name)
         return Campaign.objects.create(
             name=validated_name,
             description=description.strip(),
+            owner=owner,
         )
 
     @staticmethod
@@ -46,8 +48,11 @@ class CampaignService:
             return None
 
     @staticmethod
-    def list_campaigns() -> QuerySet[Campaign]:
-        return Campaign.objects.filter(is_deleted=False).order_by("-created_at")
+    def list_campaigns(user: User | None = None) -> QuerySet[Campaign]:
+        qs = Campaign.objects.filter(is_deleted=False)
+        if user is not None:
+            qs = qs.filter(owner=user)
+        return qs.order_by("-created_at")
 
     @staticmethod
     def update_campaign(

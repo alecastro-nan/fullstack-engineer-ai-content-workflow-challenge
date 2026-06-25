@@ -1,7 +1,13 @@
 import json
 import logging
+import uuid
+from urllib.parse import parse_qs
 
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from apps.auth.services import decode_token_async
+from apps.content.services import ContentPieceService
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +19,28 @@ class ContentConsumer(AsyncWebsocketConsumer):  # type: ignore[misc]
         self.group_name: str = ""
 
     async def connect(self) -> None:
+        params = parse_qs(self.scope["query_string"].decode())
+        token = (params.get("token") or [None])[0]
+        if not token:
+            await self.close(code=4001)
+            return
+
+        user = await decode_token_async(token)
+        if user is None:
+            await self.close(code=4001)
+            return
+
+        self.scope["user"] = user
+
         self.content_id = self.scope["url_route"]["kwargs"]["content_id"]
         self.group_name = f"content_{self.content_id}"
+
+        piece = await sync_to_async(ContentPieceService.get_content_piece_by_id)(
+            uuid.UUID(self.content_id)
+        )
+        if piece is None or piece.campaign.owner != user:
+            await self.close(code=4003)
+            return
 
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()

@@ -93,7 +93,7 @@ class ContentPieceService:
     @staticmethod
     def get_content_piece_by_id(content_id: uuid.UUID) -> ContentPiece | None:
         try:
-            return ContentPiece.objects.select_related("campaign").get(
+            return ContentPiece.objects.select_related("campaign__owner").get(
                 id=content_id, is_deleted=False
             )
         except ContentPiece.DoesNotExist:

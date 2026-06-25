@@ -19,6 +19,7 @@ env = environ.Env(
     ANTHROPIC_MODEL=(str, "claude-sonnet-4-20250514"),
     AI_TEMPERATURE=(float, 0.7),
     AI_MAX_TOKENS=(int, 2048),
+    AUTH_REQUIRED=(bool, True),
 )
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-dev-key-not-for-production")
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     "apps.ai",
     "apps.reviews",
     "apps.ws",
+    "apps.auth",
 ]
 
 MIDDLEWARE = [

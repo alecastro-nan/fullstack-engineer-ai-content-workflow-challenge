@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 
+from apps.auth.test_utils import make_auth_client
+
 
 def _create_campaign(client: Client) -> str:
     response = client.post(
@@ -65,7 +67,7 @@ class TestE2EWorkflow(TestCase):
     """
 
     def setUp(self) -> None:
-        self.client = Client()
+        self.client = make_auth_client()
 
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_full_workflow_create_to_approve(self, mock_openai: MagicMock) -> None:

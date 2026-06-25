@@ -1,6 +1,7 @@
 import strawberry
 
 from apps.ai.schema import AiMutation
+from apps.auth.schema import AuthMutation
 from apps.campaigns.schema import CampaignMutations, CampaignQueries
 from apps.content.schema import ContentPieceMutations, ContentPieceQueries
 from apps.reviews.schema import ReviewMutation, ReviewQuery
@@ -14,7 +15,7 @@ class Query(CampaignQueries, ContentPieceQueries, ReviewQuery):
 
 
 @strawberry.type
-class Mutation(CampaignMutations, ContentPieceMutations, ReviewMutation, AiMutation):
+class Mutation(CampaignMutations, ContentPieceMutations, ReviewMutation, AiMutation, AuthMutation):
     @strawberry.mutation
     def ping(self) -> str:
         return "pong"

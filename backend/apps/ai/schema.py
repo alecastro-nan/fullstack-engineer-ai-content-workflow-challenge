@@ -6,6 +6,7 @@ from graphql import GraphQLError
 
 from apps.ai.exceptions import AIProviderError
 from apps.ai.services import AiService
+from apps.auth.utils import get_user_or_error
 from apps.content.models import ContentPiece
 from apps.content.schema import ContentPieceType
 from apps.content.services import ContentPieceService
@@ -25,7 +26,8 @@ class AiQuery:
 @strawberry.type
 class AiMutation:
     @strawberry.mutation
-    def generate_draft(self, content_id: strawberry.ID) -> ContentPieceType | None:
+    def generate_draft(self, info: strawberry.types.info.Info, content_id: strawberry.ID) -> ContentPieceType | None:
+        user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(content_id))
         except ValueError:
@@ -33,6 +35,9 @@ class AiMutation:
 
         piece = ContentPieceService.get_content_piece_by_id(piece_id)
         if piece is None:
+            return None
+
+        if piece.campaign.owner != user:
             return None
 
         if piece.state != ContentPiece.State.DRAFT:
@@ -69,9 +74,11 @@ class AiMutation:
     @strawberry.mutation
     def translate_content(
         self,
+        info: strawberry.types.info.Info,
         content_id: strawberry.ID,
         target_language: str,
     ) -> ContentPieceType | None:
+        user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(content_id))
         except ValueError:
@@ -79,6 +86,9 @@ class AiMutation:
 
         piece = ContentPieceService.get_content_piece_by_id(piece_id)
         if piece is None:
+            return None
+
+        if piece.campaign.owner != user:
             return None
 
         if target_language not in SUPPORTED_LANGUAGES:

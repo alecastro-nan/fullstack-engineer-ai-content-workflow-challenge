@@ -5,6 +5,7 @@ import strawberry
 from django.core.exceptions import ValidationError
 from graphql import GraphQLError
 
+from apps.auth.utils import get_user_or_error
 from apps.campaigns.models import Campaign
 from apps.campaigns.services import CampaignService
 
@@ -64,14 +65,16 @@ class CampaignQueries:
     @strawberry.field
     def campaigns(
         self,
+        info: strawberry.types.info.Info,
         page: int = 1,
         per_page: int = 20,
     ) -> CampaignPage:
+        user = get_user_or_error(info)
         if page < 1:
             page = 1
         if per_page < 1 or per_page > MAX_PER_PAGE:
             per_page = 20
-        qs = CampaignService.list_campaigns()
+        qs = CampaignService.list_campaigns(user=user)
         total = qs.count()
         offset = (page - 1) * per_page
         items = qs[offset : offset + per_page]
@@ -83,13 +86,14 @@ class CampaignQueries:
         )
 
     @strawberry.field
-    def campaign(self, id: strawberry.ID) -> CampaignType | None:
+    def campaign(self, info: strawberry.types.info.Info, id: strawberry.ID) -> CampaignType | None:
+        user = get_user_or_error(info)
         try:
             campaign_id = uuid.UUID(str(id))
         except ValueError:
             return None
         campaign = CampaignService.get_campaign_by_id(campaign_id)
-        if campaign is None:
+        if campaign is None or campaign.owner != user:
             return None
         return CampaignType.from_model(campaign)
 
@@ -97,11 +101,13 @@ class CampaignQueries:
 @strawberry.type
 class CampaignMutations:
     @strawberry.mutation
-    def create_campaign(self, input: CampaignInput) -> CampaignType:
+    def create_campaign(self, info: strawberry.types.info.Info, input: CampaignInput) -> CampaignType:
+        user = get_user_or_error(info)
         try:
             campaign = CampaignService.create_campaign(
                 name=input.name,
                 description=input.description,
+                owner=user,
             )
         except ValidationError as e:
             raise GraphQLError(str(e)) from e
@@ -110,18 +116,23 @@ class CampaignMutations:
     @strawberry.mutation
     def update_campaign(
         self,
+        info: strawberry.types.info.Info,
         id: strawberry.ID,
         input: CampaignUpdateInput,
     ) -> CampaignType | None:
+        user = get_user_or_error(info)
         try:
             campaign_id = uuid.UUID(str(id))
         except ValueError:
+            return None
+        campaign = CampaignService.get_campaign_by_id(campaign_id)
+        if campaign is None or campaign.owner != user:
             return None
         try:
             name_str = input.name
             desc_str = input.description
             status_val = input.status.value if input.status is not None else None
-            campaign = CampaignService.update_campaign(
+            updated = CampaignService.update_campaign(
                 campaign_id=campaign_id,
                 name=name_str,
                 description=desc_str,
@@ -129,14 +140,18 @@ class CampaignMutations:
             )
         except ValidationError as e:
             raise GraphQLError(str(e)) from e
-        if campaign is None:
+        if updated is None:
             return None
-        return CampaignType.from_model(campaign)
+        return CampaignType.from_model(updated)
 
     @strawberry.mutation
-    def delete_campaign(self, id: strawberry.ID) -> bool:
+    def delete_campaign(self, info: strawberry.types.info.Info, id: strawberry.ID) -> bool:
+        user = get_user_or_error(info)
         try:
             campaign_id = uuid.UUID(str(id))
         except ValueError:
+            return False
+        campaign = CampaignService.get_campaign_by_id(campaign_id)
+        if campaign is None or campaign.owner != user:
             return False
         return CampaignService.soft_delete_campaign(campaign_id)

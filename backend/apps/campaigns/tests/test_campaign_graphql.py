@@ -1,11 +1,12 @@
 import pytest
-from django.test import Client
+
+from apps.auth.test_utils import make_auth_client
 
 
 @pytest.mark.django_db
 class TestCampaignGraphQL:
     def test_create_campaign_mutation(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -30,7 +31,7 @@ class TestCampaignGraphQL:
         assert data["data"]["createCampaign"]["id"] is not None
 
     def test_create_campaign_mutation_empty_name(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -50,7 +51,7 @@ class TestCampaignGraphQL:
         assert data.get("errors") is not None
 
     def test_campaigns_query(self) -> None:
-        client = Client()
+        client = make_auth_client()
         client.post(
             "/graphql",
             {
@@ -98,7 +99,7 @@ class TestCampaignGraphQL:
         assert "B" in names
 
     def test_campaign_query_by_id(self) -> None:
-        client = Client()
+        client = make_auth_client()
         create_resp = client.post(
             "/graphql",
             {
@@ -136,7 +137,7 @@ class TestCampaignGraphQL:
         assert data["data"]["campaign"]["description"] == "Find me"
 
     def test_campaign_query_not_found(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -156,7 +157,7 @@ class TestCampaignGraphQL:
         assert data["data"]["campaign"] is None
 
     def test_update_campaign_mutation(self) -> None:
-        client = Client()
+        client = make_auth_client()
         create_resp = client.post(
             "/graphql",
             {
@@ -191,7 +192,7 @@ class TestCampaignGraphQL:
         assert data["data"]["updateCampaign"]["name"] == "Updated"
 
     def test_update_campaign_not_found(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -212,7 +213,7 @@ class TestCampaignGraphQL:
         assert data["data"]["updateCampaign"] is None
 
     def test_update_campaign_invalid_id(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -235,7 +236,7 @@ class TestCampaignGraphQL:
         assert data["data"]["updateCampaign"] is None
 
     def test_delete_campaign_mutation(self) -> None:
-        client = Client()
+        client = make_auth_client()
         create_resp = client.post(
             "/graphql",
             {
@@ -283,7 +284,7 @@ class TestCampaignGraphQL:
         assert verify.json()["data"]["campaign"] is None
 
     def test_delete_campaign_invalid_id(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {

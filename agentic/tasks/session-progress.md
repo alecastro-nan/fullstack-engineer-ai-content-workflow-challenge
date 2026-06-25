@@ -164,11 +164,11 @@ handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
 
 ## Phase 7: Post-Review Quality (review findings from F-024–F-027)
 
-### F-024 — Authentication & access control — PLAN READY
-plan → `agentic/runs/F-024-auth-access-control/plan.md`
+### F-024 — Authentication & access control — DONE
+handoff → `agentic/runs/F-024-auth-access-control/handoff.md`
 branch → `feat/F-024-auth-access-control`
-*JWT auth via PyJWT, Django User model + owner FKs, login/register/refresh mutations, per-resolver auth checks, WebSocket auth, frontend auth hooks. Estimated 45-60min.*
-deps: none | stack: backend
+*JWT auth via PyJWT with custom AuthGraphQLView (get_context override). Register/login/refresh mutations, Campaign.owner FK, per-resolver auth checks, WebSocket token auth, AUTH_REQUIRED toggle. Custom view used instead of SchemaExtension (no on_request_start in Strawberry v0.317.x). 137/137 tests passing. ADR-007 created.*
+reviewers: @code-reviewer ✅ @security-reviewer ✅
 
 ### F-025 — Security hardening — PENDING
 *GraphQL depth/alias/token limits, prompt injection delimiters, CSP header, ALLOWED_HOSTS fix. All isolated config changes — estimated 20min.*

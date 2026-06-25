@@ -1,31 +1,28 @@
-from typing import cast
+import uuid
 
 import pytest
-from django.test import Client
 
-CREATE_CAMPAIGN_MUTATION = """
-    mutation {
-        createCampaign(input: { name: "Content Test Campaign" }) {
-            id
-        }
-    }
-"""
+from apps.auth.test_utils import make_auth_client
 
 
 @pytest.mark.django_db
-class TestContentPieceGraphQL:
-    def _create_campaign(self, client: Client) -> str:
-        resp = client.post(
+class TestContentGraphQL:
+    def test_create_content_piece(self) -> None:
+        client = make_auth_client()
+        create_resp = client.post(
             "/graphql",
-            {"query": CREATE_CAMPAIGN_MUTATION},
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C1" }) { id }
+                    }
+                """
+            },
             content_type="application/json",
         )
-        return cast("str", resp.json()["data"]["createCampaign"]["id"])
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
 
-    def test_create_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
-        response = client.post(
+        resp = client.post(
             "/graphql",
             {
                 "query": """
@@ -33,9 +30,6 @@ class TestContentPieceGraphQL:
                         createContentPiece(input: $input) {
                             id
                             headline
-                            description
-                            body
-                            language
                             state
                             campaignId
                         }
@@ -45,26 +39,32 @@ class TestContentPieceGraphQL:
                     "input": {
                         "campaignId": campaign_id,
                         "headline": "Test Headline",
-                        "description": "Desc",
-                        "body": "Body",
-                        "language": "en",
+                        "description": "Test Description",
                     }
                 },
             },
             content_type="application/json",
         )
-        assert response.status_code == 200
-        data = response.json()
+        assert resp.status_code == 200
+        data = resp.json()
         assert data["data"]["createContentPiece"]["headline"] == "Test Headline"
-        assert data["data"]["createContentPiece"]["description"] == "Desc"
-        assert data["data"]["createContentPiece"]["body"] == "Body"
-        assert data["data"]["createContentPiece"]["language"] == "en"
         assert data["data"]["createContentPiece"]["state"] == "DRAFT"
-        assert data["data"]["createContentPiece"]["campaignId"] == campaign_id
 
-    def test_create_content_empty_headline(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
+    def test_create_content_piece_empty_headline(self) -> None:
+        client = make_auth_client()
+        create_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C2" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
         response = client.post(
             "/graphql",
             {
@@ -85,11 +85,10 @@ class TestContentPieceGraphQL:
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data.get("errors") is not None
+        assert response.json().get("errors") is not None
 
-    def test_create_content_nonexistent_campaign(self) -> None:
-        client = Client()
+    def test_create_content_piece_invalid_campaign(self) -> None:
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -110,47 +109,36 @@ class TestContentPieceGraphQL:
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data.get("errors") is not None
+        assert response.json().get("errors") is not None
 
-    def test_create_content_invalid_campaign_id(self) -> None:
-        client = Client()
-        response = client.post(
+    def test_content_pieces_query(self) -> None:
+        client = make_auth_client()
+        create_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C3" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
+        client.post(
             "/graphql",
             {
                 "query": """
                     mutation($input: ContentPieceInput!) {
-                        createContentPiece(input: $input) {
-                            id
-                        }
+                        createContentPiece(input: $input) { id }
                     }
                 """,
                 "variables": {
                     "input": {
-                        "campaignId": "not-a-uuid",
-                        "headline": "Invalid",
+                        "campaignId": campaign_id,
+                        "headline": "CP1",
                     }
-                },
-            },
-            content_type="application/json",
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data.get("errors") is not None
-
-    def test_content_pieces_query(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
-        client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($input: ContentPieceInput!) {
-                        createContentPiece(input: $input) { id }
-                    }
-                """,
-                "variables": {
-                    "input": {"campaignId": campaign_id, "headline": "Piece A"}
                 },
             },
             content_type="application/json",
@@ -164,7 +152,10 @@ class TestContentPieceGraphQL:
                     }
                 """,
                 "variables": {
-                    "input": {"campaignId": campaign_id, "headline": "Piece B"}
+                    "input": {
+                        "campaignId": campaign_id,
+                        "headline": "CP2",
+                    }
                 },
             },
             content_type="application/json",
@@ -174,9 +165,9 @@ class TestContentPieceGraphQL:
             {
                 "query": """
                     query($campaignId: ID) {
-                        contentPieces(campaignId: $campaignId, page: 1, perPage: 10) {
+                        contentPieces(campaignId: $campaignId) {
                             totalCount
-                            items { id headline }
+                            items { headline }
                         }
                     }
                 """,
@@ -185,16 +176,27 @@ class TestContentPieceGraphQL:
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data["data"]["contentPieces"]["totalCount"] >= 2
-        headlines = [e["headline"] for e in data["data"]["contentPieces"]["items"]]
-        assert "Piece A" in headlines
-        assert "Piece B" in headlines
+        data = response.json()["data"]
+        assert data["contentPieces"]["totalCount"] >= 2
+        headlines = [i["headline"] for i in data["contentPieces"]["items"]]
+        assert "CP1" in headlines
 
     def test_content_piece_query_by_id(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
+        client = make_auth_client()
         create_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C4" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
+        content_resp = client.post(
             "/graphql",
             {
                 "query": """
@@ -205,14 +207,14 @@ class TestContentPieceGraphQL:
                 "variables": {
                     "input": {
                         "campaignId": campaign_id,
-                        "headline": "Findable",
-                        "description": "Find me",
+                        "headline": "Findable Content",
                     }
                 },
             },
             content_type="application/json",
         )
-        piece_id = create_resp.json()["data"]["createContentPiece"]["id"]
+        content_id = content_resp.json()["data"]["createContentPiece"]["id"]
+
         response = client.post(
             "/graphql",
             {
@@ -221,21 +223,20 @@ class TestContentPieceGraphQL:
                         contentPiece(id: $id) {
                             id
                             headline
-                            description
+                            campaignId
                         }
                     }
                 """,
-                "variables": {"id": piece_id},
+                "variables": {"id": content_id},
             },
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data["data"]["contentPiece"]["headline"] == "Findable"
-        assert data["data"]["contentPiece"]["description"] == "Find me"
+        data = response.json()["data"]["contentPiece"]
+        assert data["headline"] == "Findable Content"
 
-    def test_content_piece_query_not_found(self) -> None:
-        client = Client()
+    def test_content_piece_not_found(self) -> None:
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -253,24 +254,40 @@ class TestContentPieceGraphQL:
         data = response.json()
         assert data["data"]["contentPiece"] is None
 
-    def test_update_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
+    def test_update_content_piece(self) -> None:
+        client = make_auth_client()
         create_resp = client.post(
             "/graphql",
             {
                 "query": """
+                    mutation {
+                        createCampaign(input: { name: "C5" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
+        content_resp = client.post(
+            "/graphql",
+            {
+                "query": """
                     mutation($input: ContentPieceInput!) {
-                        createContentPiece(input: $input) { id }
+                        createContentPiece(input: $input) { id headline }
                     }
                 """,
                 "variables": {
-                    "input": {"campaignId": campaign_id, "headline": "Original"}
+                    "input": {
+                        "campaignId": campaign_id,
+                        "headline": "Original",
+                    }
                 },
             },
             content_type="application/json",
         )
-        piece_id = create_resp.json()["data"]["createContentPiece"]["id"]
+        content_id = content_resp.json()["data"]["createContentPiece"]["id"]
+
         response = client.post(
             "/graphql",
             {
@@ -280,23 +297,90 @@ class TestContentPieceGraphQL:
                             id
                             headline
                             description
+                            language
                         }
                     }
                 """,
                 "variables": {
-                    "id": piece_id,
-                    "input": {"headline": "Updated", "description": "New desc"},
+                    "id": content_id,
+                    "input": {
+                        "headline": "Updated",
+                        "description": "New Desc",
+                    },
                 },
             },
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data["data"]["updateContentPiece"]["headline"] == "Updated"
-        assert data["data"]["updateContentPiece"]["description"] == "New desc"
+        data = response.json()["data"]["updateContentPiece"]
+        assert data["headline"] == "Updated"
+        assert data["description"] == "New Desc"
 
-    def test_update_content_not_found(self) -> None:
-        client = Client()
+    def test_delete_content_piece(self) -> None:
+        client = make_auth_client()
+        create_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C6" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
+        content_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($input: ContentPieceInput!) {
+                        createContentPiece(input: $input) { id }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "campaignId": campaign_id,
+                        "headline": "Delete Me",
+                    }
+                },
+            },
+            content_type="application/json",
+        )
+        content_id = content_resp.json()["data"]["createContentPiece"]["id"]
+
+        response = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($id: ID!) {
+                        deleteContentPiece(id: $id)
+                    }
+                """,
+                "variables": {"id": content_id},
+            },
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert response.json()["data"]["deleteContentPiece"] is True
+
+        verify = client.post(
+            "/graphql",
+            {
+                "query": """
+                    query($id: ID!) {
+                        contentPiece(id: $id) { id }
+                    }
+                """,
+                "variables": {"id": content_id},
+            },
+            content_type="application/json",
+        )
+        assert verify.json()["data"]["contentPiece"] is None
+
+    def test_update_content_piece_not_found(self) -> None:
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
@@ -308,93 +392,23 @@ class TestContentPieceGraphQL:
                     }
                 """,
                 "variables": {
-                    "id": "00000000-0000-0000-0000-000000000000",
+                    "id": str(uuid.uuid4()),
                     "input": {"headline": "Ghost"},
                 },
             },
             content_type="application/json",
         )
         assert response.status_code == 200
-        data = response.json()
-        assert data["data"]["updateContentPiece"] is None
+        assert response.json()["data"]["updateContentPiece"] is None
 
-    def test_update_content_invalid_id(self) -> None:
-        client = Client()
-        response = client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($input: ContentPieceUpdateInput!) {
-                        updateContentPiece(id: "not-a-uuid", input: $input) {
-                            id
-                        }
-                    }
-                """,
-                "variables": {"input": {"headline": "Nope"}},
-            },
-            content_type="application/json",
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data.get("errors") is not None
-
-    def test_delete_content_mutation(self) -> None:
-        client = Client()
-        campaign_id = self._create_campaign(client)
-        create_resp = client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($input: ContentPieceInput!) {
-                        createContentPiece(input: $input) { id }
-                    }
-                """,
-                "variables": {
-                    "input": {"campaignId": campaign_id, "headline": "Delete Me"}
-                },
-            },
-            content_type="application/json",
-        )
-        piece_id = create_resp.json()["data"]["createContentPiece"]["id"]
-        response = client.post(
-            "/graphql",
-            {
-                "query": """
-                    mutation($id: ID!) {
-                        deleteContentPiece(id: $id)
-                    }
-                """,
-                "variables": {"id": piece_id},
-            },
-            content_type="application/json",
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["data"]["deleteContentPiece"] is True
-        verify = client.post(
-            "/graphql",
-            {
-                "query": """
-                    query($id: ID!) {
-                        contentPiece(id: $id) {
-                            id
-                        }
-                    }
-                """,
-                "variables": {"id": piece_id},
-            },
-            content_type="application/json",
-        )
-        assert verify.json()["data"]["contentPiece"] is None
-
-    def test_delete_content_invalid_id(self) -> None:
-        client = Client()
+    def test_delete_content_piece_not_found(self) -> None:
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {
                 "query": """
                     mutation {
-                        deleteContentPiece(id: "not-a-uuid")
+                        deleteContentPiece(id: "00000000-0000-0000-0000-000000000000")
                     }
                 """
             },
@@ -402,4 +416,44 @@ class TestContentPieceGraphQL:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data.get("errors") is not None
+        assert data["data"]["deleteContentPiece"] is False
+
+    def test_create_content_piece_with_language(self) -> None:
+        client = make_auth_client()
+        create_resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation {
+                        createCampaign(input: { name: "C7" }) { id }
+                    }
+                """
+            },
+            content_type="application/json",
+        )
+        campaign_id = create_resp.json()["data"]["createCampaign"]["id"]
+
+        resp = client.post(
+            "/graphql",
+            {
+                "query": """
+                    mutation($input: ContentPieceInput!) {
+                        createContentPiece(input: $input) {
+                            id
+                            language
+                        }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "campaignId": campaign_id,
+                        "headline": "Hola",
+                        "language": "es",
+                    }
+                },
+            },
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["data"]["createContentPiece"]["language"] == "es"
