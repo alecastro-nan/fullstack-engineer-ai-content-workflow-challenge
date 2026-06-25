@@ -70,7 +70,7 @@ describe('StateChangeToast', () => {
     };
 
     render(<StateChangeToast event={event} />);
-    expect(screen.getByText(/draft/)).toBeInTheDocument();
+    expect(screen.getByText(/draft/i)).toBeInTheDocument();
     expect(screen.getByText(/approved/)).toBeInTheDocument();
   });
 

@@ -16,10 +16,10 @@ class OpenAIProvider(AIProvider):
         temperature: float = 0.7,
         max_tokens: int = 2048,
     ) -> None:
-        kwargs = {"api_key": api_key}
         if base_url:
-            kwargs["base_url"] = base_url
-        self.client = OpenAI(**kwargs)
+            self.client = OpenAI(api_key=api_key, base_url=base_url)
+        else:
+            self.client = OpenAI(api_key=api_key)
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
