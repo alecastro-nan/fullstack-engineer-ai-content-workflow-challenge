@@ -9,32 +9,45 @@ on:
 jobs:
   ruff-lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync
-        working-directory: backend
-      - run: uv run ruff check backend/
-        working-directory: backend
+      - run: uv sync --group dev
+        env:
+          VIRTUAL_ENV: ""
+      - run: uv run ruff check .
+        env:
+          VIRTUAL_ENV: ""
 
   mypy-typecheck:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync
-        working-directory: backend
-      - run: uv run mypy backend/
-        working-directory: backend
+      - run: uv sync --group dev
+        env:
+          VIRTUAL_ENV: ""
+      - run: uv run mypy .
+        env:
+          VIRTUAL_ENV: ""
 
   pytest-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     services:
       postgres:
         image: postgres:16-alpine
@@ -55,11 +68,12 @@ jobs:
         with:
           version: "latest"
           python-version: "3.12"
-      - run: uv sync
-        working-directory: backend
-      - run: uv run pytest --cov --cov-report=term-missing --no-header
-        working-directory: backend
+      - run: uv sync --group dev
         env:
+          VIRTUAL_ENV: ""
+      - run: uv run pytest --cov --cov-report=term-missing --no-header
+        env:
+          VIRTUAL_ENV: ""
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/acme
           DJANGO_SETTINGS_MODULE: config.settings.development
           OPENAI_API_KEY: sk-test-fake-key
@@ -70,6 +84,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
