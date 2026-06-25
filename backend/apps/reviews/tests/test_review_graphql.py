@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -9,7 +10,7 @@ from apps.auth.test_utils import make_auth_client
 
 @pytest.mark.django_db
 class TestReviewMutations:
-    def _create_campaign_and_content(self, client: object) -> tuple[str, str]:
+    def _create_campaign_and_content(self, client: Any) -> tuple[str, str]:
         camp_resp = client.post(
             "/graphql",
             {
@@ -46,7 +47,7 @@ class TestReviewMutations:
         content_id = content_resp.json()["data"]["createContentPiece"]["id"]
         return campaign_id, content_id
 
-    def _generate_draft(self, client: object, content_id: str) -> None:
+    def _generate_draft(self, client: Any, content_id: str) -> None:
         client.post(
             "/graphql",
             {

@@ -33,7 +33,7 @@ class TokenPayload:
 
 def _user_to_type(user: User) -> UserType:
     return UserType(
-        id=strawberry.ID(str(user.id)),
+        id=strawberry.ID(str(user.id)),  # type: ignore[attr-defined]
         email=str(user.email),
         created_at=str(user.date_joined.isoformat()),
     )

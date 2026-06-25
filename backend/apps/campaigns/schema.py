@@ -101,7 +101,9 @@ class CampaignQueries:
 @strawberry.type
 class CampaignMutations:
     @strawberry.mutation
-    def create_campaign(self, info: strawberry.types.info.Info, input: CampaignInput) -> CampaignType:
+    def create_campaign(
+        self, info: strawberry.types.info.Info, input: CampaignInput
+    ) -> CampaignType:
         user = get_user_or_error(info)
         try:
             campaign = CampaignService.create_campaign(

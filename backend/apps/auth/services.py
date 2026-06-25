@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 import jwt
 from asgiref.sync import sync_to_async
@@ -13,7 +14,7 @@ REFRESH_TOKEN_EXPIRY_DAYS = 7
 
 
 def _get_jwt_secret() -> str:
-    return settings.SECRET_KEY
+    return cast(str, settings.SECRET_KEY)
 
 
 def _now() -> datetime:
@@ -113,4 +114,4 @@ def login_user(email: str, password: str) -> User:
     user = authenticate(username=email, password=password)
     if user is None:
         raise InvalidCredentials("Invalid email or password")
-    return user
+    return cast(User, user)

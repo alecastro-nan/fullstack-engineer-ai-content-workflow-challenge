@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class AuthGraphQLView(GraphQLView):
-    def get_context(self, request: HttpRequest, response: HttpResponse) -> StrawberryDjangoContext:
+    def get_context(self, request: HttpRequest, response: HttpResponse) -> StrawberryDjangoContext:  # type: ignore[override]
         from apps.auth.services import decode_token
         from apps.auth.utils import extract_bearer_token
 

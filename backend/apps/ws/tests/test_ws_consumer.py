@@ -13,7 +13,7 @@ from apps.ws.consumers import ContentConsumer
 
 def _create_test_data() -> tuple[uuid.UUID, str]:
     user_model = get_user_model()
-    user = user_model.objects.create_user(
+    user = user_model.objects.create_user(  # type: ignore[attr-defined]
         username=f"test-user-{uuid.uuid4().hex[:8]}",
         password="testpass",
     )

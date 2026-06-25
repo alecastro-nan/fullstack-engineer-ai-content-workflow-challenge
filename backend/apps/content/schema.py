@@ -55,11 +55,11 @@ class ContentPieceType:
     @staticmethod
     def from_model(piece: ContentPiece) -> "ContentPieceType":
         original_id: strawberry.ID | None = None
-        if piece.original_id is not None:
-            original_id = strawberry.ID(str(piece.original_id))
+        if piece.original_id is not None:  # type: ignore[attr-defined]
+            original_id = strawberry.ID(str(piece.original_id))  # type: ignore[attr-defined]
         return ContentPieceType(
             id=strawberry.ID(str(piece.id)),
-            campaign_id=strawberry.ID(str(piece.campaign_id)),
+            campaign_id=strawberry.ID(str(piece.campaign_id)),  # type: ignore[attr-defined]
             headline=piece.headline,
             description=piece.description,
             body=piece.body,
@@ -119,7 +119,9 @@ class ContentPieceQueries:
         )
 
     @strawberry.field
-    def content_piece(self, info: strawberry.types.info.Info, id: strawberry.ID) -> ContentPieceType | None:
+    def content_piece(
+        self, info: strawberry.types.info.Info, id: strawberry.ID
+    ) -> ContentPieceType | None:
         user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(id))
@@ -136,7 +138,9 @@ class ContentPieceQueries:
 @strawberry.type
 class ContentPieceMutations:
     @strawberry.mutation
-    def create_content_piece(self, info: strawberry.types.info.Info, input: ContentPieceInput) -> ContentPieceType:
+    def create_content_piece(
+        self, info: strawberry.types.info.Info, input: ContentPieceInput
+    ) -> ContentPieceType:
         user = get_user_or_error(info)
         try:
             campaign_id = uuid.UUID(str(input.campaign_id))

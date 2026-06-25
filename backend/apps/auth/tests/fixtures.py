@@ -15,7 +15,7 @@ def api_client() -> Client:
     token = create_access_token(user)
     client = Client()
     client.defaults["HTTP_AUTHORIZATION"] = f"Bearer {token}"
-    client.user = user
+    client.user = user  # type: ignore[attr-defined]
     return client
 
 

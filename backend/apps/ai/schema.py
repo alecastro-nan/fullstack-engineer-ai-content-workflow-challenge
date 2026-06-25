@@ -26,7 +26,9 @@ class AiQuery:
 @strawberry.type
 class AiMutation:
     @strawberry.mutation
-    def generate_draft(self, info: strawberry.types.info.Info, content_id: strawberry.ID) -> ContentPieceType | None:
+    def generate_draft(
+        self, info: strawberry.types.info.Info, content_id: strawberry.ID
+    ) -> ContentPieceType | None:
         user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(content_id))
