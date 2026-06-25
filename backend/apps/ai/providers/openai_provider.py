@@ -11,11 +11,15 @@ class OpenAIProvider(AIProvider):
     def __init__(
         self,
         api_key: str,
+        base_url: str | None = None,
         model: str = "gpt-4o",
         temperature: float = 0.7,
         max_tokens: int = 2048,
     ) -> None:
-        self.client = OpenAI(api_key=api_key)
+        kwargs = {"api_key": api_key}
+        if base_url:
+            kwargs["base_url"] = base_url
+        self.client = OpenAI(**kwargs)
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens

@@ -13,6 +13,7 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ["*"]),
     AI_PROVIDER=(str, "openai"),
     OPENAI_API_KEY=(str, ""),
+    OPENAI_BASE_URL=(str, ""),
     ANTHROPIC_API_KEY=(str, ""),
     OPENAI_MODEL=(str, "gpt-4o"),
     ANTHROPIC_MODEL=(str, "claude-sonnet-4-20250514"),
@@ -26,6 +27,16 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 CORS_ALLOWED_ORIGINS_ENV = env("FRONTEND_URL")
+
+# AI provider settings — must be explicitly read for getattr(settings, ...) to work
+AI_PROVIDER = env("AI_PROVIDER")
+OPENAI_API_KEY = env("OPENAI_API_KEY")
+OPENAI_BASE_URL = env("OPENAI_BASE_URL")
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
+OPENAI_MODEL = env("OPENAI_MODEL")
+ANTHROPIC_MODEL = env("ANTHROPIC_MODEL")
+AI_TEMPERATURE = env("AI_TEMPERATURE")
+AI_MAX_TOKENS = env("AI_MAX_TOKENS")
 
 INSTALLED_APPS = [
     "daphne",
