@@ -196,7 +196,7 @@ export function CampaignDetail() {
   const handleEditContent = useCallback(async (pieceId: string) => {
     const data = await graphqlRequest<{ editContent: ContentPiece }>(
       EDIT_CONTENT_MUTATION,
-      { contentId: pieceId, headline: '', description: '', body: '' },
+      { contentId: pieceId },
     );
     setPieces((prev) =>
       prev.map((p) => (p.id === pieceId ? data.editContent : p)),

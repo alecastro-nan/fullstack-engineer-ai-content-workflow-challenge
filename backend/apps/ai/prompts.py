@@ -29,10 +29,14 @@ def format_draft_prompt(brief: str) -> str:
     return DRAFT_PROMPT.replace("{brief}", brief)
 
 
-def format_translation_prompt(text: str, target_language: str) -> str:
+def format_translation_prompt(
+    headline: str,
+    description: str,
+    target_language: str,
+) -> str:
     return (
         TRANSLATION_PROMPT
-        .replace("{headline}", text)
-        .replace("{description}", text)
+        .replace("{headline}", headline)
+        .replace("{description}", description)
         .replace("{target_language}", target_language)
     )

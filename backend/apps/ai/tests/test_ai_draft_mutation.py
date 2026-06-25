@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 
+from apps.auth.test_utils import make_auth_client
 from apps.content.models import ContentPiece
 
 
@@ -22,7 +23,7 @@ def _create_campaign(client: Client) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createCampaign"]["id"])
+    return cast("str", response.json()["data"]["createCampaign"]["id"])
 
 
 def _create_content(client: Client, campaign_id: str) -> str:
@@ -48,7 +49,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createContentPiece"]["id"])
+    return cast("str", response.json()["data"]["createContentPiece"]["id"])
 
 
 @override_settings(
@@ -58,7 +59,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
 )
 class TestAiDraftMutation(TestCase):
     def setUp(self) -> None:
-        self.client = Client()
+        self.client = make_auth_client()
 
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_generate_draft_success(self, mock_openai: MagicMock) -> None:

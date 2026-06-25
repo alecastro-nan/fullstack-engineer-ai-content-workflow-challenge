@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 
+from apps.auth.test_utils import make_auth_client
+
 
 def _create_campaign(client: Client) -> str:
     response = client.post(
@@ -22,7 +24,7 @@ def _create_campaign(client: Client) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createCampaign"]["id"])
+    return cast("str", response.json()["data"]["createCampaign"]["id"])
 
 
 def _create_content(client: Client, campaign_id: str) -> str:
@@ -49,7 +51,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
         },
         content_type="application/json",
     )
-    return cast(str, response.json()["data"]["createContentPiece"]["id"])
+    return cast("str", response.json()["data"]["createContentPiece"]["id"])
 
 
 @override_settings(
@@ -65,7 +67,7 @@ class TestE2EWorkflow(TestCase):
     """
 
     def setUp(self) -> None:
-        self.client = Client()
+        self.client = make_auth_client()
 
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_full_workflow_create_to_approve(self, mock_openai: MagicMock) -> None:
@@ -480,7 +482,7 @@ class TestE2EWorkflow(TestCase):
             },
             content_type="application/json",
         )
-        content_id2 = cast(str, resp2.json()["data"]["createContentPiece"]["id"])
+        content_id2 = cast("str", resp2.json()["data"]["createContentPiece"]["id"])
 
         # Generate draft on first piece
         self.client.post(

@@ -30,7 +30,16 @@ class OpenAIProvider(AIProvider):
         return self._parse_draft_response(response)
 
     def translate(self, text: str, target_language: str) -> TranslationResult:
-        prompt = format_translation_prompt(text, target_language)
+        # text format expected: "Headline: <headline>\nDescription: <description>"
+        lines = text.split("\n", 1)
+        headline = ""
+        description = ""
+        for line in lines:
+            if line.startswith("Headline: "):
+                headline = line.removeprefix("Headline: ")
+            elif line.startswith("Description: "):
+                description = line.removeprefix("Description: ")
+        prompt = format_translation_prompt(headline, description, target_language)
         response = self._call_api(prompt)
         return self._parse_translation_response(response)
 

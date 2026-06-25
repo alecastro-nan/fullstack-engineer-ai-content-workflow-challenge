@@ -9,6 +9,7 @@ A campaign content management system with AI-powered drafting, translation/local
 | Layer | Technology | Rationale | ADR |
 |---|---|---|---|
 | **Backend** | Django 5.1 + Strawberry GraphQL | Type-safe GraphQL from Python types, mature ORM, built-in admin | [ADR-005](docs/adrs/ADR-005-django-strawberry-architecture.md) |
+| **Auth** | PyJWT (stateless, Django SECRET_KEY) | JWT access/refresh tokens, per-resolver auth, WebSocket token auth | [ADR-007](docs/adrs/ADR-007-authentication.md) |
 | **Frontend** | React 19 + Vite 6 + React Router 7 + Tailwind CSS 4 | Fast HMR, component-based UI, utility-first styling | — |
 | **Database** | PostgreSQL 16 | ACID compliance, JSONB for AI metadata, robust migration tooling | [ADR-004](docs/adrs/ADR-004-database-schema.md) |
 | **Real-time** | Django Channels (WebSocket) | First-party Django ASGI extension, per-content-piece group broadcasts | [ADR-003](docs/adrs/ADR-003-real-time-mechanism.md) |
@@ -60,6 +61,8 @@ A campaign content management system with AI-powered drafting, translation/local
 - **Real-time WebSocket Broadcasts** — Live state change notifications via Django Channels, per-content-piece groups
 - **React Frontend** — Full UI with campaign dashboard, detail pages, AI draft panel, review controls, and translation panel
 - **Docker Compose** — One-command `docker compose up --build` runs PostgreSQL, backend, and frontend
+- **Authentication** — JWT-based auth with PyJWT, register/login/refresh endpoints, per-resolver access control via `Campaign.owner` FK
+- **WebSocket Auth** — JWT token passed as query parameter, verified on connect
 - **CI Pipeline** — GitHub Actions: ruff lint, mypy type check, pytest (with coverage), vitest, Docker build check
 
 ## Prerequisites
@@ -143,6 +146,7 @@ pnpm dev
 | `OPENAI_API_KEY` | One of | — | OpenAI API key (for draft/translation generation) |
 | `ANTHROPIC_API_KEY` | One of | — | Anthropic API key (fallback provider) |
 | `AI_PROVIDER` | No | `openai` | Active AI provider (`openai` or `anthropic`) |
+| `AUTH_REQUIRED` | No | `True` | Set `False` to disable auth checks in dev (no token needed) |
 | `DJANGO_SETTINGS_MODULE` | No | `config.settings.development` | Django settings module |
 | `DEBUG` | No | `True` | Django debug mode |
 | `FRONTEND_URL` | No | `http://localhost:5173` | CORS allowed origin |
@@ -184,10 +188,46 @@ docker compose down       # Stop all services
 
 The API is available at `http://localhost:8000/graphql` with an interactive GraphQL playground in development mode.
 
-### Campaigns
+### Authentication
+
+All GraphQL endpoints (except `registerUser`, `login`, and `health`) require a valid JWT access token in the `Authorization` header.
 
 ```graphql
-# Create a campaign
+# Register a new user
+mutation {
+  registerUser(email: "user@example.com", password: "password123") {
+    user { id email createdAt }
+    accessToken
+    refreshToken
+  }
+}
+
+# Login
+mutation {
+  login(email: "user@example.com", password: "password123") {
+    user { id email createdAt }
+    accessToken
+    refreshToken
+  }
+}
+
+# Refresh expired access token
+mutation {
+  refreshToken(refreshToken: "your-refresh-token") {
+    accessToken
+  }
+}
+```
+
+Include the token in subsequent requests:
+
+```
+Authorization: Bearer <access_token>
+```
+
+Authentication is enforced at the resolver level. Access tokens expire after 15 minutes; refresh tokens after 7 days. See [ADR-007](docs/adrs/ADR-007-authentication.md) for the full design.
+
+### Campaigns
 mutation {
   createCampaign(input: { name: "Summer Campaign", description: "Q3 marketing" }) {
     id name description status createdAt updatedAt
@@ -349,8 +389,10 @@ State changes are broadcast in real-time via Django Channels WebSockets.
 ### Connection
 
 ```
-ws://localhost:8000/ws/content/{content_id}/
+ws://localhost:8000/ws/content/{content_id}/?token={jwt_access_token}
 ```
+
+A valid JWT access token is required as a query parameter. The connection is rejected with code 4001 if the token is missing or invalid.
 
 ### Message format (server → client)
 
@@ -380,6 +422,7 @@ Events are broadcast automatically whenever a `StateHistory` record is created (
 │   │   ├── asgi.py               # ASGI (HTTP + WebSocket router)
 │   │   └── wsgi.py               # WSGI (HTTP-only entry point)
 │   ├── apps/
+│   │   ├── auth/                 # JWT authentication
 │   │   ├── campaigns/            # Campaign CRUD models + GraphQL
 │   │   ├── content/              # ContentPiece models + GraphQL
 │   │   ├── ai/                   # AI provider abstraction + dispatch
@@ -410,7 +453,7 @@ Events are broadcast automatically whenever a `StateHistory` record is created (
 │   └── skills/                   # Community skills
 │
 ├── docs/
-│   ├── adrs/                     # Architecture Decision Records (6)
+│   ├── adrs/                     # Architecture Decision Records (7)
 │   └── workflows.md              # Workflow guide
 │
 ├── compose.yml                   # Docker Compose (PostgreSQL + Backend + Frontend)

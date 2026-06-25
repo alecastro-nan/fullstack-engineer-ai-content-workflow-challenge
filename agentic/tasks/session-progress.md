@@ -159,3 +159,25 @@ decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`
 ## F-028 — Comprehensive Playwright E2E test — DRAFTED (no code yet)
 handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
 *Task definition created in feature_list.json. Covers full workflow + regression checks for recent infra fixes (CSRF, enum case, nginx, Docker health checks, collectstatic, uv.lock). Not yet implemented.*
+
+---
+
+## Phase 7: Post-Review Quality (review findings from F-024–F-027)
+
+### F-024 — Authentication & access control — DONE
+handoff → `agentic/runs/F-024-auth-access-control/handoff.md`
+branch → `feat/F-024-auth-access-control`
+*JWT auth via PyJWT with custom AuthGraphQLView (get_context override). Register/login/refresh mutations, Campaign.owner FK, per-resolver auth checks, WebSocket token auth, AUTH_REQUIRED toggle. Custom view used instead of SchemaExtension (no on_request_start in Strawberry v0.317.x). 137/137 tests passing. ADR-007 created.*
+reviewers: @code-reviewer ✅ @security-reviewer ✅
+
+### F-025 — Security hardening — PENDING
+*GraphQL depth/alias/token limits, prompt injection delimiters, CSP header, ALLOWED_HOSTS fix. All isolated config changes — estimated 20min.*
+deps: none | stack: infra
+
+### F-026 — Test & fixture cleanup — PENDING
+*Dummy key prefix cleanup (sk- → test-), coverage gaps in reviews/schema.py and anthropic_provider.py — estimated 20min.*
+deps: none | stack: test
+
+### F-029 — Frontend quality polish — PENDING
+*Error Boundary component, WebSocket catch block fix, reconnect cap (20 attempts), unused variable cleanup — estimated 20min.*
+deps: none | stack: frontend

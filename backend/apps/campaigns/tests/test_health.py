@@ -1,9 +1,12 @@
-from django.test import Client
+import pytest
+
+from apps.auth.test_utils import make_auth_client
 
 
+@pytest.mark.django_db
 class TestHealthEndpoint:
     def test_graphql_health_query(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {"query": "{ health }"},
@@ -14,7 +17,7 @@ class TestHealthEndpoint:
         assert data["data"]["health"] == "ok"
 
     def test_graphql_ping_mutation(self) -> None:
-        client = Client()
+        client = make_auth_client()
         response = client.post(
             "/graphql",
             {"query": "mutation { ping }"},
