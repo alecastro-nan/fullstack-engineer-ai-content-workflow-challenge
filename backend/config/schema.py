@@ -1,4 +1,11 @@
 import strawberry
+from django.conf import settings
+from strawberry.extensions import (
+    DisableIntrospection,
+    MaxAliasesLimiter,
+    MaxTokensLimiter,
+    QueryDepthLimiter,
+)
 
 from apps.ai.schema import AiMutation
 from apps.auth.schema import AuthMutation
@@ -21,4 +28,17 @@ class Mutation(CampaignMutations, ContentPieceMutations, ReviewMutation, AiMutat
         return "pong"
 
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+extensions = [
+    lambda: QueryDepthLimiter(max_depth=8),
+    lambda: MaxTokensLimiter(max_token_count=1000),
+    lambda: MaxAliasesLimiter(max_alias_count=5),
+]
+
+if not settings.DEBUG:
+    extensions.append(lambda: DisableIntrospection())
+
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    extensions=extensions,
+)
