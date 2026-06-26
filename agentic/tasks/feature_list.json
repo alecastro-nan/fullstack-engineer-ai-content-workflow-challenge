@@ -1082,7 +1082,7 @@
     "dependencies": [],
     "stack": "test",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "All test dummy keys changed: 'sk-test-*' -> 'test-invalid-*' (removes 'sk-' prefix matching real key patterns)",
       "All test dummy keys changed in CI config (.github/workflows/ci.yml) to use 'test-' prefix",

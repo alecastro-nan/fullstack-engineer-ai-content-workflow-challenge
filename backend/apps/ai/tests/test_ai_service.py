@@ -23,7 +23,7 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
         ANTHROPIC_API_KEY="",
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
@@ -42,7 +42,7 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="anthropic",
-        ANTHROPIC_API_KEY="sk-ant-test-key",
+        ANTHROPIC_API_KEY="test-invalid-ant-key",  # Test-only dummy key — not a real credential
         OPENAI_API_KEY="",
     )
     @patch("apps.ai.providers.anthropic_provider.Anthropic")
@@ -60,8 +60,8 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
-        ANTHROPIC_API_KEY="sk-ant-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
+        ANTHROPIC_API_KEY="test-invalid-ant-key",  # Test-only dummy key — not a real credential
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
     @patch("apps.ai.providers.anthropic_provider.Anthropic")
@@ -96,7 +96,7 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
         ANTHROPIC_API_KEY="",
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
@@ -112,7 +112,7 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
         ANTHROPIC_API_KEY="",
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
@@ -134,8 +134,8 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
-        ANTHROPIC_API_KEY="sk-ant-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
+        ANTHROPIC_API_KEY="test-invalid-ant-key",  # Test-only dummy key — not a real credential
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
     @patch("apps.ai.providers.anthropic_provider.Anthropic")
@@ -159,7 +159,7 @@ class TestAiService(TestCase):
 
     @override_settings(
         AI_PROVIDER="openai",
-        OPENAI_API_KEY="sk-test-key",
+        OPENAI_API_KEY="test-invalid-key",  # Test-only dummy key — not a real credential
         ANTHROPIC_API_KEY="",
     )
     @patch("apps.ai.providers.openai_provider.OpenAI")
