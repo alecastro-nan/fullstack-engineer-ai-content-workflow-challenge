@@ -170,9 +170,11 @@ branch → `feat/F-024-auth-access-control`
 *JWT auth via PyJWT with custom AuthGraphQLView (get_context override). Register/login/refresh mutations, Campaign.owner FK, per-resolver auth checks, WebSocket token auth, AUTH_REQUIRED toggle. Custom view used instead of SchemaExtension (no on_request_start in Strawberry v0.317.x). 137/137 tests passing. ADR-007 created.*
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 
-### F-025 — Security hardening — PENDING
-*GraphQL depth/alias/token limits, prompt injection delimiters, CSP header, ALLOWED_HOSTS fix. All isolated config changes — estimated 20min.*
-deps: none | stack: infra
+### F-025 — Security hardening — IN REVIEW
+plan → `agentic/runs/F-025-security-hardening/plan.md`
+branch → `feat/F-025-security-hardening`
+*GraphQL depth/alias/token limits (QueryDepthLimiter, MaxTokensLimiter, MaxAliasesLimiter), DisableIntrospection, prompt injection delimiters in prompts.py, CSP header in nginx.conf, ALLOWED_HOSTS fix (wildcard→explicit list), brief length cap, ADR-008 created. 144 backend tests, 88 frontend tests, ruff+mypy+tsc clean.*
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
 ### F-026 — Test & fixture cleanup — PENDING
 *Dummy key prefix cleanup (sk- → test-), coverage gaps in reviews/schema.py and anthropic_provider.py — estimated 20min.*

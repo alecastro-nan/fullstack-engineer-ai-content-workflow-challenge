@@ -1037,7 +1037,7 @@
     "dependencies": [],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "review",
     "acceptance_criteria": [
       "Strawberry Schema configured with DepthLimit extension (max_depth=8)",
       "Strawberry Schema configured with MaxTokensLimit extension (max_tokens=1000)",
