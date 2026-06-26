@@ -29,34 +29,32 @@ class TestAnthropicProviderGenerateDraft:
             assert result.description == "AI Description"
 
     def test_malformed_response_json_error(self, provider: AnthropicProvider) -> None:
-        with patch.object(provider, "_call_api", return_value="not-json"):
-            with pytest.raises(MalformedResponseError):
-                provider.generate_draft("Test brief")
+        with patch.object(provider, "_call_api", return_value="not-json"), \
+             pytest.raises(MalformedResponseError):
+            provider.generate_draft("Test brief")
 
     def test_empty_response(self, provider: AnthropicProvider) -> None:
         mock_resp = MagicMock()
         mock_resp.content = []
-        with patch.object(provider.client.messages, "create", return_value=mock_resp):
-            with pytest.raises(MalformedResponseError, match="empty"):
-                provider._call_api("prompt")
+        with patch.object(provider.client.messages, "create", return_value=mock_resp), \
+             pytest.raises(MalformedResponseError, match="empty"):
+            provider._call_api("prompt")
 
     def test_rate_limit_error(self, provider: AnthropicProvider) -> None:
         with patch.object(
             provider.client.messages,
             "create",
             side_effect=Exception("rate limit exceeded 429"),
-        ):
-            with pytest.raises(RateLimitError):
-                provider._call_api("prompt")
+        ), pytest.raises(RateLimitError):
+            provider._call_api("prompt")
 
     def test_generic_api_error(self, provider: AnthropicProvider) -> None:
         with patch.object(
             provider.client.messages,
             "create",
             side_effect=Exception("Connection refused"),
-        ):
-            with pytest.raises(Exception, match="Connection refused"):
-                provider._call_api("prompt")
+        ), pytest.raises(Exception, match="Connection refused"):
+            provider._call_api("prompt")
 
 
 class TestAnthropicProviderTranslate:
@@ -109,6 +107,6 @@ class TestAnthropicProviderTranslate:
             assert result.description == ""
 
     def test_translate_malformed_json(self, provider: AnthropicProvider) -> None:
-        with patch.object(provider, "_call_api", return_value="not-json"):
-            with pytest.raises(MalformedResponseError):
-                provider.translate("Headline: Test\nDescription: Test", "es")
+        with patch.object(provider, "_call_api", return_value="not-json"), \
+             pytest.raises(MalformedResponseError):
+            provider.translate("Headline: Test\nDescription: Test", "es")
