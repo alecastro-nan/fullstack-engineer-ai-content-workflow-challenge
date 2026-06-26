@@ -225,4 +225,30 @@ describe('WebSocketService', () => {
 
     expect(mockWsInstances.length).toBeGreaterThan(3);
   });
+
+  it('stops reconnecting after MAX_RECONNECT_ATTEMPTS', () => {
+    const onStatusChange = vi.fn();
+    const sub: WSSubscriber = { onEvent: vi.fn(), onStatusChange };
+
+    wsService.subscribe('content-123', sub);
+    const ws = getLastWs();
+    ws._open();
+
+    // Simulate 20 failed reconnect attempts
+    for (let i = 0; i < 20; i++) {
+      const lastWs = mockWsInstances[mockWsInstances.length - 1];
+      lastWs._close(1006);
+      vi.advanceTimersByTime(30_000);
+    }
+
+    // At this point the 20th timer has fired and connected, bumping
+    // reconnectAttempts to 20. Close once more — scheduleReconnect
+    // should see attempts >= 20, go to 'disconnected', and NOT create
+    // a new WebSocket.
+    const instanceCountBefore = mockWsInstances.length;
+    mockWsInstances[mockWsInstances.length - 1]._close(1006);
+    vi.advanceTimersByTime(60_000);
+    expect(mockWsInstances.length).toBe(instanceCountBefore);
+    expect(onStatusChange).toHaveBeenLastCalledWith('disconnected');
+  });
 });
