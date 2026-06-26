@@ -156,9 +156,11 @@ AGENTS.md, feature_list.json, conventions, install-skills.sh, skills-lock.json, 
 ADR-005 documents the Django+Strawberry decision.
 decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`
 
-## F-028 — Comprehensive Playwright E2E test — DRAFTED (no code yet)
+## F-028 — Comprehensive Playwright E2E test — DONE ✅
 handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
-*Task definition created in feature_list.json. Covers full workflow + regression checks for recent infra fixes (CSRF, enum case, nginx, Docker health checks, collectstatic, uv.lock). Not yet implemented.*
+branch → `feat/F-028-playwright-e2e`
+*46 E2E tests (+13 new: 3 WebSocket, 6 state badges, 2 translation completeness, 3 mutation error handling). Bug reporter fixed (wrong path depth → `..` x3 not x4). README updated with E2E section and bug reporting docs. 46/46 pass, idempotent (2 runs).*
+reviewers: @code-reviewer ⏳
 
 ---
 
