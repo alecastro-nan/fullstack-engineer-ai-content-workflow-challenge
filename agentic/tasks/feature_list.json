@@ -23,7 +23,9 @@
     "id": "F-001",
     "title": "Clean up old NestJS/TypeScript backend artifacts",
     "description": "Remove all NestJS/Prisma/TypeScript backend code, configuration, and dependencies before scaffolding the new Django+Strawberry stack.",
-    "dependencies": ["F-000"],
+    "dependencies": [
+      "F-000"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -54,7 +56,9 @@
     "id": "F-002",
     "title": "Install Django + Strawberry GraphQL + Python backend stack",
     "description": "Scaffold the Django project with Strawberry GraphQL, configure settings (base/development/production), install Python dependencies via uv, set up pytest-django, mypy, and ruff. This task replaces the old NestJS backend with a complete Django+Python foundation.",
-    "dependencies": ["F-001"],
+    "dependencies": [
+      "F-001"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -67,7 +71,7 @@
       "config/settings/production.py: DEBUG=False, PostgreSQL required, ALLOWED_HOSTS from env",
       "Strawberry GraphQL schema endpoint at /graphql with GraphQL playground in DEBUG mode",
       "Django admin configured at /admin/",
-      "App skeleton directories created: backend/apps/campaigns/, backend/apps/content/, backend/apps/ai/, backend/apps/reviews/ — each with __init__.py, apps.py, models.py, admin.py, schema.py, tests/__init__.py",
+      "App skeleton directories created: backend/apps/campaigns/, backend/apps/content/, backend/apps/ai/, backend/apps/reviews/ \u2014 each with __init__.py, apps.py, models.py, admin.py, schema.py, tests/__init__.py",
       "pytest-django configured in pyproject.toml (DJANGO_SETTINGS_MODULE, test paths)",
       "mypy configured in pyproject.toml (strict mode enabled)",
       "ruff configured in pyproject.toml",
@@ -99,7 +103,9 @@
     "id": "F-003",
     "title": "Campaign CRUD GraphQL API",
     "description": "GraphQL mutations and queries to create, read, update, and soft-delete campaigns using Django + Strawberry.",
-    "dependencies": ["F-002"],
+    "dependencies": [
+      "F-002"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "done",
@@ -139,7 +145,9 @@
     "id": "F-004",
     "title": "Content Piece CRUD GraphQL API",
     "description": "GraphQL mutations and queries for content pieces within a campaign using Django + Strawberry.",
-    "dependencies": ["F-003"],
+    "dependencies": [
+      "F-003"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "done",
@@ -174,7 +182,9 @@
     "id": "F-005",
     "title": "PostgreSQL schema & Django migrations",
     "description": "Create and apply Django migrations for Campaign and ContentPiece models. Completed as part of F-003 and F-004 implementation.",
-    "dependencies": ["F-002"],
+    "dependencies": [
+      "F-002"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "done",
@@ -201,7 +211,9 @@
     "id": "F-CORS",
     "title": "Configure CORS for Django backend",
     "description": "Add django-cors-headers and configure CORS_ALLOWED_ORIGINS for frontend-backend communication.",
-    "dependencies": ["F-002"],
+    "dependencies": [
+      "F-002"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -286,7 +298,9 @@
     "id": "F-007",
     "title": "Finalize Docker Compose for full-stack sandbox",
     "description": "Verify and fix compose.yml so docker compose up serves PostgreSQL, Django backend, and React frontend. Fix any networking, env var, or health check issues discovered during integration testing.",
-    "dependencies": ["F-006"],
+    "dependencies": [
+      "F-006"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -399,7 +413,9 @@
     "id": "F-010",
     "title": "AI draft generation GraphQL mutation",
     "description": "GraphQL mutation that takes a content brief and generates an AI-powered draft using the abstraction layer. Depends on F-009, can run in parallel with F-011 (translation).",
-    "dependencies": ["F-009"],
+    "dependencies": [
+      "F-009"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "done",
@@ -431,7 +447,9 @@
     "id": "F-011",
     "title": "AI translation/localization GraphQL mutation",
     "description": "GraphQL mutation that translates content into a target language using the AI abstraction layer. Depends on F-009, can run in parallel with F-010 (draft generation).",
-    "dependencies": ["F-009"],
+    "dependencies": [
+      "F-009"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "done",
@@ -463,7 +481,7 @@
   {
     "id": "F-012",
     "title": "Campaign Dashboard page (list + create campaigns)",
-    "description": "Implement the Campaign Dashboard — the first user-visible frontend page. Wire up React Router with full route table, connect API client to backend GraphQL, list campaigns, and provide a create-campaign form. This task subsumes the remaining scaffold wiring from old F-013.",
+    "description": "Implement the Campaign Dashboard \u2014 the first user-visible frontend page. Wire up React Router with full route table, connect API client to backend GraphQL, list campaigns, and provide a create-campaign form. This task subsumes the remaining scaffold wiring from old F-013.",
     "dependencies": [],
     "stack": "frontend",
     "role": "builder",
@@ -501,7 +519,9 @@
     "id": "F-013",
     "title": "Campaign Detail page (content pieces, state badges)",
     "description": "Implement the Campaign Detail page showing a single campaign with all its content pieces and their review states.",
-    "dependencies": ["F-012"],
+    "dependencies": [
+      "F-012"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -537,7 +557,10 @@
     "id": "F-014",
     "title": "AI Draft panel (trigger generation, preview, accept/reject)",
     "description": "Build the AI Draft panel on the Campaign Detail page. Allows triggering AI draft generation, previewing results, and accepting or rejecting the suggestion.",
-    "dependencies": ["F-010", "F-013"],
+    "dependencies": [
+      "F-010",
+      "F-013"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -573,7 +596,10 @@
     "id": "F-015",
     "title": "Review UI (approve/reject/edit buttons, feedback)",
     "description": "Build the Review action buttons on the Campaign Detail page. Allows human reviewers to approve, reject, or request edits on AI-suggested or reviewed content.",
-    "dependencies": ["F-008", "F-013"],
+    "dependencies": [
+      "F-008",
+      "F-013"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -608,7 +634,10 @@
     "id": "F-016",
     "title": "Translation panel (select language, trigger, preview)",
     "description": "Build the Translation panel on the Campaign Detail page. Allows selecting a target language and triggering AI translation.",
-    "dependencies": ["F-011", "F-013"],
+    "dependencies": [
+      "F-011",
+      "F-013"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "pending",
@@ -644,7 +673,9 @@
     "id": "F-017",
     "title": "Django Channels WebSocket + state change broadcasts",
     "description": "Set up Django Channels for WebSocket-based real-time broadcasting. When content state changes (AI draft generated, review action taken, translation completed), an event broadcasts via WebSocket to all connected clients. MERGED from old F-011 + F-012 because WebSocket setup without broadcast is useless.",
-    "dependencies": ["F-008"],
+    "dependencies": [
+      "F-008"
+    ],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
@@ -680,7 +711,10 @@
     "id": "F-018",
     "title": "Real-time status updates on frontend",
     "description": "Connect the React frontend to Django Channels WebSocket and display live state changes without page refresh.",
-    "dependencies": ["F-017", "F-013"],
+    "dependencies": [
+      "F-017",
+      "F-013"
+    ],
     "stack": "frontend",
     "role": "builder",
     "status": "done",
@@ -713,7 +747,12 @@
     "id": "F-019",
     "title": "End-to-end workflow test (Campaign -> Content -> AI Draft -> Review -> Translation)",
     "description": "Write a comprehensive end-to-end integration test that exercises the entire content workflow via GraphQL with mocked AI providers.",
-    "dependencies": ["F-010", "F-008", "F-011", "F-017"],
+    "dependencies": [
+      "F-010",
+      "F-008",
+      "F-011",
+      "F-017"
+    ],
     "stack": "test",
     "role": "builder",
     "status": "pending",
@@ -747,7 +786,10 @@
     "id": "F-020",
     "title": "Complete pending ADRs (AI provider + Real-time mechanism)",
     "description": "ADR-002 (AI Provider Selection) and ADR-003 (Real-Time Mechanism) exist as drafts with placeholder content. Complete them with the actual decisions and rationale. Verify ADR-001, ADR-004, ADR-005, ADR-006 are still current.",
-    "dependencies": ["F-009", "F-017"],
+    "dependencies": [
+      "F-009",
+      "F-017"
+    ],
     "stack": "docs",
     "role": "builder",
     "status": "done",
@@ -774,7 +816,9 @@
     "id": "F-021",
     "title": "GitHub Actions CI (lint, typecheck, test)",
     "description": "Create CI pipeline that runs ruff lint, mypy type check, pytest Django tests, and Vitest frontend tests on every push and PR.",
-    "dependencies": ["F-007"],
+    "dependencies": [
+      "F-007"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -836,7 +880,12 @@
     "id": "F-023",
     "title": "Final smoke test and PR creation",
     "description": "Run the full stack locally via Docker Compose, verify everything works end-to-end, and create the final submission PR.",
-    "dependencies": ["F-019", "F-020", "F-021", "F-022"],
+    "dependencies": [
+      "F-019",
+      "F-020",
+      "F-021",
+      "F-022"
+    ],
     "stack": "infra",
     "role": "builder",
     "status": "done",
@@ -864,22 +913,22 @@
   },
   {
     "id": "F-028",
-    "title": "Comprehensive Playwright E2E test — full content workflow",
-    "description": "Write an exhaustive end-to-end test suite using Playwright that validates the entire ACME Content Workflow from a user's perspective. Covers infrastructure readiness, the full campaign→content→AI draft→review→translation flow, real-time WebSocket updates, error/edge cases, and regression checks for all recently applied fixes (CSRF, enum case alignment, nginx config, Docker build, health checks).",
-    "dependencies": ["F-007"],
+    "title": "Comprehensive Playwright E2E test \u2014 full content workflow",
+    "description": "Write an exhaustive end-to-end test suite using Playwright that validates the entire ACME Content Workflow from a user's perspective. Covers infrastructure readiness, the full campaign\u2192content\u2192AI draft\u2192review\u2192translation flow, real-time WebSocket updates, error/edge cases, and regression checks for all recently applied fixes (CSRF, enum case alignment, nginx config, Docker build, health checks).",
+    "dependencies": [
+      "F-007"
+    ],
     "stack": "test",
     "role": "builder",
-    "status": "in-progress",
+    "status": "review",
     "acceptance_criteria": [
       "Playwright test file exists at frontend/tests/e2e/workflow.spec.ts (or similar convention)",
       "Playwright config (playwright.config.ts) set up for Docker Compose environment",
       "Suite runs against running docker compose up services (db + backend + frontend)",
-
       "=== Infrastructure Verification ===",
       "Test: All 3 Docker containers are running and healthy within timeout",
       "Test: Backend GraphQL endpoint responds 200 (health check passes)",
       "Test: Frontend serves HTML at localhost:5173 with 200 OK",
-
       "=== Campaign Management ===",
       "Test: Campaign Dashboard loads with empty state ('No campaigns yet')",
       "Test: Create Campaign modal opens, validates empty name, rejects with error",
@@ -887,7 +936,6 @@
       "Test: Campaign card shows name, description, status badge ('ACTIVE'), created date",
       "Test: Clicking a campaign navigates to /campaigns/:id detail page",
       "Test: Delete campaign removes it from list (soft delete)",
-
       "=== Content Piece Management ===",
       "Test: Campaign Detail page shows content list (empty state initially)",
       "Test: Create Content modal validates required headline field",
@@ -895,14 +943,12 @@
       "Test: Content card shows headline, language tag, state badge ('DRAFT', bg-gray-100)",
       "Test: Content card can expand to show editable fields",
       "Test: Content card can save edited headline/description",
-
       "=== AI Draft Generation ===",
       "Test: 'Generate Draft' button visible when content state is 'DRAFT'",
       "Test: Clicking 'Generate Draft' shows loading state, calls mutation",
       "Test: After successful generation, state badge changes to 'SUGGESTED_BY_AI' (bg-blue-100)",
       "Test: 'Generate Draft' button hidden after state changes from DRAFT",
       "Test: Error state shown if AI generation fails (state reverts to DRAFT)",
-
       "=== Review Workflow ===",
       "Test: Approve/Reject/Request Edits buttons visible for SUGGESTED_BY_AI content",
       "Test: Approve action shows confirmation dialog before executing",
@@ -913,47 +959,40 @@
       "Test: Editing rejected content resets state to DRAFT and re-enables Generate Draft",
       "Test: Review buttons are correctly hidden/disabled based on state",
       "Test: State transitions enforce valid state machine rules (invalid transitions return errors)",
-
       "=== Translation ===",
       "Test: 'Translate' button visible when content state is 'APPROVED'",
       "Test: Language selector shows supported ISO codes (es, fr, de, pt, it, ja, zh)",
       "Test: Selecting a language and clicking Translate creates new content piece",
       "Test: Translated content piece has correct language tag and originalId link",
       "Test: Translated content appears in the content list",
-
       "=== Real-Time WebSocket ===",
       "Test: WebSocket connection indicator shows green (connected) on detail page",
       "Test: State changes via API broadcast via WebSocket (verified via toast/notification)",
       "Test: Disconnecting and reconnecting shows connection state changes",
-
       "=== State Badge Rendering ===",
       "Test: All 5 state badges render with correct colors: DRAFT (gray), SUGGESTED_BY_AI (blue), REVIEWED (yellow), APPROVED (green), REJECTED (red)",
       "Test: Unknown/invalid state falls back gracefully (does not crash)",
-
       "=== Edge Cases & Error Handling ===",
       "Test: Creating campaign with empty name shows validation error",
       "Test: Creating content with empty headline shows validation error",
       "Test: Deleting a campaign with no content succeeds gracefully",
       "Test: AI draft on non-existent content returns error gracefully",
       "Test: Review action on non-existent content returns error gracefully",
-
       "=== Regression: Recent Fixes ===",
-      "Test: CSRF exemption — GraphQL mutations work via frontend nginx proxy (no 403)",
-      "Test: Enum case alignment — state values returned as UPPERCASE match frontend expectations (no 'Cannot read properties of undefined (reading 'bg')' crash)",
-      "Test: nginx config — access_log directive in http block, server starts without crash",
-      "Test: Docker health check — backend health succeeds via TCP port check",
-      "Test: STATIC_ROOT — collectstatic runs without PermissionError",
-      "Test: uv.lock — backend Docker build succeeds with frozen lockfile",
-
+      "Test: CSRF exemption \u2014 GraphQL mutations work via frontend nginx proxy (no 403)",
+      "Test: Enum case alignment \u2014 state values returned as UPPERCASE match frontend expectations (no 'Cannot read properties of undefined (reading 'bg')' crash)",
+      "Test: nginx config \u2014 access_log directive in http block, server starts without crash",
+      "Test: Docker health check \u2014 backend health succeeds via TCP port check",
+      "Test: STATIC_ROOT \u2014 collectstatic runs without PermissionError",
+      "Test: uv.lock \u2014 backend Docker build succeeds with frozen lockfile",
       "=== Data Integrity ===",
-      "Test: After full workflow (create→draft→approve→translate), all data persists across container restart",
+      "Test: After full workflow (create\u2192draft\u2192approve\u2192translate), all data persists across container restart",
       "Test: Pagination works for campaigns list if more than default page size",
-
       "=== Bug / Blocker Reporting ===",
       "Test runner outputs a structured bug/blocker report file (agentic/runs/F-028-playwright-e2e/bug-report.md) listing every failed test with: test name, error message, stack trace, suspected root cause, and severity (blocker / major / minor)",
       "For each failed test, the report includes a proposed new task ID (F-029, F-030, etc.) with title, stack, and estimated fix effort",
       "Report is generated automatically as part of the test run (not a manual document)",
-      "If all tests pass, the report states 'All 45+ acceptance criteria pass — 0 bugs found'"
+      "If all tests pass, the report states 'All 45+ acceptance criteria pass \u2014 0 bugs found'"
     ],
     "test_requirements": [
       "Playwright installed as devDependency in frontend/package.json",
@@ -961,9 +1000,9 @@
       "AI providers mocked at the network level (Playwright route interception) to avoid real API calls",
       "Test uses Playwright fixtures for GraphQL helpers (mutation/query wrapper)",
       "All tests run headless chromium",
-      "Tests are idempotent — can run multiple times against the same database",
+      "Tests are idempotent \u2014 can run multiple times against the same database",
       "Tests clean up created data where possible (or use unique names per run)",
-      "No hardcoded sleeps — use Playwright waitForSelector/waitForResponse patterns",
+      "No hardcoded sleeps \u2014 use Playwright waitForSelector/waitForResponse patterns",
       "Test suite includes a post-run hook that generates agentic/runs/F-028-playwright-e2e/bug-report.md with structured failure details"
     ],
     "documentation_requirements": [
@@ -979,18 +1018,19 @@
       "Code reviewer has approved test quality (proper waits, no flakiness, good assertions)",
       "Security reviewer has confirmed no real API keys used in tests (AI routes intercepted)",
       "README.md updated with E2E test instructions and bug reporting process"
-    ]
+    ],
+    "attempt": 1
   },
   {
     "id": "F-024",
     "title": "Authentication & access control",
-    "description": "Add JWT-based authentication, user model, login/signup mutations, and per-resolver authorization checks. Also add WebSocket authentication. Currently all GraphQL mutations and queries are publicly accessible — any unauthenticated user can create, read, update, or delete any campaign/content and trigger AI operations.",
+    "description": "Add JWT-based authentication, user model, login/signup mutations, and per-resolver authorization checks. Also add WebSocket authentication. Currently all GraphQL mutations and queries are publicly accessible \u2014 any unauthenticated user can create, read, update, or delete any campaign/content and trigger AI operations.",
     "dependencies": [],
     "stack": "backend",
     "role": "builder",
     "status": "pending",
     "acceptance_criteria": [
-      "User Django model with id, email, password, createdAt — migration created and applied",
+      "User Django model with id, email, password, createdAt \u2014 migration created and applied",
       "GraphQL mutation registerUser(email, password) creates user and returns JWT token pair",
       "GraphQL mutation login(email, password) authenticates and returns JWT access + refresh tokens",
       "GraphQL mutation refreshToken(refreshToken) returns new access token",
@@ -1086,7 +1126,7 @@
     "acceptance_criteria": [
       "All test dummy keys changed: 'sk-test-*' -> 'test-invalid-*' (removes 'sk-' prefix matching real key patterns)",
       "All test dummy keys changed in CI config (.github/workflows/ci.yml) to use 'test-' prefix",
-      "Comment added to each dummy key assignment: '# Test-only dummy key — not a real credential'",
+      "Comment added to each dummy key assignment: '# Test-only dummy key \u2014 not a real credential'",
       "Test coverage added for reviews/schema.py uncovered lines: UUID validation error paths, ValidationError handling",
       "Test coverage added for anthropic_provider.py: _call_api error handling, malformed response parsing",
       "Test coverage added for anthropic_provider.py error paths (rate limit, timeout, API error)",
@@ -1098,7 +1138,7 @@
       "pytest --cov=backend/apps/ai/providers/anthropic_provider.py shows >=75% coverage",
       "All existing tests still pass (130 backend + 88 frontend)",
       "ruff + mypy pass with 0 errors",
-      "Manual grep for 'sk-' in test files — only false-positive-safe patterns remain"
+      "Manual grep for 'sk-' in test files \u2014 only false-positive-safe patterns remain"
     ],
     "documentation_requirements": [
       "README.md: no changes needed (cleanup is internal)",
@@ -1125,7 +1165,7 @@
       "React Error Boundary component created at src/components/ErrorBoundary.tsx",
       "ErrorBoundary wraps entire app in App.tsx (or root route)",
       "ErrorBoundary renders fallback UI: 'Something went wrong' message + 'Reload page' button",
-      "Empty catch block in websocket.ts:100-101 replaced with: console.warn('Malformed WebSocket message:', e) — satisfies R-012",
+      "Empty catch block in websocket.ts:100-101 replaced with: console.warn('Malformed WebSocket message:', e) \u2014 satisfies R-012",
       "WebSocket reconnection logic in websocket.ts capped at maxReconnectAttempts=20 (stops retrying after 20 attempts)",
       "Unused `stableStatus` variable in useWebSocket.ts:42 removed (return `status` directly)",
       "TypeScript typecheck passes with 0 errors",
