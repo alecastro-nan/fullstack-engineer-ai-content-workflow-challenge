@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const BUG_REPORT_PATH = path.resolve(
-  __dirname, '..', '..', '..', '..', 'agentic', 'runs', 'F-028-playwright-e2e', 'bug-report.md',
+  __dirname, '..', '..', '..', 'agentic', 'runs', 'F-028-playwright-e2e', 'bug-report.md',
 );
 
 interface BugEntry {

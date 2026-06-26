@@ -1,124 +1,153 @@
 # Plan — F-028: Comprehensive Playwright E2E Test
 
-## Objective
-Write an exhaustive Playwright test suite that validates the entire ACME Content Workflow from a real browser, covering every user-facing feature and all recently applied infrastructure fixes.
+## Current State
 
-## Approach
+Existing E2E suite at `frontend/tests/e2e/` has:
+- **workflow.spec.ts** (421 lines, 33 tests across 9 describe blocks)
+- **helpers.ts** (194 lines — GraphQL stubs, route handlers, CRUD helpers)
+- **bug-reporter.ts** (132 lines — custom Playwright reporter, auto-generates bug-report.md)
+- **global-setup.ts** (88 lines — waits for frontend + GraphQL, cleans DB)
+- **playwright.config.ts** (34 lines — chromium, 1 worker, 30s timeout, JSON + bug reporter)
 
-### Tooling
-- **Playwright** (already listed in AGENTS.md as the E2E tool, used via `@nanlabs-e2e-runner`)
-- Add `@playwright/test` as a devDependency in `frontend/package.json`
-- Playwright config at `frontend/playwright.config.ts` targeting `http://localhost:5173`
-- Tests live at `frontend/tests/e2e/workflow.spec.ts`
+**Last run:** All 33 tests passed (0 failures). Bug reporter generates at `agentic/runs/F-028-playwright-e2e/bug-report.md`.
 
-### AI Mocking Strategy
-Intercept `/graphql` requests at the Playwright route level for AI mutations:
-- `generateDraft` → return mock drafted content
-- `translateContent` → return mock translated content
-This avoids requiring real API keys in E2E tests.
+---
 
-### Test Isolation
-- Each test creates its own campaign/content with unique names (timestamp-based)
-- Tests are ordered to build on each other (create → use → verify), no shared state cleanup needed beyond unique naming
-- AI mutations use Playwright `page.route()` interception
+## Gaps vs Feature List (45+ acceptance criteria)
 
-### Environment
-- Tests run against `docker compose up` (db + backend + frontend)
-- Backend must be healthy before tests start (wait-for pattern)
-- Test script: `pnpm test:e2e` in frontend/package.json
+| Category | Existing | Missing |
+|---|---|---|
+| Infrastructure | Frontend 200, GraphQL health | Docker container health check (all 3 running), Backend 200 |
+| Campaigns | Create, list, card, delete, validate empty name, navigate | Created date on card |
+| Content | Create, expand, edit/save, validate headline, empty state | — |
+| AI Draft | Gen button visible, gen succeeds, button hidden, error state | — |
+| Review | Approve/Reject/Request visible, approve→APPROVED, reject→REJECTED, req→REVIEWED, edit→DRAFT, buttons hidden for APPROVED | Invalid state transitions → error, Reject/ReqEdits with feedback dialog, `bg-emerald-100`/`bg-red-100`/`bg-yellow-100` assertions |
+| Translation | Button visible for APPROVED, language selector options | Translate creates new piece, translated piece has correct language + originalId, translated piece appears in list |
+| **WebSocket** | **NONE** | Connection indicator green, state changes broadcast via WebSocket, disconnect/reconnect |
+| State Badges | "Does not crash" generic test | All 5 badge colors: DRAFT(gray), SUGGESTED_BY_AI(blue), REVIEWED(yellow), APPROVED(emerald), REJECTED(red), Unknown state fallback (no crash) |
+| Edge Cases | Empty name validation, empty headline validation, delete empty campaign | AI draft on non-existent content (error), Review on non-existent content (error) |
+| Regression | CSRF, Enum case, Health check | nginx config crash, Docker health check, STATIC_ROOT collectstatic, uv.lock frozen |
+| Data Integrity | — | Full workflow persists across restart, Pagination |
+| Bug Report | Reporter exists but untested with real failures | Verify reporter output structure |
 
-### Test Map (order matters for state progression)
+---
 
-```
-1. healthChecks.spec.ts
-   └── Docker containers running, GraphQL responds, Frontend serves
+## Implementation Plan
 
-2. campaigns.spec.ts
-   └── Dashboard loads → Create → List → Navigate → Delete
+### Part 1: WebSocket Tests (NEW describe block)
+**Files:** `frontend/tests/e2e/workflow.spec.ts`
 
-3. contentPieces.spec.ts
-   └── Add content → Edit → State badge renders
+- Test: Connection indicator shows green "Connected" on detail page
+- Test: State change broadcasts via WebSocket (toast/notification appears)
+- Test: Disconnecting triggers connection state update
+- Test: Reconnecting restores connection
 
-4. aiDraft.spec.ts
-   └── Generate → State changes → Badge updates
+Requirement: Tests use `page.route` for WS if possible, or verify WebSocket was created via introspection.
 
-5. reviewWorkflow.spec.ts
-   └── Approve → Reject → Request edits → Edit & reset
+**Risk:** WebSocket mocking in Playwright is complex — Chromium doesn't allow `page.route('ws://...')`. Approach: Use `page.evaluate` to patch `WebSocket` constructor, intercept and inject messages.
 
-6. translation.spec.ts
-   └── Translate approved content → Verify new piece
+### Part 2: State Badge Rendering (expand existing block)
+**File:** `frontend/tests/e2e/workflow.spec.ts` (replace generic "does not crash" test)
 
-7. realtime.spec.ts
-   └── WebSocket connects → State changes broadcast
+- Test: DRAFT badge renders with correct display text
+- Test: SUGGESTED_BY_AI badge renders as "Suggested"
+- Test: REVIEWED badge renders as "Reviewed"
+- Test: APPROVED badge renders as "Approved"
+- Test: REJECTED badge renders as "Rejected"
+- Test: Unknown/fallback state does not crash page
 
-8. regression.spec.ts
-   └── CSRF, enum case, nginx, health checks, collectstatic, uv.lock
-```
+**Risk:** Tests depend on having content in each state. Use `page.evaluate` + GraphQL direct mutations to seed content in required states, or mock responses.
 
-## Files to Create/Modify
+### Part 3: Translation Completeness (expand existing block)
+**File:** `frontend/tests/e2e/workflow.spec.ts`
 
-| File | Action |
-|---|---|
-| `frontend/playwright.config.ts` | Create — Playwright config for Chromium, baseURL, timeouts |
-| `frontend/tests/e2e/workflow.spec.ts` | Create — Main test file (all scenarios) |
-| `frontend/package.json` | Modify — Add @playwright/test, add test:e2e script |
-| `frontend/tsconfig.json` | Modify — Add e2e test paths if needed |
-| `README.md` | Modify — Add E2E test section |
+- Test: Selecting language + clicking Translate creates new content piece (verify via list)
+- Test: Translated piece shows correct language tag
+- Test: Translated piece has `originalId` (verified via expanded card)
 
-## Bug / Blocker Reporting
+**Risk:** The real Translate mutation calls the AI provider. Must intercept via route stub to return a pre-configured response.
 
-The test suite includes a post-run hook that generates `agentic/runs/F-028-playwright-e2e/bug-report.md`:
+### Part 4: State Machine Invalid Transitions
+**File:** `frontend/tests/e2e/workflow.spec.ts`
 
-### bug-report.md Structure
-```markdown
-# Bug Report — F-028 Playwright E2E Suite
-**Date:** 2026-06-24
-**Run ID:** <timestamp>
-**Passed:** 42 / 45
-**Failed:** 3
+- Test: Approving already-approved content returns error
+- Test: Rejecting already-rejected content returns error
+- Test: Generating draft on non-DRAFT content (if UI allows) returns error
 
-## Failed Tests
+### Part 5: Non-Existent Content Error Handling
+**File:** `frontend/tests/e2e/workflow.spec.ts`
 
-### 1. Create Campaign validation rejects empty name
-- **Test:** `campaigns > create > rejects empty name`
-- **Error:** `TimeoutError: locator.waitFor: Timeout 5000ms exceeded`
-- **Root Cause:** Validation error toast has wrong CSS selector in test
-- **Severity:** major
-- **Proposed Fix:** Update selector from `.toast-error` to `[data-testid="error-toast"]`
-- **Proposed Task:** F-029 — Fix campaign validation E2E selector mismatch
+- Test: Generating AI draft for deleted/non-existent content shows error
+- Test: Reviewing non-existent content shows error
 
-### 2. AI draft mutation returns 500
-- **Test:** `aiDraft > generate > success path`
-- **Error:** `GraphQL response: {"errors":[{"message":"OPENAI_API_KEY not configured"}]}`
-- **Root Cause:** AI route interception not matching the mutation — real API call attempted
-- **Severity:** blocker
-- **Proposed Fix:** Fix Playwright route pattern to match `generateDraft` mutation operation name
-- **Proposed Task:** F-030 — Fix AI mutation route interception in E2E tests
+**Approach:** These need a content ID that doesn't exist. Use `page.evaluate` to directly call GraphQL mutations with a fake ID.
 
-### 3. ...etc
+### Part 6: Edge Cases
+**File:** `frontend/tests/e2e/workflow.spec.ts`
 
-## Summary
-- **Blockers:** 1 (AI route interception)
-- **Major:** 1 (CSS selector)
-- **Minor:** 1 (flaky WebSocket reconnect timing)
-- **Next:** Create tasks F-029, F-030, F-031 in feature_list.json
-```
+- Test: Creating content with very long headline (200+ chars) is truncated or rejected
+- Test: Creating campaign with very long name (200+ chars) is handled gracefully
 
-### How It Works
-- Playwright's `test.afterEach` and `test.afterAll` hooks collect failure details
-- On suite completion, a script aggregates all failures into `bug-report.md`
-- The report proposes new task IDs sequentially from the highest existing ID
-- If all tests pass, report states `0 bugs found` and no new tasks are created
+### Part 7: Infrastructure Regression (if testable from Playwright)
+**File:** `frontend/tests/e2e/workflow.spec.ts`
 
-## Verification
+- Test: Backend serves HTML at port 8000 (not just GraphQL)
+- Test: All 3 Docker containers are healthy (requires Docker access — maybe defer to CI)
+
+**Risk:** Docker container checks require shell access which Playwright can't do. Defer to CI or manual verification. Skip if non-trivial.
+
+### Part 8: Bug Report Verification
+**File:** `frontend/tests/e2e/bug-reporter.ts` verification
+
+- Create a deliberately failing test run to verify bug-reporter output format
+- Verify `agentic/runs/F-028-playwright-e2e/bug-report.md` is created and properly structured
+
+### Part 9: Documentation
+**File:** `README.md`
+
+- Add "Playwright E2E Tests" section under Testing
+- Add "Bug Reporting" note
+
+---
+
+## Test Execution Order
+
+All tests run headless chromium against `docker compose up` stack:
+
 ```bash
-docker compose up -d  # ensure all services running
-cd frontend
-pnpm playwright install chromium
-pnpm test:e2e          # runs all E2E tests
+# Terminal 1: Start stack
+docker compose up --build -d
 
-# Check bug report if failures occurred
-cat ../agentic/runs/F-028-playwright-e2e/bug-report.md
+# Terminal 2: Run E2E
+pnpm test:e2e
 ```
 
-All ~45 acceptance criteria must pass, OR bug-report.md must accurately document every failure with root cause and proposed task.
+Tests are idempotent (clean DB each run via global-setup). No hardcoded sleeps — all `waitForSelector`/`waitForResponse`.
+
+---
+
+## Dependencies & Risks
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| WebSocket mocking hard in Playwright | Tests skipped or brittle | Use `page.evaluate` + patched WS constructor |
+| Docker infra not available in CI | E2E tests skipped in CI | Document as manual/local-only |
+| State badge colors change | Tests fail on CSS class change | Assert display text not CSS classes |
+| AI provider unavailable | Draft/Translate tests fail | Route-stub all AI mutations |
+| Bug report reporter has bugs | Report not generated | Test with deliberate failure first |
+
+---
+
+## Task Breakdown
+
+| Step | What | Est. Time |
+|---|---|---|
+| 1 | Add WebSocket tests (Part 1) | 30min |
+| 2 | Add state badge rendering tests (Part 2) | 15min |
+| 3 | Complete translation coverage (Part 3) | 15min |
+| 4 | Add invalid transition tests (Part 4) | 15min |
+| 5 | Add non-existent content error tests (Part 5) | 10min |
+| 6 | Verify bug reporter with failure + fix if needed (Part 8) | 10min |
+| 7 | Update README (Part 9) | 5min |
+| 8 | Run full suite, verify all pass, run again to confirm idempotency | 10min |
+| **Total** | | **~1h 50min** |

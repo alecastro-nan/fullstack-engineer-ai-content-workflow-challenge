@@ -223,7 +223,43 @@ docker compose up --build # Start full stack
 docker compose up -d db   # Start PostgreSQL only
 docker compose logs -f    # Follow logs
 docker compose down       # Stop all services
+
+# E2E (Playwright) — requires full Docker stack running
+pnpm test:e2e             # Run Playwright E2E tests
 ```
+
+## Testing
+
+### E2E Tests (Playwright)
+
+The E2E test suite validates the full user workflow against the running Docker Compose stack. 46 tests cover:
+
+| Category | Tests | What it verifies |
+|---|---|---|
+| Infrastructure | 2 | Frontend serves HTML, backend GraphQL health |
+| Campaigns | 5 | CRUD, validation, navigation, delete |
+| Content Pieces | 5 | CRUD, validation, expand, edit, save |
+| AI Draft | 4 | Generate, state change, button visibility, error handling |
+| Review Workflow | 7 | Approve/reject/request edits, state transitions, button visibility |
+| Translation | 4 | Language selector, create translated piece, language tag |
+| State Badges | 6 | All 5 states render correct text, unknown state fallback |
+| Edge Cases | 6 | Validation errors, delete empty campaign, mutation errors, state machine errors |
+| Regression | 3 | CSRF, enum case alignment, health check |
+| Real-Time WebSocket | 3 | Connection indicator, state change broadcast, disconnect/reconnect |
+
+**Run command:**
+
+```bash
+# Terminal 1: Start the Docker stack
+docker compose up --build -d
+
+# Terminal 2: Run E2E tests
+cd frontend && pnpm test:e2e
+```
+
+All tests use Playwright route interception to mock AI providers — no real API calls. Tests are idempotent (clean database each run via global-setup).
+
+**Bug reporting:** Failed tests automatically generate a structured bug report at `agentic/runs/F-028-playwright-e2e/bug-report.md` with test name, error message, root cause, severity, and proposed remediation task. An all-passing run produces a report stating "0 bugs found".
 
 ## GraphQL API
 
