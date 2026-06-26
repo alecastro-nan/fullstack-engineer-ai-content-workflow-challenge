@@ -3,9 +3,11 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+from django.contrib.auth.models import User
 from django.test import Client
 from django.test.utils import override_settings
 
+from apps.auth.services import create_access_token
 from apps.auth.test_utils import make_auth_client
 
 
@@ -321,10 +323,6 @@ class TestReviewMutations:
         assert response.json().get("errors") is not None
 
     def test_edit_content_not_owned(self) -> None:
-        from django.contrib.auth.models import User
-
-        from apps.auth.services import create_access_token
-
         client_a = make_auth_client()
         _, content_id = self._create_campaign_and_content(client_a)
 
