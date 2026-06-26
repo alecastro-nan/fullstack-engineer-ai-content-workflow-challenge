@@ -1120,7 +1120,7 @@
     "dependencies": [],
     "stack": "frontend",
     "role": "builder",
-    "status": "in-progress",
+    "status": "done",
     "acceptance_criteria": [
       "React Error Boundary component created at src/components/ErrorBoundary.tsx",
       "ErrorBoundary wraps entire app in App.tsx (or root route)",
