@@ -2,6 +2,7 @@ import type { ConnectionStatus, WSInboundEvent, WSSubscriber } from '../types/we
 
 const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30_000;
+const MAX_RECONNECT_ATTEMPTS = 20;
 
 interface ConnectionState {
   ws: WebSocket | null;
@@ -97,8 +98,8 @@ class WebSocketService {
         for (const sub of s.subscribers) {
           sub.onEvent(data);
         }
-      } catch {
-        // ignore malformed messages
+      } catch (e) {
+        console.warn('Malformed WebSocket message:', e);
       }
     };
 
@@ -147,6 +148,12 @@ class WebSocketService {
     if (!state) return;
 
     if (state.reconnectTimer) return;
+
+    if (state.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      this.setStatus(contentId, 'disconnected');
+      this.connections.delete(contentId);
+      return;
+    }
 
     const delay = Math.min(
       RECONNECT_BASE_MS * Math.pow(2, state.reconnectAttempts),

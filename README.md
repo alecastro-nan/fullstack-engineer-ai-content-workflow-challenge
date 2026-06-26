@@ -64,6 +64,7 @@ A campaign content management system with AI-powered drafting, translation/local
 - **Authentication** — JWT-based auth with PyJWT, register/login/refresh endpoints, per-resolver access control via `Campaign.owner` FK
 - **WebSocket Auth** — JWT token passed as query parameter, verified on connect
 - **CI Pipeline** — GitHub Actions: ruff lint, mypy type check, pytest (with coverage), vitest, Docker build check
+- **Error Boundary** — `ErrorBoundary` component wraps the entire app, catches unhandled React errors, and displays a "Something went wrong" fallback with a "Reload page" button
 
 ## Security
 

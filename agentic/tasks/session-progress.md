@@ -184,6 +184,7 @@ reviewers: @code-reviewer ✅ @security-reviewer ✅
 *Dummy key prefix cleanup (sk- → test-), coverage gaps in reviews/schema.py and anthropic_provider.py — estimated 20min.*
 deps: none | stack: test
 
-### F-029 — Frontend quality polish — PENDING
-*Error Boundary component, WebSocket catch block fix, reconnect cap (20 attempts), unused variable cleanup — estimated 20min.*
-deps: none | stack: frontend
+### F-029 — Frontend quality polish — DONE ✅
+branch → `feat/F-029-frontend-quality-polish`
+*ErrorBoundary + 3 tests (fallback UI, reload button), empty catch→console.warn, reconnect cap at 20, stableStatus removed. 91/91 frontend tests, typecheck+build clean. README updated.*
+reviewers: @typescript-reviewer ⏳ @code-reviewer ⏳
