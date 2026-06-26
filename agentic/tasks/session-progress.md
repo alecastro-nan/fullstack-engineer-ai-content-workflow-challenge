@@ -176,11 +176,10 @@ branch → `feat/F-025-security-hardening`
 *GraphQL depth/alias/token limits (QueryDepthLimiter, MaxTokensLimiter, MaxAliasesLimiter), DisableIntrospection, prompt injection delimiters in prompts.py, CSP header in nginx.conf, ALLOWED_HOSTS fix (wildcard→explicit list), brief length cap, ADR-008 created. 144 backend tests, 88 frontend tests, ruff+mypy+tsc clean.*
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 
-### F-026 — Test & fixture cleanup — PLANNING (plan ready)
-plan → `agentic/runs/F-026-test-fixture-cleanup/plan.md`
+### F-026 — Test & fixture cleanup — DONE ✅
 branch → `feat/F-026-test-fixture-cleanup`
-*Rename 14 `sk-` dummy keys → `test-invalid-*` across 6 files; add ~15 tests for reviews/schema.py (77%→≥80%) and anthropic_provider.py (58%→≥75%) coverage gaps. See plan.md for line-level coverage mapping.*
-deps: none | stack: test
+*14 dummy keys renamed `sk-*`→`test-invalid-*` across 6 files (+CI). reviews/schema.py: 77%→97% (7 new tests). anthropic_provider.py: 58%→100% (10 new tests). 161/161 backend, 88/88 frontend, ruff+mypy clean. Learning entry added.*
+reviewers: @code-reviewer ✅ @security-reviewer ✅
 *Dummy key prefix cleanup (sk- → test-), coverage gaps in reviews/schema.py and anthropic_provider.py — estimated 20min.*
 deps: none | stack: test
 
