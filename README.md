@@ -65,6 +65,46 @@ A campaign content management system with AI-powered drafting, translation/local
 - **WebSocket Auth** — JWT token passed as query parameter, verified on connect
 - **CI Pipeline** — GitHub Actions: ruff lint, mypy type check, pytest (with coverage), vitest, Docker build check
 
+## Security
+
+The platform implements defense-in-depth security controls across the stack. See [ADR-008](docs/adrs/ADR-008-security-controls.md) for rationale.
+
+### GraphQL Hardening
+
+Strawberry built-in extensions prevent query abuse:
+
+| Control | Limit | Purpose |
+|---|---|---|
+| `QueryDepthLimiter` | `max_depth=8` | Blocks deeply nested queries (DoS prevention) |
+| `MaxTokensLimiter` | `max_token_count=1000` | Limits query token count (brackets/colons/words) |
+| `MaxAliasesLimiter` | `max_alias_count=5` | Limits alias-based query amplification |
+| `DisableIntrospection` | Only in production | Prevents schema enumeration when `DEBUG=False` |
+
+### Prompt Injection Hardening
+
+User-provided content (briefs, descriptions) is wrapped in delimiters (`---BEGIN USER BRIEF---`/`---END USER BRIEF---`) with instruction reinforcement in AI prompt templates. This provides defense-in-depth against prompt manipulation attacks.
+
+### Input Length Caps
+
+| Field | Max Length | Enforced At |
+|---|---|---|
+| headline | 255 chars | `ContentPieceService` |
+| description | 5,000 chars | `ContentPieceService` |
+| body | 50,000 chars | `ContentPieceService` |
+| brief | 5,000 chars | `AiMutation.generate_draft` |
+
+### CSP Header
+
+The frontend nginx sends a `Content-Security-Policy` header:
+```
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+img-src 'self' data:; connect-src 'self' ws:; font-src 'self';
+```
+
+### ALLOWED_HOSTS
+
+Default value hardened from `["*"]` (wildcard) to `["localhost", "127.0.0.1", "0.0.0.0"]` to prevent Host header injection. Production deployments override via settings.
+
 ## Prerequisites
 
 | Tool | Version | Purpose |
@@ -453,7 +493,7 @@ Events are broadcast automatically whenever a `StateHistory` record is created (
 │   └── skills/                   # Community skills
 │
 ├── docs/
-│   ├── adrs/                     # Architecture Decision Records (7)
+│   ├── adrs/                     # Architecture Decision Records (8)
 │   └── workflows.md              # Workflow guide
 │
 ├── compose.yml                   # Docker Compose (PostgreSQL + Backend + Frontend)

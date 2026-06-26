@@ -51,6 +51,8 @@ class AiMutation:
         brief = piece.description or piece.headline
         if not brief:
             raise GraphQLError("Content piece has no description or headline to use as brief")
+        if len(brief) > 5000:
+            raise GraphQLError("Brief must be 5000 characters or fewer")
 
         try:
             draft = AiService.generate_draft(brief)
