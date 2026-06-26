@@ -159,8 +159,8 @@ decision → `docs/adrs/ADR-005-django-strawberry-architecture.md`
 ## F-028 — Comprehensive Playwright E2E test — DONE ✅
 handoff → `agentic/runs/F-028-playwright-e2e/plan.md`
 branch → `feat/F-028-playwright-e2e`
-*46 E2E tests (+13 new: 3 WebSocket, 6 state badges, 2 translation completeness, 3 mutation error handling). Bug reporter fixed (wrong path depth → `..` x3 not x4). README updated with E2E section and bug reporting docs. 46/46 pass, idempotent (2 runs).*
-reviewers: @code-reviewer ⏳
+*44 E2E tests (+11 new: 3 WebSocket, 6 state badges, 2 translation completeness). Bug reporter fixed, README updated, duplicates removed. 44/44 pass.*
+reviewers: @code-reviewer ✅
 
 ---
 
