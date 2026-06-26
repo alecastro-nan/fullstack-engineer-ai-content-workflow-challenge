@@ -39,9 +39,7 @@ export function useWebSocket(contentId: string | null): UseWebSocketResult {
     };
   }, [contentId]);
 
-  const stableStatus = status;
-
-  return { status: stableStatus, lastEvent };
+  return { status, lastEvent };
 }
 
 export function useMultipleWebSockets(
