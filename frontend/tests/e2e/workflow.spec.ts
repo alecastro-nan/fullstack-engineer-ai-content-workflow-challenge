@@ -453,21 +453,6 @@ test.describe('=== State Badge Rendering ===', () => {
 });
 
 test.describe('=== Edge Cases & Error Handling ===', () => {
-  test('Creating campaign with empty name shows validation error', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    await page.getByRole('button', { name: '+ New Campaign' }).click();
-    await page.getByRole('button', { name: 'Create', exact: true }).click();
-    await expect(page.getByText('Name is required')).toBeVisible();
-  });
-
-  test('Creating content with empty headline shows validation error', async ({ page }) => {
-    await ensureOnCampaign(page);
-    await page.getByRole('button', { name: '+ New Piece' }).click();
-    await page.getByRole('button', { name: 'Create', exact: true }).click();
-    await expect(page.getByText('Headline is required')).toBeVisible();
-  });
-
   test('Deleting a campaign with no content succeeds', async ({ page }) => {
     const emptyName = `Empty-${Date.now()}`;
     await createCampaign(page, emptyName, 'empty campaign');

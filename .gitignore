@@ -43,3 +43,4 @@ docker-compose.override.yml
 # Logs
 *.log
 frontend/tests/e2e/test-results/
+frontend/tests/e2e/results.json

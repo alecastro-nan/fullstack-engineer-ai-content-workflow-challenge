@@ -237,13 +237,13 @@ The E2E test suite validates the full user workflow against the running Docker C
 | Category | Tests | What it verifies |
 |---|---|---|
 | Infrastructure | 2 | Frontend serves HTML, backend GraphQL health |
-| Campaigns | 5 | CRUD, validation, navigation, delete |
-| Content Pieces | 5 | CRUD, validation, expand, edit, save |
+| Campaigns | 6 | Empty state, CRUD, validation, navigation, delete |
+| Content Pieces | 6 | Empty state, CRUD, validation, expand, edit, save |
 | AI Draft | 4 | Generate, state change, button visibility, error handling |
-| Review Workflow | 7 | Approve/reject/request edits, state transitions, button visibility |
+| Review Workflow | 6 | Approve/reject/request edits, state transitions, button visibility |
 | Translation | 4 | Language selector, create translated piece, language tag |
 | State Badges | 6 | All 5 states render correct text, unknown state fallback |
-| Edge Cases | 6 | Validation errors, delete empty campaign, mutation errors, state machine errors |
+| Edge Cases | 4 | Delete empty campaign, mutation errors, state machine errors |
 | Regression | 3 | CSRF, enum case alignment, health check |
 | Real-Time WebSocket | 3 | Connection indicator, state change broadcast, disconnect/reconnect |
 
