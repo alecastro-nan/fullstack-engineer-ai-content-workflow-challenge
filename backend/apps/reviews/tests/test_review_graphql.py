@@ -62,7 +62,7 @@ class TestReviewMutations:
         )
 
     def test_approve_content(self) -> None:
-        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+        with override_settings(OPENAI_API_KEY="test-invalid-key"  # Test-only dummy key — not a real credential), \
              patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
             mock_client = mock_openai.return_value
             mock_choice = mock_client.chat.completions.create.return_value.choices[0]
@@ -92,7 +92,7 @@ class TestReviewMutations:
             assert response.json()["data"]["reviewContent"]["state"] == "APPROVED"
 
     def test_reject_content(self) -> None:
-        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+        with override_settings(OPENAI_API_KEY="test-invalid-key"  # Test-only dummy key — not a real credential), \
              patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
             mock_client = mock_openai.return_value
             mock_choice = mock_client.chat.completions.create.return_value.choices[0]
@@ -122,7 +122,7 @@ class TestReviewMutations:
             assert response.json()["data"]["reviewContent"]["state"] == "REJECTED"
 
     def test_invalid_action(self) -> None:
-        with override_settings(OPENAI_API_KEY="sk-test-key"), \
+        with override_settings(OPENAI_API_KEY="test-invalid-key"  # Test-only dummy key — not a real credential), \
              patch("apps.ai.providers.openai_provider.OpenAI") as mock_openai:
             mock_client = mock_openai.return_value
             mock_choice = mock_client.chat.completions.create.return_value.choices[0]

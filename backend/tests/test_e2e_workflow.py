@@ -56,7 +56,7 @@ def _create_content(client: Client, campaign_id: str) -> str:
 
 @override_settings(
     AI_PROVIDER="openai",
-    OPENAI_API_KEY="sk-test-e2e-key",
+    OPENAI_API_KEY="test-invalid-e2e-key",  # Test-only dummy key — not a real credential
     ANTHROPIC_API_KEY="",
 )
 class TestE2EWorkflow(TestCase):

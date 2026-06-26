@@ -76,8 +76,8 @@ jobs:
           VIRTUAL_ENV: ""
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/acme
           DJANGO_SETTINGS_MODULE: config.settings.development
-          OPENAI_API_KEY: sk-test-fake-key
-          ANTHROPIC_API_KEY: sk-ant-test-fake-key
+          OPENAI_API_KEY: test-invalid-fake-key  # Test-only dummy key — not a real credential
+          ANTHROPIC_API_KEY: test-invalid-ant-fake-key  # Test-only dummy key — not a real credential
 
   vitest-frontend:
     runs-on: ubuntu-latest
