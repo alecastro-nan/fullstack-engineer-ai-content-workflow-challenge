@@ -1,3 +1,4 @@
+import { authService } from './auth';
 import type { ConnectionStatus, WSInboundEvent, WSSubscriber } from '../types/websocket';
 
 const RECONNECT_BASE_MS = 1000;
@@ -71,10 +72,11 @@ class WebSocketService {
     this.setStatus(contentId, 'connecting');
 
     const url = `${this.getBaseUrl()}/ws/content/${contentId}/`;
+    const token = authService.getAccessToken();
     let ws: WebSocket;
 
     try {
-      ws = new WebSocket(url);
+      ws = new WebSocket(url, token ? [token] : undefined);
     } catch {
       this.scheduleReconnect(contentId);
       return;

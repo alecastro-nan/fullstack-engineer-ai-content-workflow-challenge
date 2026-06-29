@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from './auth';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
@@ -6,9 +7,23 @@ const apiClient = axios.create({
   timeout: 30_000,
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = authService.getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      authService.clearTokens();
+    }
     if (error.response && import.meta.env.DEV) {
       console.error('API Error:', error.response.status, error.response.data);
     }

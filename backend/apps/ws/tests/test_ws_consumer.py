@@ -4,6 +4,7 @@ import pytest
 from channels.layers import get_channel_layer
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 
 from apps.auth.services import create_tokens
 from apps.campaigns.models import Campaign
@@ -33,11 +34,16 @@ class TestContentConsumer:
         self,
         content_id: str,
         token: str | None = None,
+        origin: str | None = None,
     ) -> WebsocketCommunicator:
-        path = f"/ws/content/{content_id}/?token={token}" if token else f"/ws/content/{content_id}/"
+        path = f"/ws/content/{content_id}/"
+        headers = {b"origin": origin.encode()} if origin else {}
+        if token:
+            headers[b"sec-websocket-protocol"] = token.encode()
         communicator = WebsocketCommunicator(
             ContentConsumer.as_asgi(),
             path,
+            headers=list(headers.items()),
         )
         communicator.scope["url_route"] = {
             "kwargs": {"content_id": content_id},
@@ -59,6 +65,41 @@ class TestContentConsumer:
         assert response["contentId"] == content_id
 
         await communicator.disconnect()
+
+    async def test_connect_without_token_rejected(self) -> None:
+        from asgiref.sync import sync_to_async
+
+        piece_id, _ = await sync_to_async(_create_test_data)()
+        content_id = str(piece_id)
+        communicator = self._make_communicator(content_id)
+        connected, code = await communicator.connect()
+        assert not connected
+        assert code == 4001
+
+    async def test_connect_with_invalid_token_rejected(self) -> None:
+        from asgiref.sync import sync_to_async
+
+        piece_id, _ = await sync_to_async(_create_test_data)()
+        content_id = str(piece_id)
+        communicator = self._make_communicator(content_id, token="invalid-token")
+        connected, code = await communicator.connect()
+        assert not connected
+        assert code == 4001
+
+    @override_settings(FRONTEND_URL="http://allowed-origin.com")
+    async def test_connect_with_wrong_origin_rejected(self) -> None:
+        from asgiref.sync import sync_to_async
+
+        piece_id, token = await sync_to_async(_create_test_data)()
+        content_id = str(piece_id)
+        communicator = self._make_communicator(
+            content_id,
+            token=token,
+            origin="http://evil.com",
+        )
+        connected, code = await communicator.connect()
+        assert not connected
+        assert code == 4001
 
     async def test_receive_state_change_via_channel_layer(self) -> None:
         from asgiref.sync import sync_to_async
@@ -90,6 +131,7 @@ class TestContentConsumer:
         assert response["oldState"] == "draft"
         assert response["newState"] == "suggested_by_ai"
         assert response["action"] == "GENERATE_AI"
+        assert "email" not in response
 
         await communicator.disconnect()
 

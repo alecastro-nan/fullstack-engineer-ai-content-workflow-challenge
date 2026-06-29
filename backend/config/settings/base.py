@@ -20,6 +20,7 @@ env = environ.Env(
     AI_TEMPERATURE=(float, 0.7),
     AI_MAX_TOKENS=(int, 2048),
     AUTH_REQUIRED=(bool, True),
+    JWT_SIGNING_KEY=(str, ""),
 )
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-dev-key-not-for-production")

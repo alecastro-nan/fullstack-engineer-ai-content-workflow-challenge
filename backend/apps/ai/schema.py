@@ -6,6 +6,8 @@ from graphql import GraphQLError
 
 from apps.ai.exceptions import AIProviderError
 from apps.ai.services import AiService
+from apps.auth.rate_limit import RateLimitError as AppRateLimitError
+from apps.auth.rate_limit import check_rate_limit
 from apps.auth.utils import get_user_or_error
 from apps.content.models import ContentPiece
 from apps.content.schema import ContentPieceType
@@ -29,6 +31,10 @@ class AiMutation:
     def generate_draft(
         self, info: strawberry.types.info.Info, content_id: strawberry.ID
     ) -> ContentPieceType | None:
+        try:
+            check_rate_limit("ai_draft", 20, 60, info.context.request)
+        except AppRateLimitError as e:
+            raise GraphQLError(str(e)) from e
         user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(content_id))
@@ -82,6 +88,10 @@ class AiMutation:
         content_id: strawberry.ID,
         target_language: str,
     ) -> ContentPieceType | None:
+        try:
+            check_rate_limit("ai_translate", 20, 60, info.context.request)
+        except AppRateLimitError as e:
+            raise GraphQLError(str(e)) from e
         user = get_user_or_error(info)
         try:
             piece_id = uuid.UUID(str(content_id))
@@ -105,6 +115,8 @@ class AiMutation:
 
         try:
             translation = AiService.translate(text, target_language)
+        except AppRateLimitError as e:
+            raise GraphQLError(str(e)) from e
         except Exception as e:
             logger.error("AI translation failed", exc_info=True)
             raise GraphQLError("AI translation failed. Please try again later.") from e
