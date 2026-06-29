@@ -40,6 +40,15 @@ vendor/
 # Docker
 docker-compose.override.yml
 
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.pyo
+
+# npm lockfile (conflicts with pnpm)
+package-lock.json
+
 # Logs
 *.log
 frontend/tests/e2e/test-results/

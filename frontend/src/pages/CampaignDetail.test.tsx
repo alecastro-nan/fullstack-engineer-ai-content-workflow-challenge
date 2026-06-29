@@ -104,8 +104,10 @@ describe('CampaignDetail', () => {
   });
 
   it('generates an AI draft and updates the piece state', async () => {
+    const firstPiece = mockPieces[0];
+    expect(firstPiece).toBeDefined();
     const updatedPiece: ContentPiece = {
-      ...mockPieces[0]!,
+      ...firstPiece,
       headline: 'AI Generated Headline',
       description: 'AI generated description',
       state: 'SUGGESTED_BY_AI',

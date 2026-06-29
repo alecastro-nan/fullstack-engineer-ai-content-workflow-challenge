@@ -1,7 +1,7 @@
 # ADR-001: REST vs GraphQL
 
 ## Status
-Accepted (superseded by ADR-005 — Django + Strawberry GraphQL)
+Superseded by ADR-005
 
 ## Context
 The ACME Content Workflow platform needs an API style for communication between the frontend and backend. The challenge requires supporting CRUD operations, AI draft generation, review actions, and real-time updates. The non-negotiable rule R-001 mandates Django + Strawberry GraphQL for the backend.

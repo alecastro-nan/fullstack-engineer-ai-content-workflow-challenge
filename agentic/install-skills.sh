@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ================================================================
-# Instalación de skills para ACME Content Workflow Platform
+# Skill installation for ACME Content Workflow Platform
 # Basado en: Django (Python) + Strawberry GraphQL + React/Vite + PostgreSQL + Docker
 # ================================================================
 # ⚠️  See knowledge/decisions/002-remove-critical-skills.md for security audit history.
@@ -10,7 +10,7 @@ set -euo pipefail
 # ⚠️  See docs/adrs/ADR-005-django-strawberry-architecture.md for architecture details.
 # ================================================================
 
-echo "=== Instalando skills del stack ==="
+echo "=== Installing stack skills ==="
 
 # ── TypeScript (frontend) ──
 npx skills add wshobson/agents --skill typescript-advanced-types -y
@@ -43,5 +43,5 @@ npx skills add jeffallan/claude-skills --skill websocket-engineer -y
 npx skills add getsentry/sentry-for-ai --skill sentry-sdk-setup -y
 
 echo ""
-echo "=== Instalación completada ==="
-echo "Ejecuta 'npx skills list' para ver las skills instaladas."
+echo "=== Installation complete ==="
+echo "Run 'npx skills list' to see installed skills."

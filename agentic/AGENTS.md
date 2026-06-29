@@ -625,7 +625,7 @@ reviewers: @code-reviewer ⏳
 2. Security Reviewer: verify env var handling
 
 ## Artifacts
-- Migration: `backend/drizzle/0000_init/`
+- Migration: `backend/apps/campaigns/migrations/0001_initial.py`
 - Decision: `agentic/knowledge/decisions/001-campaign-soft-delete.md`
 ```
 
@@ -952,7 +952,7 @@ Agents must ask the human for a decision when:
 
 ```bash
 # Create symlinks so all agents see the same AGENTS.md
-ln -sf ../../agentic/AGENTS.md .github/copilot-instructions.md
+ln -sf ../agentic/AGENTS.md .github/copilot-instructions.md
 ln -sf agentic/AGENTS.md AGENTS.md
 ln -sf AGENTS.md CLAUDE.md
 ln -sf AGENTS.md .cursorrules
@@ -981,7 +981,7 @@ gh pr create --draft --title "feat: campaign CRUD API" --body-file .github/PULL_
 
 ```bash
 # Run all tests
-cd backend && pnpm test
+cd backend && uv run pytest
 cd frontend && pnpm test
 
 # Lint & format (Biome — frontend only)
