@@ -1,4 +1,10 @@
-# Decision: 2025-06-17 - Use Drizzle ORM
+# Decision: 2025-06-17 - Use Drizzle ORM (DEPRECATED)
+
+## Status
+Superseded by ADR-005 — Django + Strawberry GraphQL Architecture
+
+The project migrated from NestJS/TypeScript (Drizzle ORM) to Django/Python (Django ORM).
+This decision is retained for historical reference only.
 
 ## Context
 The project needs a TypeScript ORM for PostgreSQL. AGENTS.md originally specified Prisma,

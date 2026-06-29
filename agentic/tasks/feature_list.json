@@ -1336,5 +1336,65 @@
       "ruff + mypy + tsc pass with 0 errors",
       "Code reviewer has approved"
     ]
+  },
+  {
+    "id": "F-033",
+    "title": "PR review issue remediation: config, docs, gitignore, lockfile cleanup",
+    "description": "Address all 19 issues identified by code review and security review of PR #1 (feat/agentic-plan). All are config/documentation fixes — no runtime logic changes. Branched from feat/agentic-plan, merged back to it.",
+    "dependencies": [],
+    "stack": "docs",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "=== CRITICAL (3) ===",
+      "C-1: Fix .github/copilot-instructions.md symlink target from `../../agentic/AGENTS.md` to `../agentic/AGENTS.md` (currently resolves outside repo)",
+      "C-1b: Fix the same wrong command in AGENTS.md Appendix A (line ~955) so future agents don't recreate the broken symlink",
+      "C-2: Mark agentic/knowledge/decisions/003-drizzle-orm.md as DEPRECATED with a note referencing the Django ORM migration (Superseded by ADR-005)",
+      "C-3: Create docs/architecture.md with a minimal Mermaid diagram as described in AGENTS.md §5 (or update AGENTS.md folder listing if the file architecture-review.md serves this purpose)",
+      "=== MAJOR (3) ===",
+      "M-1: Translate Spanish text in install-skills.sh and agentic/install-skills.sh to English (comments + echo statements)",
+      "M-2: Remove backend/.coverage binary artifact from git tracking via git rm --cached (tracked before .gitignore applied)",
+      "M-3: Update handoff template in AGENTS.md §7.2.3: replace `backend/drizzle/0000_init/` with `backend/apps/campaigns/migrations/0001_initial.py`",
+      "=== MEDIUM (1) ===",
+      "M-001: Fix WebSocket _check_origin in backend/apps/ws/consumers.py to use CORS_ALLOWED_ORIGINS list instead of FRONTEND_URL string comparison (breaks when FRONTEND_URL contains multiple origins)",
+      "=== MINOR / LOW (10) ===",
+      "m-1: Fix ADR-001 status from contradictory 'Accepted (superseded)' to proper 'Superseded by ADR-005' in docs/adrs/ADR-001-rest-vs-graphql.md",
+      "m-2: Fix AGENTS.md Appendix C: change `cd backend && pnpm test` to `cd backend && uv run pytest`",
+      "I-001: Add comment to frontend/nginx.conf CSP noting ws: limitation for production",
+      "I-002: Remove `staging.example.com` from .env.example FRONTEND_URL (keep only http://localhost:5173)",
+      "I-003: Add .mypy_cache/, .pytest_cache/, .ruff_cache/, *.pyo to .gitignore",
+      "I-004: Set noNonNullAssertion from 'off' to 'error' in biome.json",
+      "I-005: Remove stale frontend/package-lock.json (project uses pnpm), add package-lock.json to .gitignore",
+      "I-006: Restrict PostgreSQL port in compose.yml to 127.0.0.1:5432:5432",
+      "All existing tests pass after all changes (ruff + mypy + pytest + vitest + tsc)",
+      "docker compose config parses without errors"
+    ],
+    "test_requirements": [
+      "Verify symlinks: ls -la .github/copilot-instructions.md shows correct target",
+      "Verify git rm removes backend/.coverage from tracking (git ls-files backend/.coverage returns empty)",
+      "Verify docker compose config outputs valid config after compose.yml change",
+      "Verify biome check passes with noNonNullAssertion set to error",
+      "Verify ruff + mypy + pytest + vitest + tsc all pass"
+    ],
+    "documentation_requirements": [
+      "AGENTS.md: fix Appendix A symlink command, Appendix C test command, §7.2.3 handoff template artifact path",
+      "docs/adrs/ADR-001-rest-vs-graphql.md: fix status line",
+      "docs/architecture.md: create if does not exist (with Mermaid diagram)",
+      "agentic/knowledge/decisions/003-drizzle-orm.md: add DEPRECATED status note",
+      ".env.example: remove staging.example.com",
+      ".gitignore: add missing cache patterns + package-lock.json",
+      "biome.json: fix noNonNullAssertion",
+      "compose.yml: fix Postgres port binding",
+      "frontend/nginx.conf: add CSP ws: comment"
+    ],
+    "done_when": [
+      "All 17 acceptance criteria pass",
+      "All test_requirements pass",
+      "Symlinks verified",
+      "ruff + mypy + pytest + vitest + tsc pass with 0 errors",
+      "Code reviewer has approved",
+      "Security reviewer has approved",
+      "branch pushed and PR created against feat/agentic-plan"
+    ]
   }
 ]

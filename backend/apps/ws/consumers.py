@@ -1,7 +1,7 @@
 import json
 import logging
 import uuid
-from typing import Any, cast
+from typing import Any
 from urllib.parse import parse_qs
 
 from asgiref.sync import sync_to_async
@@ -69,8 +69,8 @@ class ContentConsumer(AsyncWebsocketConsumer):
         origin = headers.get(b"origin", b"").decode()
         if not origin:
             return True
-        allowed = cast(str, getattr(settings, "FRONTEND_URL", ""))
-        return origin == allowed
+        allowed_origins: list[str] = getattr(settings, "CORS_ALLOWED_ORIGINS", [])
+        return origin in allowed_origins
 
     async def disconnect(self, close_code: int) -> None:
         if self.group_name:
