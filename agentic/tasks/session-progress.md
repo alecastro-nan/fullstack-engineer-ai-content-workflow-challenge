@@ -190,3 +190,9 @@ deps: none | stack: test
 branch → `feat/F-029-frontend-quality-polish`
 *ErrorBoundary + 3 tests (fallback UI, reload button), empty catch→console.warn, reconnect cap at 20, stableStatus removed. 91/91 frontend tests, typecheck+build clean. README updated.*
 reviewers: @typescript-reviewer ⏳ @code-reviewer ⏳
+
+### F-031 — Infrastructure & config hardening — IN REVIEW
+branch → `feat/F-031-infra-hardening`
+handoff → `agentic/runs/F-031-infra-hardening/handoff.md`
+*11 items addressed: biome.json fix, mypy strict+stubs, admin gating, DB credentials, CORS multi-origin, nginx WS rewrite, production.py Redis+env import, ALLOWED_HOSTS cleanup, Content-Type 415 enforcement, XSS sanitization (escape), ADR-010 created. 172/172 backend tests, ruff 0, mypy 0, tsc 0.*
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳

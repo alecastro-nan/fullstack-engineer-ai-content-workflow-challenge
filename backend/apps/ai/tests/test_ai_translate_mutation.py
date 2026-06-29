@@ -107,7 +107,7 @@ class TestAiTranslateMutation(TestCase):
         assert result["id"] != content_id
 
         translated = ContentPiece.objects.get(id=result["id"])
-        assert translated.original_id == uuid.UUID(content_id)  # type: ignore[attr-defined]
+        assert translated.original_id == uuid.UUID(content_id)
         assert translated.state == ContentPiece.State.SUGGESTED_BY_AI
         assert translated.language == "es"
         assert translated.body == "Original body content for translation."

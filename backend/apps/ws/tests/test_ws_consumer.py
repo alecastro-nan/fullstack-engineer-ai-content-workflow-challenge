@@ -14,7 +14,7 @@ from apps.ws.consumers import ContentConsumer
 
 def _create_test_data() -> tuple[uuid.UUID, str]:
     user_model = get_user_model()
-    user = user_model.objects.create_user(  # type: ignore[attr-defined]
+    user = user_model.objects.create_user(
         username=f"test-user-{uuid.uuid4().hex[:8]}",
         password="testpass",
     )
@@ -45,7 +45,7 @@ class TestContentConsumer:
             path,
             headers=list(headers.items()),
         )
-        communicator.scope["url_route"] = {
+        communicator.scope["url_route"] = {  # type: ignore[typeddict-unknown-key]
             "kwargs": {"content_id": content_id},
             "args": [],
         }
@@ -113,7 +113,7 @@ class TestContentConsumer:
         channel_layer = get_channel_layer()
         group_name = f"content_{content_id}"
 
-        await channel_layer.group_send(group_name, {
+        await channel_layer.group_send(group_name, {  # type: ignore[union-attr]
             "type": "state.change",
             "payload": {
                 "contentId": content_id,

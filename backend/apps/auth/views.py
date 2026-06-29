@@ -1,7 +1,7 @@
 import logging
 from typing import Any, cast
 
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from strawberry.django.context import StrawberryDjangoContext
 from strawberry.django.views import GraphQLView
 
@@ -11,6 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class AuthGraphQLView(GraphQLView):
+    def dispatch(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponseBase:
+        if request.method == "POST" and request.content_type != "application/json":
+            return HttpResponse(
+                "Unsupported Media Type. Content-Type must be application/json",
+                status=415,
+                content_type="text/plain",
+            )
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context(self, request: HttpRequest, response: HttpResponse) -> StrawberryDjangoContext:  # type: ignore[override]
         from apps.auth.services import decode_token
         from apps.auth.utils import extract_bearer_token

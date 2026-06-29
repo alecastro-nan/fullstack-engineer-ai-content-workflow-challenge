@@ -29,4 +29,4 @@ class StateHistory(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.content_piece_id}: {self.from_state} → {self.to_state} ({self.action})"  # type: ignore[attr-defined]
+        return f"{self.content_piece_id}: {self.from_state} → {self.to_state} ({self.action})"

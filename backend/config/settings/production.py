@@ -1,3 +1,5 @@
+from config.settings.base import env
+
 from .base import *  # noqa: F403
 
 DEBUG = False
@@ -10,7 +12,6 @@ if _insecure_key == SECRET_KEY:  # noqa: F405
     raise RuntimeError("DJANGO_SECRET_KEY must be set to a unique value in production")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")  # noqa: F405
-
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -26,3 +27,10 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])  # noqa: F405
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [env("REDIS_URL", default="redis://localhost:6379")]},  # type: ignore[dict-item]
+    },
+}

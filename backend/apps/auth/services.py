@@ -138,4 +138,4 @@ def login_user(email: str, password: str) -> User:
     user = authenticate(username=email, password=password)
     if user is None:
         raise InvalidCredentials("Invalid email or password")
-    return cast(User, user)
+    return user
