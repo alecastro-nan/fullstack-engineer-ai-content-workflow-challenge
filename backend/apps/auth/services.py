@@ -15,7 +15,13 @@ REFRESH_TOKEN_EXPIRY_DAYS = 7
 
 
 def _get_jwt_secret() -> str:
-    return cast(str, getattr(settings, "JWT_SIGNING_KEY", None) or settings.SECRET_KEY)
+    key: str | None = cast(str | None, getattr(settings, "JWT_SIGNING_KEY", None))
+    if not key:
+        raise RuntimeError(
+            "JWT_SIGNING_KEY is not configured. "
+            "It must be set separately from DJANGO_SECRET_KEY."
+        )
+    return key
 
 
 def _now() -> datetime:

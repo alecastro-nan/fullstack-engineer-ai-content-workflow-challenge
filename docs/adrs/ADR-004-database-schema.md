@@ -17,10 +17,10 @@ We use Django's ORM with the following design:
 
 ### Content Pieces Table
 - UUID primary key
-- Foreign key to campaigns (CASCADE on delete — removing a campaign removes its content)
+- Foreign key to campaigns (PROTECT at DB level — prevents accidental hard deletes; application-level cascade for soft deletes)
 - Self-referential foreign key `originalId` for translations (SET_NULL on delete — preserves translation if original is removed)
 - State as VARCHAR with Django TextChoices (5 states: draft, suggested_by_ai, reviewed, approved, rejected)
-- Soft delete via `isDeleted` boolean
+- Soft delete via `isDeleted` boolean with `deletedAt` timestamp
 - Indices on `campaignId`, `state`, and `isDeleted` for common query patterns
 
 ## Consequences
@@ -52,6 +52,7 @@ We use Django's ORM with the following design:
 | description | TEXT | |
 | status | VARCHAR(50) | active, archived |
 | isDeleted | BOOLEAN | soft delete |
+| deletedAt | TIMESTAMPTZ | nullable |
 | createdAt | TIMESTAMPTZ | |
 | updatedAt | TIMESTAMPTZ | |
 
@@ -67,6 +68,7 @@ We use Django's ORM with the following design:
 | language | VARCHAR(10) | e.g., en, es, fr |
 | state | VARCHAR(20) | TextChoices: draft, suggested_by_ai, reviewed, approved, rejected |
 | isDeleted | BOOLEAN | soft delete |
+| deletedAt | TIMESTAMPTZ | nullable |
 | createdAt | TIMESTAMPTZ | |
 | updatedAt | TIMESTAMPTZ | |
 

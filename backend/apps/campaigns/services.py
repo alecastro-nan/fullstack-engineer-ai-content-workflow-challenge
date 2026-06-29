@@ -76,9 +76,12 @@ class CampaignService:
 
     @staticmethod
     def soft_delete_campaign(campaign_id: uuid.UUID) -> bool:
+        from django.utils import timezone
         campaign = CampaignService.get_campaign_by_id(campaign_id)
         if campaign is None:
             return False
         campaign.is_deleted = True
-        campaign.save(update_fields=["is_deleted", "updated_at"])
+        campaign.deleted_at = timezone.now()
+        campaign.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
+        campaign.content_pieces.all().update(is_deleted=True, deleted_at=timezone.now())
         return True

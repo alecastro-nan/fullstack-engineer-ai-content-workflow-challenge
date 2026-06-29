@@ -1396,5 +1396,40 @@
       "Security reviewer has approved",
       "branch pushed and PR created against feat/agentic-plan"
     ]
+  },
+  {
+    "id": "F-034",
+    "title": "Fix critical issues from consolidated PR review",
+    "description": "Address 4 critical issues found by subagent review of PR #1 (feat/agentic-plan → main): CRIT-1 (JWT signing key fallback to insecure SECRET_KEY default), CRIT-2 (CSRF bypass on GraphQL endpoint), CRIT-3 (soft-delete cascade missing for campaigns → content pieces), CRIT-4 (missing deleted_at on Campaign model).",
+    "dependencies": [],
+    "stack": "backend",
+    "role": "builder",
+    "status": "done",
+    "acceptance_criteria": [
+      "CRIT-1: JWT_SIGNING_KEY separated from SECRET_KEY; _get_jwt_secret() raises RuntimeError if unset; .env.example uncomments JWT_SIGNING_KEY and adds production warning; production.py validates JWT_SIGNING_KEY is set",
+      "CRIT-2: csrf_exempt removed from GraphQL endpoint OR restricted with proper Content-Type + X-Requested-With validation; CORS_ALLOW_CREDENTIALS hardened if retained",
+      "CRIT-3: soft_delete_campaign cascades is_deleted=True to all content pieces via campaign.content_pieces.all().update(); ADR-004 updated to reflect PROTECT at DB level with application-level cascade",
+      "CRIT-4: Campaign model gains deleted_at DateTimeField(nullable); migration 0003_add_deleted_at_to_campaign created; soft_delete_campaign sets deleted_at = timezone.now()",
+      "All existing tests still pass after changes (ruff + mypy + pytest + vitest + tsc)"
+    ],
+    "test_requirements": [
+      "Add/update tests for _get_jwt_secret() raising error when JWT_SIGNING_KEY unset",
+      "Add/update tests for soft-delete cascading to content pieces",
+      "Add/update tests for Campaign.deleted_at being set on soft delete",
+      "Verify all existing tests pass: pytest 172/172, vitest 92/92, ruff 0, mypy 0, tsc 0"
+    ],
+    "documentation_requirements": [
+      "docs/adrs/ADR-004-database-schema.md: update FK behavior to reflect PROTECT + application-level cascade",
+      ".env.example: uncomment JWT_SIGNING_KEY with production warning comment",
+      "agentic/knowledge/decisions/: add decision note for JWT key separation pattern"
+    ],
+    "done_when": [
+      "All 4 acceptance criteria pass with code changes committed",
+      "All test_requirements pass",
+      "Code reviewer has approved",
+      "Security reviewer has confirmed CRIT-1 and CRIT-2 resolved",
+      "Database reviewer has confirmed CRIT-3 and CRIT-4 resolved",
+      "branch pushed against feat/agentic-plan"
+    ]
   }
 ]

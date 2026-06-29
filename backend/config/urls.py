@@ -12,5 +12,8 @@ if settings.DEBUG:
     urlpatterns.append(path("admin/", admin.site.urls))
 
 urlpatterns.append(
+    # csrf_exempt is safe here: this is a JSON-only GraphQL endpoint using
+    # Bearer token auth (no cookies). Content-Type validation in
+    # AuthGraphQLView.dispatch() rejects non-application/json POST requests.
     path("graphql", csrf_exempt(AuthGraphQLView.as_view(schema=schema))),  # type: ignore[arg-type]
 )
