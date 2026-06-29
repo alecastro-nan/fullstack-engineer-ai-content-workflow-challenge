@@ -1190,5 +1190,151 @@
       "pnpm typecheck + pnpm build pass",
       "Code reviewer and TypeScript reviewer have approved"
     ]
+  },
+  {
+    "id": "F-030",
+    "title": "Authentication & WebSocket hardening (token security, rate limiting, thread safety)",
+    "description": "Address 13 backend security issues from the PR #1 audit. Covers JWT token storage (localStorage -> httpOnly cookie), token revocation mechanism, separate JWT signing key, refresh token rotation, WebSocket auth via Sec-WebSocket-Protocol, Origin validation, rate limiting on auth/AI endpoints, and thread-safe AI provider fallback with timeouts.",
+    "dependencies": [],
+    "stack": "backend",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "=== Token & Authentication Security ===",
+      "JWT access token stored in httpOnly Secure SameSite=Strict cookie (removed from localStorage)",
+      "Token version field added to User model, included in JWT payload, checked on every decode_token call",
+      "Force logout via token version increment on password change",
+      "Separate JWT_SIGNING_KEY env var from SECRET_KEY for all JWT operations",
+      "Refresh token rotation: old token invalidated on each refresh, new access+refresh pair returned",
+      "email field removed from JWT payload (only user_id remains)",
+      "registerUser returns generic 'Registration failed' message regardless of cause (prevents email enumeration)",
+      "=== WebSocket Security ===",
+      "WebSocket auth uses Sec-WebSocket-Protocol header or first-message auth frame (removed ?token= query param)",
+      "Origin header validated against FRONTEND_URL in WS consumer connect()",
+      "=== Rate Limiting ===",
+      "login mutation rate-limited per IP (10 attempts/minute) via Django cache",
+      "registerUser mutation rate-limited per IP (1 attempt/minute)",
+      "AI generateDraft/translateContent rate-limited per user (20 requests/minute)",
+      "=== Thread Safety & Provider Config ===",
+      "settings.AI_PROVIDER runtime mutation removed from AiService._get_fallback_provider() — uses provider_name parameter instead",
+      "OpenAI and Anthropic API calls have explicit timeout (30s OpenAI, 60s Anthropic)",
+      "All existing tests still pass after all changes"
+    ],
+    "test_requirements": [
+      "Test: JWT cookie is httpOnly (not accessible via document.cookie in test)",
+      "Test: Token version increment in JWT payload invalidates old tokens on decode",
+      "Test: Tokens signed with old SECRET_KEY fail after JWT_SIGNING_KEY is configured",
+      "Test: Used refresh token returns error on second use (rotation)",
+      "Test: Email field absent from decoded JWT payload",
+      "Test: registerUser with duplicate email returns 'Registration failed' (not 'email already exists')",
+      "Test: WebSocket connects with Sec-WebSocket-Protocol header (no query param required)",
+      "Test: WebSocket connection from untrusted Origin returns close code",
+      "Test: 10+ failed login attempts in 1 minute returns 429",
+      "Test: 21+ AI draft requests in 1 minute returns 429",
+      "Test: Concurrent requests to generateDraft use correct provider for each (no race from settings mutation)",
+      "Test: AI provider raises timeout error when response exceeds configured duration"
+    ],
+    "documentation_requirements": [
+      "README.md: update Authentication section — document httpOnly cookie token storage",
+      "README.md: add Rate Limiting section with per-endpoint limits table",
+      "docs/adrs/ADR-009-auth-hardening.md: document token storage decision (cookie vs localStorage), rate limiting strategy, WS auth mechanism",
+      "agentic/knowledge/decisions/: record decisions for each subtopic"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass (new + existing)",
+      "ruff + mypy pass with 0 errors",
+      "docker compose up --build runs without errors",
+      "Code reviewer has approved",
+      "Security reviewer has approved",
+      "README.md updated, ADR-009 created"
+    ]
+  },
+  {
+    "id": "F-031",
+    "title": "Infrastructure & config hardening (mypy, nginx, CORS, Docker, sanitization)",
+    "description": "Address 11 infrastructure and input validation issues from the PR #1 audit. Covers biome.json fix, mypy proper configuration with stubs, Django admin gating, Docker secret handling, CORS multi-origin support, nginx WS rewrite, production settings cleanup, Redis channel layer, ALLOWED_HOSTS cleanup, Content-Type enforcement, and XSS sanitization.",
+    "dependencies": [],
+    "stack": "infra",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "=== Infrastructure & Config ===",
+      "biome.json include changed to ['frontend/src'] only (removed nonexistent backend/src)",
+      "ignore_missing_imports = true removed from pyproject.toml mypy config",
+      "django-stubs and channels-stubs installed via uv",
+      "mypy_django_plugin configured in pyproject.toml [tool.mypy] plugins",
+      "Django admin URLs (/admin/) included only when DEBUG=True in urls.py",
+      "compose.yml DATABASE_URL moved to reference individual env vars or Docker secret instead of inline password",
+      "CORS_ALLOWED_ORIGINS changed from env('FRONTEND_URL') single-string to env.list('FRONTEND_URL') for multiple origins",
+      "nginx /ws/ location block in frontend/nginx.conf adds rewrite ^/ws/(.*) /$1 break before proxy_pass",
+      "backend/config/settings/production.py imports env explicitly (no from .base import *)",
+      "production.py CHANNEL_LAYERS configured with channels_redis (not InMemoryChannelLayer) when REDIS_URL is set",
+      "channels_redis added to pyproject.toml production dependencies",
+      "'0.0.0.0' removed from ALLOWED_HOSTS defaults in base.py",
+      "=== Input Validation & Sanitization ===",
+      "GraphQL endpoint validation rejects non-JSON Content-Type with 415 via middleware or view override",
+      "User content (headline, description, body) sanitized — HTML/script tags escaped before storage",
+      "All existing tests still pass after all changes"
+    ],
+    "test_requirements": [
+      "Test: biome check frontend/src runs without errors (skips backend)",
+      "Test: mypy catches missing Django model type stubs (no silent passes)",
+      "Test: /admin/ returns 404 when DEBUG=False (urlpatterns does not include admin)",
+      "Test: CORS response includes multiple origins from env.list() (vary header)",
+      "Test: WebSocket connection through nginx proxy works (rewrite tested via curl upgrade)",
+      "Test: Redis-backed channel layer connectable from Django shell",
+      "Test: POST /graphql with Content-Type: text/plain returns 415",
+      "Test: Content with HTML tags stored escaped, GraphQL response shows escaped entities",
+      "pytest + ruff + mypy + tsc all pass with 0 errors"
+    ],
+    "documentation_requirements": [
+      "README.md: update nginx section documenting /ws/ rewrite rule",
+      "README.md: update CORS section with multi-origin configuration note",
+      "README.md: add production deployment requirements (Redis, JWT_SIGNING_KEY)",
+      "docs/adrs/ADR-010-production-hardening.md: document infra decisions (channel layer, admin gating, CORS, sanitization)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass (new + existing)",
+      "ruff + mypy + tsc pass with 0 errors",
+      "docker compose up --build runs without errors",
+      "Code reviewer has approved",
+      "Security reviewer has approved (input sanitization, secret handling)",
+      "README.md and ADR-010 updated"
+    ]
+  },
+  {
+    "id": "F-032",
+    "title": "Minor code quality polish (state_change, translation, editContent, pagination, types)",
+    "description": "Address 5 small code quality issues from the PR #1 audit. Each is an isolated, well-understood change in a single file.",
+    "dependencies": [],
+    "stack": "mixed",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "state_change event in backend/apps/ws/consumers.py uses explicit payload shape (contentId, campaignId, oldState, newState, action, timestamp) instead of blind msg.update(payload)",
+      "TranslatePanel visibility in frontend/src/components/TranslatePanel/TranslatePanel.tsx shows for state === SUGGESTED_BY_AI || state === APPROVED (not only isApproved)",
+      "editContent mutation in backend/apps/reviews/schema.py accepts optional feedback parameter and stores it in StateHistory",
+      "Pagination validation unified: campaigns/schema.py and content/schema.py both use the same strategy (coercion or error) — currently they differ",
+      "Duplicate ContentState type removed from frontend/src/types/review.ts — import ContentState from content.ts where needed",
+      "All existing tests still pass after all changes"
+    ],
+    "test_requirements": [
+      "Test: state_change WebSocket event has exactly contentId, campaignId, oldState, newState, action, timestamp keys (no extra keys leaked)",
+      "Test: editContent mutation with feedback field creates StateHistory record containing feedback text",
+      "Test: TranslatePanel renders for SUGGESTED_BY_AI and APPROVED states but not for others",
+      "Test: Pagination validation rejects same edge cases consistently across campaign and content queries",
+      "No ContentState type exists in frontend/src/types/review.ts file"
+    ],
+    "documentation_requirements": [
+      "README.md: no changes needed (minor internal fixes)"
+    ],
+    "done_when": [
+      "All acceptance criteria pass",
+      "All tests pass (new + existing)",
+      "ruff + mypy + tsc pass with 0 errors",
+      "Code reviewer has approved"
+    ]
   }
 ]
