@@ -202,3 +202,8 @@ branch → `feat/F-032-code-quality-polish`
 handoff → `agentic/runs/F-032-code-quality-polish/handoff.md`
 *5 items addressed: TranslatePanel visibility (SUGGESTED_BY_AI || APPROVED), editContent feedback param, pagination coercion unified, duplicate ContentState removed. 172/172 backend, 92/92 frontend tests, ruff 0, mypy 0, tsc 0.*
 reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳
+
+### F-033 — PR review issue remediation — PENDING
+plan → `agentic/runs/F-033-review-issue-remediation/plan.md`
+*Address 17 config/docs issues from PR #1 code+security review. Branched off feat/agentic-plan, merged back to it.*
+deps: none | stack: docs
