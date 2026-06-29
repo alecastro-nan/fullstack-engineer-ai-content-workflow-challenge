@@ -3,6 +3,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.utils import timezone
+from django.utils.html import escape
 
 from apps.campaigns.models import Campaign
 from apps.content.models import ContentPiece
@@ -84,9 +85,9 @@ class ContentPieceService:
         campaign = ContentPieceService._validate_campaign(campaign_id)
         return ContentPiece.objects.create(
             campaign=campaign,
-            headline=validated_headline,
-            description=validated_description,
-            body=validated_body,
+            headline=escape(validated_headline),
+            description=escape(validated_description),
+            body=escape(validated_body),
             language=validated_language,
         )
 
@@ -122,13 +123,13 @@ class ContentPieceService:
 
         update_fields: list[str] = []
         if headline is not None:
-            piece.headline = ContentPieceService._validate_headline(headline)
+            piece.headline = escape(ContentPieceService._validate_headline(headline))
             update_fields.append("headline")
         if description is not None:
-            piece.description = ContentPieceService._validate_description(description)
+            piece.description = escape(ContentPieceService._validate_description(description))
             update_fields.append("description")
         if body is not None:
-            piece.body = ContentPieceService._validate_body(body)
+            piece.body = escape(ContentPieceService._validate_body(body))
             update_fields.append("body")
         if language is not None:
             piece.language = ContentPieceService._validate_language(language)

@@ -55,11 +55,11 @@ class ContentPieceType:
     @staticmethod
     def from_model(piece: ContentPiece) -> "ContentPieceType":
         original_id: strawberry.ID | None = None
-        if piece.original_id is not None:  # type: ignore[attr-defined]
-            original_id = strawberry.ID(str(piece.original_id))  # type: ignore[attr-defined]
+        if piece.original_id is not None:
+            original_id = strawberry.ID(str(piece.original_id))
         return ContentPieceType(
             id=strawberry.ID(str(piece.id)),
-            campaign_id=strawberry.ID(str(piece.campaign_id)),  # type: ignore[attr-defined]
+            campaign_id=strawberry.ID(str(piece.campaign_id)),
             headline=piece.headline,
             description=piece.description,
             body=piece.body,

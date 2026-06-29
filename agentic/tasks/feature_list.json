@@ -1257,7 +1257,7 @@
     "dependencies": [],
     "stack": "infra",
     "role": "builder",
-    "status": "pending",
+    "status": "review",
     "acceptance_criteria": [
       "=== Infrastructure & Config ===",
       "biome.json include changed to ['frontend/src'] only (removed nonexistent backend/src)",

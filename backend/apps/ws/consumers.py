@@ -14,7 +14,7 @@ from apps.content.services import ContentPieceService
 logger = logging.getLogger(__name__)
 
 
-class ContentConsumer(AsyncWebsocketConsumer):  # type: ignore[misc]
+class ContentConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.content_id: str = ""
@@ -35,7 +35,7 @@ class ContentConsumer(AsyncWebsocketConsumer):  # type: ignore[misc]
             await self.close(code=4001)
             return
 
-        self.scope["user"] = user
+        self.scope["user"] = user  # type: ignore[typeddict-item]
 
         self.content_id = self.scope["url_route"]["kwargs"]["content_id"]
         self.group_name = f"content_{self.content_id}"

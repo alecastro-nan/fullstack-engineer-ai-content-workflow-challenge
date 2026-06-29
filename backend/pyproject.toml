@@ -16,6 +16,7 @@ dependencies = [
     "psycopg2-binary>=2.9,<3",
     "django-cors-headers>=4.9.0",
     "PyJWT>=2.10,<3",
+    "channels-redis>=4.2,<5",
 ]
 
 [project.optional-dependencies]
@@ -38,9 +39,11 @@ asyncio_mode = "auto"
 [tool.mypy]
 python_version = "3.12"
 strict = true
-ignore_missing_imports = true
 exclude = ["migrations", ".venv"]
-disable_error_code = ["var-annotated", "type-arg"]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.development"
 
 [tool.ruff]
 line-length = 100
@@ -56,6 +59,7 @@ indent-style = "space"
 
 [dependency-groups]
 dev = [
+    "channels-stubs>=0.1.4",
     "django-stubs>=6.0.5",
     "mypy>=1.20.2",
     "pytest>=8.4.2",

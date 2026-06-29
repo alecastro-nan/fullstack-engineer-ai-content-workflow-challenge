@@ -43,7 +43,7 @@ class ReviewQuery:
         return [
             StateHistoryType(
                 id=strawberry.ID(str(r.id)),
-                content_piece_id=strawberry.ID(str(r.content_piece_id)),  # type: ignore[attr-defined]
+                content_piece_id=strawberry.ID(str(r.content_piece_id)),
                 from_state=r.from_state,
                 to_state=r.to_state,
                 action=ReviewAction(r.action),

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import environ
+import environ  # type: ignore[import-untyped]
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -10,7 +10,7 @@ env = environ.Env(
     FRONTEND_URL=(str, "http://localhost:5173"),
     DATABASE_URL=(str, ""),
     REDIS_URL=(str, ""),
-    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1", "0.0.0.0"]),
+    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
     AI_PROVIDER=(str, "openai"),
     OPENAI_API_KEY=(str, ""),
     OPENAI_BASE_URL=(str, ""),
@@ -28,7 +28,8 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
-CORS_ALLOWED_ORIGINS_ENV = env("FRONTEND_URL")
+CORS_ALLOWED_ORIGINS = env.list("FRONTEND_URL", default=["http://localhost:5173"])
+CORS_ALLOW_CREDENTIALS = True
 
 # AI provider settings — must be explicitly read for getattr(settings, ...) to work
 AI_PROVIDER = env("AI_PROVIDER")
@@ -70,8 +71,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [CORS_ALLOWED_ORIGINS_ENV]
-CORS_ALLOW_CREDENTIALS = True
+
 
 ROOT_URLCONF = "config.urls"
 
@@ -97,6 +97,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASE_URL = env("DATABASE_URL")
 if DATABASE_URL:
     DATABASES = {"default": env.db()}
+elif env("DB_HOST", default=None):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME", default="acme"),
+            "USER": env("DB_USER", default="postgres"),
+            "PASSWORD": env("DB_PASSWORD", default="postgres"),
+            "HOST": env("DB_HOST"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
 else:
     DATABASES = {
         "default": {

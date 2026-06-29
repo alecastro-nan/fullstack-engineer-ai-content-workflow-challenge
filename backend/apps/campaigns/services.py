@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.utils.html import escape
 
 from apps.campaigns.models import Campaign
 
@@ -35,8 +36,8 @@ class CampaignService:
     def create_campaign(name: str, description: str = "", owner: User | None = None) -> Campaign:
         validated_name = CampaignService._validate_name(name)
         return Campaign.objects.create(
-            name=validated_name,
-            description=description.strip(),
+            name=escape(validated_name),
+            description=escape(description.strip()),
             owner=owner,
         )
 
@@ -67,7 +68,7 @@ class CampaignService:
         if name is not None:
             campaign.name = CampaignService._validate_name(name)
         if description is not None:
-            campaign.description = description.strip()
+            campaign.description = escape(description.strip())
         if status is not None:
             campaign.status = CampaignService._validate_status(status)
         campaign.save()
