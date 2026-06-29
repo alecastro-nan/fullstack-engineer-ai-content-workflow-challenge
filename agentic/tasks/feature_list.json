@@ -1311,7 +1311,7 @@
     "dependencies": [],
     "stack": "mixed",
     "role": "builder",
-    "status": "pending",
+    "status": "review",
     "acceptance_criteria": [
       "state_change event in backend/apps/ws/consumers.py uses explicit payload shape (contentId, campaignId, oldState, newState, action, timestamp) instead of blind msg.update(payload)",
       "TranslatePanel visibility in frontend/src/components/TranslatePanel/TranslatePanel.tsx shows for state === SUGGESTED_BY_AI || state === APPROVED (not only isApproved)",

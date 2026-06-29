@@ -38,7 +38,6 @@ export function ContentPieceCard({
 
   const isDraft = content.state === 'DRAFT';
   const isSuggested = content.state === 'SUGGESTED_BY_AI';
-  const isApproved = content.state === 'APPROVED';
 
   const handleSave = async () => {
     if (!headline.trim()) return;
@@ -215,7 +214,7 @@ export function ContentPieceCard({
             />
           )}
 
-          {isApproved && onTranslate && (
+          {(content.state === 'SUGGESTED_BY_AI' || content.state === 'APPROVED') && onTranslate && (
             <TranslatePanel
               currentLanguage={content.language}
               onTranslate={handleTranslate}

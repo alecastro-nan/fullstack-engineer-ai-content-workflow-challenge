@@ -97,9 +97,9 @@ class ContentPieceQueries:
     ) -> ContentPiecePage:
         user = get_user_or_error(info)
         if page < 1:
-            raise GraphQLError("Page must be >= 1")
+            page = 1
         if per_page < 1 or per_page > MAX_PER_PAGE:
-            raise GraphQLError(f"Per page must be between 1 and {MAX_PER_PAGE}")
+            per_page = 20
         cid: uuid.UUID | None = None
         if campaign_id is not None:
             try:
