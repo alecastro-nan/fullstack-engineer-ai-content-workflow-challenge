@@ -1404,7 +1404,7 @@
     "dependencies": [],
     "stack": "backend",
     "role": "builder",
-    "status": "pending",
+    "status": "done",
     "acceptance_criteria": [
       "CRIT-1: JWT_SIGNING_KEY separated from SECRET_KEY; _get_jwt_secret() raises RuntimeError if unset; .env.example uncomments JWT_SIGNING_KEY and adds production warning; production.py validates JWT_SIGNING_KEY is set",
       "CRIT-2: csrf_exempt removed from GraphQL endpoint OR restricted with proper Content-Type + X-Requested-With validation; CORS_ALLOW_CREDENTIALS hardened if retained",

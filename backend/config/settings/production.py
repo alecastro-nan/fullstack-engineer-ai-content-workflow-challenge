@@ -11,6 +11,12 @@ _insecure_key = "insecure-dev-key-not-for-production"
 if _insecure_key == SECRET_KEY:  # noqa: F405
     raise RuntimeError("DJANGO_SECRET_KEY must be set to a unique value in production")
 
+_jwt_key = env("JWT_SIGNING_KEY")
+if not _jwt_key:
+    raise RuntimeError(
+        "JWT_SIGNING_KEY must be set separately from DJANGO_SECRET_KEY in production"
+    )
+
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")  # noqa: F405
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True

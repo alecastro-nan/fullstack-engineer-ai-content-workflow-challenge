@@ -29,7 +29,7 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 CORS_ALLOWED_ORIGINS = env.list("FRONTEND_URL", default=["http://localhost:5173"])
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False  # No cookie-based auth used; Bearer token auth only
 
 # AI provider settings — must be explicitly read for getattr(settings, ...) to work
 AI_PROVIDER = env("AI_PROVIDER")

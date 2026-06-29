@@ -212,7 +212,7 @@ deps: none | stack: docs
 
 ---
 
-## F-034 — Fix critical issues from consolidated PR review — PENDING
+## F-034 — Fix critical issues from consolidated PR review — DONE
 plan → `agentic/runs/F-034-fix-critical-review-issues/plan.md`
-*4 critical issues from subagent PR review: CRIT-1 (JWT signing key), CRIT-2 (CSRF bypass), CRIT-3 (soft-delete cascade), CRIT-4 (missing deleted_at on Campaign). Planned, not yet implemented.*
+*CRIT-1: _get_jwt_secret() raises RuntimeError if JWT_SIGNING_KEY unset; production.py validates; .env.example uncommented. CRIT-2: CORS_ALLOW_CREDENTIALS=False; csrf_exempt documented safe. CRIT-3: soft_delete_campaign cascades is_deleted=True + deleted_at to content_pieces. CRIT-4: Campaign.deleted_at field + migration 0003 + ADR-004 updated. ruff 0, mypy 0, pytest 172/172.*
 reviewers: pending
