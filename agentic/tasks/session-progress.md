@@ -203,7 +203,9 @@ handoff → `agentic/runs/F-032-code-quality-polish/handoff.md`
 *5 items addressed: TranslatePanel visibility (SUGGESTED_BY_AI || APPROVED), editContent feedback param, pagination coercion unified, duplicate ContentState removed. 172/172 backend, 92/92 frontend tests, ruff 0, mypy 0, tsc 0.*
 reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳
 
-### F-033 — PR review issue remediation — PENDING
+### F-033 — PR review issue remediation — DONE ✅
 plan → `agentic/runs/F-033-review-issue-remediation/plan.md`
-*Address 17 config/docs issues from PR #1 code+security review. Branched off feat/agentic-plan, merged back to it.*
+handoff → `agentic/runs/F-033-review-issue-remediation/handoff.md`
+*All 17 issues addressed across 15 files. Symlink, Drizzle deprecation, architecture.md, Spanish->English install scripts, WS origin fix, ADR-001 status, nginx CSP comment, .env.example cleanup, .gitignore patterns, biome noNonNullAssertion, stale lockfile removal, compose port restriction. ruff 0, mypy 0, biome lint 0, pytest 172/172, vitest 92/92.*
+reviewers: @code-reviewer ⏳ @security-reviewer ⏳
 deps: none | stack: docs
