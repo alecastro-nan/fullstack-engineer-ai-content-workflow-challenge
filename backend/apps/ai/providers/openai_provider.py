@@ -50,6 +50,7 @@ class OpenAIProvider(AIProvider):
                 messages=[{"role": "user", "content": prompt}],
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
+                timeout=30,
             )
         except Exception as exc:
             error_msg = str(exc).lower()

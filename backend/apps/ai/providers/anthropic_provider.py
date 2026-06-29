@@ -46,6 +46,7 @@ class AnthropicProvider(AIProvider):
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
                 messages=[{"role": "user", "content": prompt}],
+                timeout=60,
             )
         except Exception as exc:
             error_msg = str(exc).lower()

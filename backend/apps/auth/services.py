@@ -7,39 +7,44 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from apps.auth.exceptions import EmailAlreadyRegistered, InvalidCredentials, InvalidToken
+from apps.auth.exceptions import InvalidCredentials, InvalidToken
+from apps.auth.models import UserProfile
 
 ACCESS_TOKEN_EXPIRY_MINUTES = 15
 REFRESH_TOKEN_EXPIRY_DAYS = 7
 
 
 def _get_jwt_secret() -> str:
-    return cast(str, settings.SECRET_KEY)
+    return cast(str, getattr(settings, "JWT_SIGNING_KEY", None) or settings.SECRET_KEY)
 
 
 def _now() -> datetime:
     return datetime.now(tz=UTC)
 
 
-def create_access_token(user: User) -> str:
-    payload = {
+def _get_or_create_profile(user: User) -> UserProfile:
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    return profile
+
+
+def _build_token_payload(user: User, token_type: str, expiry: timedelta) -> dict[str, object]:
+    profile = _get_or_create_profile(user)
+    return {
         "user_id": user.pk,
-        "email": user.email,
-        "type": "access",
-        "exp": _now() + timedelta(minutes=ACCESS_TOKEN_EXPIRY_MINUTES),
+        "type": token_type,
+        "exp": _now() + expiry,
         "iat": _now(),
+        "token_version": profile.token_version,
     }
+
+
+def create_access_token(user: User) -> str:
+    payload = _build_token_payload(user, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRY_MINUTES))
     return jwt.encode(payload, _get_jwt_secret(), algorithm="HS256")
 
 
 def create_refresh_token(user: User) -> str:
-    payload = {
-        "user_id": user.pk,
-        "email": user.email,
-        "type": "refresh",
-        "exp": _now() + timedelta(days=REFRESH_TOKEN_EXPIRY_DAYS),
-        "iat": _now(),
-    }
+    payload = _build_token_payload(user, "refresh", timedelta(days=REFRESH_TOKEN_EXPIRY_DAYS))
     return jwt.encode(payload, _get_jwt_secret(), algorithm="HS256")
 
 
@@ -66,9 +71,16 @@ def decode_token(token: str) -> User:
         raise InvalidToken("Invalid token payload")
 
     try:
-        return User.objects.get(pk=user_id, is_active=True)
+        user = User.objects.get(pk=user_id, is_active=True)
     except User.DoesNotExist:
         raise InvalidToken("User not found") from None
+
+    profile = _get_or_create_profile(user)
+    token_version = payload.get("token_version", 0)
+    if token_version != profile.token_version:
+        raise InvalidToken("Token has been invalidated")
+
+    return user
 
 
 async def decode_token_async(token: str) -> User | None:
@@ -78,7 +90,7 @@ async def decode_token_async(token: str) -> User | None:
         return None
 
 
-def refresh_access_token(refresh_token: str) -> str:
+def refresh_tokens(refresh_token: str) -> dict[str, str]:
     try:
         payload = jwt.decode(refresh_token, _get_jwt_secret(), algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
@@ -94,12 +106,24 @@ def refresh_access_token(refresh_token: str) -> str:
         user = User.objects.get(pk=user_id, is_active=True)
     except User.DoesNotExist:
         raise InvalidToken("User not found") from None
-    return create_access_token(user)
+
+    profile = _get_or_create_profile(user)
+    token_version = payload.get("token_version", 0)
+    if token_version != profile.token_version:
+        raise InvalidToken("Refresh token has been invalidated")
+
+    return create_tokens(user)
+
+
+def invalidate_user_tokens(user: User) -> None:
+    profile = _get_or_create_profile(user)
+    profile.token_version += 1
+    profile.save(update_fields=["token_version"])
 
 
 def register_user(email: str, password: str) -> User:
     if User.objects.filter(email=email).exists():
-        raise EmailAlreadyRegistered("Email already registered")
+        raise InvalidCredentials("Registration failed")
     if len(password) < 8:
         raise InvalidCredentials("Password must be at least 8 characters")
     user = User.objects.create_user(

@@ -4,9 +4,9 @@ from apps.ai.exceptions import ConfigurationError
 from apps.ai.providers.base import AIProvider
 
 
-def get_provider() -> AIProvider:
-    provider_name = getattr(settings, "AI_PROVIDER", "openai")
-    if provider_name == "openai":
+def get_provider(provider_name: str | None = None) -> AIProvider:
+    name = provider_name or getattr(settings, "AI_PROVIDER", "openai")
+    if name == "openai":
         api_key = getattr(settings, "OPENAI_API_KEY", "")
         if not api_key:
             raise ConfigurationError("OPENAI_API_KEY not configured")
@@ -18,7 +18,7 @@ def get_provider() -> AIProvider:
             temperature=getattr(settings, "AI_TEMPERATURE", 0.7),
             max_tokens=getattr(settings, "AI_MAX_TOKENS", 2048),
         )
-    if provider_name == "anthropic":
+    if name == "anthropic":
         api_key = getattr(settings, "ANTHROPIC_API_KEY", "")
         if not api_key:
             raise ConfigurationError("ANTHROPIC_API_KEY not configured")
@@ -29,4 +29,4 @@ def get_provider() -> AIProvider:
             temperature=getattr(settings, "AI_TEMPERATURE", 0.7),
             max_tokens=getattr(settings, "AI_MAX_TOKENS", 2048),
         )
-    raise ConfigurationError(f"Unknown AI provider: {provider_name}")
+    raise ConfigurationError(f"Unknown AI provider: {name}")

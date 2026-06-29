@@ -56,11 +56,7 @@ class AiService:
     def _get_fallback_provider() -> AIProvider | None:
         primary = getattr(settings, "AI_PROVIDER", "openai")
         fallback_name = "anthropic" if primary == "openai" else "openai"
-        original = settings.AI_PROVIDER
         try:
-            settings.AI_PROVIDER = fallback_name
-            return get_provider()
+            return get_provider(provider_name=fallback_name)
         except ConfigurationError:
             return None
-        finally:
-            settings.AI_PROVIDER = original

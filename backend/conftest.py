@@ -1,7 +1,11 @@
+import os
+
 import pytest
 from django.test import Client
 
 from apps.auth.test_utils import make_auth_client
+
+os.environ.setdefault("SKIP_RATE_LIMIT", "1")
 
 
 @pytest.fixture
