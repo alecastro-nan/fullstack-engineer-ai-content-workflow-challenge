@@ -196,3 +196,9 @@ branch → `feat/F-031-infra-hardening`
 handoff → `agentic/runs/F-031-infra-hardening/handoff.md`
 *11 items addressed: biome.json fix, mypy strict+stubs, admin gating, DB credentials, CORS multi-origin, nginx WS rewrite, production.py Redis+env import, ALLOWED_HOSTS cleanup, Content-Type 415 enforcement, XSS sanitization (escape), ADR-010 created. 172/172 backend tests, ruff 0, mypy 0, tsc 0.*
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+
+### F-032 — Minor code quality polish — IN REVIEW
+branch → `feat/F-032-code-quality-polish`
+handoff → `agentic/runs/F-032-code-quality-polish/handoff.md`
+*5 items addressed: TranslatePanel visibility (SUGGESTED_BY_AI || APPROVED), editContent feedback param, pagination coercion unified, duplicate ContentState removed. 172/172 backend, 92/92 frontend tests, ruff 0, mypy 0, tsc 0.*
+reviewers: @code-reviewer ⏳ @typescript-reviewer ⏳

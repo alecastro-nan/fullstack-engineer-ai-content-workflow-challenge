@@ -92,6 +92,7 @@ class ReviewMutation:
         headline: str | None = None,
         description: str | None = None,
         body: str | None = None,
+        feedback: str | None = None,
     ) -> ContentPieceType | None:
         user = get_user_or_error(info)
         try:
@@ -107,6 +108,7 @@ class ReviewMutation:
                 headline=headline,
                 description=description,
                 body=body,
+                feedback=feedback or "",
             )
         except ValidationError as e:
             raise GraphQLError(str(e)) from e

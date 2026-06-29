@@ -95,6 +95,7 @@ class ReviewService:
         headline: str | None = None,
         description: str | None = None,
         body: str | None = None,
+        feedback: str = "",
     ) -> ContentPiece | None:
         if headline is None and description is None and body is None:
             raise ValidationError(
@@ -147,6 +148,7 @@ class ReviewService:
                     from_state,
                     ContentPiece.State.DRAFT,
                     ReviewAction.EDIT.value,
+                    feedback=feedback,
                 )
 
         return piece
