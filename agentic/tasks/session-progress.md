@@ -216,3 +216,9 @@ deps: none | stack: docs
 plan → `agentic/runs/F-034-fix-critical-review-issues/plan.md`
 *CRIT-1: _get_jwt_secret() raises RuntimeError if JWT_SIGNING_KEY unset; production.py validates; .env.example uncommented. CRIT-2: CORS_ALLOW_CREDENTIALS=False; csrf_exempt documented safe. CRIT-3: soft_delete_campaign cascades is_deleted=True + deleted_at to content_pieces. CRIT-4: Campaign.deleted_at field + migration 0003 + ADR-004 updated. ruff 0, mypy 0, pytest 172/172.*
 reviewers: pending
+
+---
+
+## F-035 — Address 7 remaining medium/major code quality issues from PR review — PENDING
+*7 issues: 1 major (unhandled promise rejections in CampaignDetail async handlers), 6 medium (console.error in ErrorBoundary, console.warn in websocket, missing WebSocket send(), broad except Exception in AI providers, rate limiting local cache, AUTH_REQUIRED bypass). Planned, not yet implemented.*
+deps: none | stack: fullstack
