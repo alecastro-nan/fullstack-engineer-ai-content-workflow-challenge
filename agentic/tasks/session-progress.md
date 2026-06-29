@@ -172,11 +172,11 @@ branch → `feat/F-024-auth-access-control`
 *JWT auth via PyJWT with custom AuthGraphQLView (get_context override). Register/login/refresh mutations, Campaign.owner FK, per-resolver auth checks, WebSocket token auth, AUTH_REQUIRED toggle. Custom view used instead of SchemaExtension (no on_request_start in Strawberry v0.317.x). 137/137 tests passing. ADR-007 created.*
 reviewers: @code-reviewer ✅ @security-reviewer ✅
 
-### F-025 — Security hardening — IN REVIEW
-plan → `agentic/runs/F-025-security-hardening/plan.md`
-branch → `feat/F-025-security-hardening`
-*GraphQL depth/alias/token limits (QueryDepthLimiter, MaxTokensLimiter, MaxAliasesLimiter), DisableIntrospection, prompt injection delimiters in prompts.py, CSP header in nginx.conf, ALLOWED_HOSTS fix (wildcard→explicit list), brief length cap, ADR-008 created. 144 backend tests, 88 frontend tests, ruff+mypy+tsc clean.*
-reviewers: @code-reviewer ⏳ @security-reviewer ⏳
+### F-025 — Security hardening — DONE ✅
+branch → `feat/F-025-security-hardening` → PR [#33](https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/33) (draft, base: `feat/agentic-plan`)
+handoff → `agentic/runs/F-025-security-hardening/handoff.md`
+*GraphQL limits, introspection guard, ALLOWED_HOSTS, prompt injection delimiters, CSP, input caps, ADR-008, README Security section. 14 new tests, 144/144 backend, 88/88 frontend, ruff+mypy+tsc clean.*
+reviewers: @code-reviewer ✅ (fixes applied) @security-reviewer ✅ (no secrets exposed)
 
 ### F-026 — Test & fixture cleanup — DONE ✅
 branch → `feat/F-026-test-fixture-cleanup` → PR [#34](https://github.com/alecastro-nan/fullstack-engineer-ai-content-workflow-challenge/pull/34) (draft, base: `feat/agentic-plan`)
@@ -209,3 +209,10 @@ handoff → `agentic/runs/F-033-review-issue-remediation/handoff.md`
 *All 17 issues addressed across 15 files. Symlink, Drizzle deprecation, architecture.md, Spanish->English install scripts, WS origin fix, ADR-001 status, nginx CSP comment, .env.example cleanup, .gitignore patterns, biome noNonNullAssertion, stale lockfile removal, compose port restriction. ruff 0, mypy 0, biome lint 0, pytest 172/172, vitest 92/92.*
 reviewers: @code-reviewer ⏳ @security-reviewer ⏳ (findings addressed: test override_settings + residual Spanish + state machine diagram)
 deps: none | stack: docs
+
+---
+
+## F-034 — Fix critical issues from consolidated PR review — PENDING
+plan → `agentic/runs/F-034-fix-critical-review-issues/plan.md`
+*4 critical issues from subagent PR review: CRIT-1 (JWT signing key), CRIT-2 (CSRF bypass), CRIT-3 (soft-delete cascade), CRIT-4 (missing deleted_at on Campaign). Planned, not yet implemented.*
+reviewers: pending
