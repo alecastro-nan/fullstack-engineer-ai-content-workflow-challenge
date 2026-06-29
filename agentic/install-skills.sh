@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ================================================================
 # Skill installation for ACME Content Workflow Platform
-# Basado en: Django (Python) + Strawberry GraphQL + React/Vite + PostgreSQL + Docker
+# Based on: Django (Python) + Strawberry GraphQL + React/Vite + PostgreSQL + Docker
 # ================================================================
 # ⚠️  See knowledge/decisions/002-remove-critical-skills.md for security audit history.
 # ⚠️  Architecture changed from NestJS/TypeScript to Django/Strawberry GraphQL/Python.
@@ -39,7 +39,7 @@ npx skills add github/awesome-copilot --skill multi-stage-dockerfile -y
 # ── WebSocket ──
 npx skills add jeffallan/claude-skills --skill websocket-engineer -y
 
-# ── Sentry (opcional, para logging/monitoreo) ──
+# ── Sentry (optional, for logging/monitoring) ──
 npx skills add getsentry/sentry-for-ai --skill sentry-sdk-setup -y
 
 echo ""

@@ -86,7 +86,7 @@ class TestContentConsumer:
         assert not connected
         assert code == 4001
 
-    @override_settings(FRONTEND_URL="http://allowed-origin.com")
+    @override_settings(CORS_ALLOWED_ORIGINS=["http://allowed-origin.com"])
     async def test_connect_with_wrong_origin_rejected(self) -> None:
         from asgiref.sync import sync_to_async
 

@@ -83,9 +83,9 @@ sequenceDiagram
 
   U->>FE: Generate AI Draft
   FE->>BE: GraphQL generateDraft
-  BE->>DB: UPDATE state=suggested_by_ai
   BE->>AI: generate_draft(brief)
   AI-->>BE: headline + description
+  BE->>DB: UPDATE state=suggested_by_ai
   BE->>DB: UPDATE body
   BE->>BE: Broadcast state_change via WebSocket
   BE-->>FE: draft result
@@ -102,7 +102,7 @@ sequenceDiagram
   FE->>BE: GraphQL translateContent
   BE->>AI: translate(content, targetLanguage)
   AI-->>BE: translated content
-  BE->>DB: INSERT translated content (originalId FK)
+  BE->>DB: INSERT translated content (originalId FK, state=suggested_by_ai)
   BE->>BE: Broadcast new content via WebSocket
   BE-->>FE: translation created
   FE-->>U: Translated content visible
@@ -117,9 +117,8 @@ sequenceDiagram
 | Real-time mechanism | Django Channels WebSockets | ADR-003 |
 | Database schema | Django ORM models with migrations | ADR-004 |
 | Backend framework | Django + Strawberry GraphQL | ADR-005 |
-| Authentication | JWT (PyJWT) with httpOnly cookies | ADR-007 |
+| Authentication | JWT (PyJWT) with httpOnly cookies, rate limiting, WS origin check | ADR-007, ADR-010 |
 | Security controls | Depth limits, CSP, prompt injection guards | ADR-008 |
-| Auth hardening | Rate limiting, token rotation, WS origin check | ADR-009 |
 | Production hardening | mypy strict, CORS multi-origin, XSS sanitization | ADR-010 |
 
 ## State Machine
@@ -127,11 +126,14 @@ sequenceDiagram
 ```
 [Draft] ──generate AI──> [Suggested by AI]
                               │
-                   ┌──────────┼──────────┐
-                   ▼          ▼          ▼
-              [Reviewed]  [Rejected] [Approved]
-                   │
-                   └───[Suggested by AI] (re-edit)
+                   ┌──────────┴──────────┐
+                   ▼                     ▼
+              [Reviewed]            [Rejected]
+                   │                     │
+            ┌──────┼──────┐             │
+            ▼      ▼      ▼             │
+       [Approved] [Rejected] ─>[Suggested by AI]──┘
+                              (re-edit)
 ```
 
 Valid transitions enforced at model layer via `VALID_TRANSITIONS` map. Invalid transitions raise `ValidationError`.
