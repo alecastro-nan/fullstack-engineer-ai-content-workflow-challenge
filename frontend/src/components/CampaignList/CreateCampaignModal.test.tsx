@@ -4,24 +4,12 @@ import { CreateCampaignModal } from './CreateCampaignModal';
 
 describe('CreateCampaignModal', () => {
   it('does not render when closed', () => {
-    render(
-      <CreateCampaignModal
-        open={false}
-        onClose={vi.fn()}
-        onCreate={vi.fn()}
-      />,
-    );
+    render(<CreateCampaignModal open={false} onClose={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.queryByText('New Campaign')).not.toBeInTheDocument();
   });
 
   it('renders form when open', () => {
-    render(
-      <CreateCampaignModal
-        open={true}
-        onClose={vi.fn()}
-        onCreate={vi.fn()}
-      />,
-    );
+    render(<CreateCampaignModal open={true} onClose={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.getByText('New Campaign')).toBeInTheDocument();
     expect(screen.getByLabelText('Name *')).toBeInTheDocument();
     expect(screen.getByLabelText('Description')).toBeInTheDocument();
@@ -29,13 +17,7 @@ describe('CreateCampaignModal', () => {
 
   it('shows validation error when name is empty', async () => {
     const user = userEvent.setup();
-    render(
-      <CreateCampaignModal
-        open={true}
-        onClose={vi.fn()}
-        onCreate={vi.fn()}
-      />,
-    );
+    render(<CreateCampaignModal open={true} onClose={vi.fn()} onCreate={vi.fn()} />);
     await user.click(screen.getByText('Create'));
     expect(screen.getByText('Name is required')).toBeInTheDocument();
   });
@@ -45,19 +27,10 @@ describe('CreateCampaignModal', () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
 
-    render(
-      <CreateCampaignModal
-        open={true}
-        onClose={onClose}
-        onCreate={onCreate}
-      />,
-    );
+    render(<CreateCampaignModal open={true} onClose={onClose} onCreate={onCreate} />);
 
     await user.type(screen.getByLabelText('Name *'), 'New Campaign');
-    await user.type(
-      screen.getByLabelText('Description'),
-      'Campaign description',
-    );
+    await user.type(screen.getByLabelText('Description'), 'Campaign description');
     await user.click(screen.getByText('Create'));
 
     expect(onCreate).toHaveBeenCalledWith('New Campaign', 'Campaign description');
@@ -66,13 +39,7 @@ describe('CreateCampaignModal', () => {
   it('calls onClose when cancel is clicked', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
-    render(
-      <CreateCampaignModal
-        open={true}
-        onClose={onClose}
-        onCreate={vi.fn()}
-      />,
-    );
+    render(<CreateCampaignModal open={true} onClose={onClose} onCreate={vi.fn()} />);
     await user.click(screen.getByText('Cancel'));
     expect(onClose).toHaveBeenCalled();
   });
@@ -81,13 +48,7 @@ describe('CreateCampaignModal', () => {
     const onCreate = vi.fn().mockRejectedValue(new Error('API Error'));
     const user = userEvent.setup();
 
-    render(
-      <CreateCampaignModal
-        open={true}
-        onClose={vi.fn()}
-        onCreate={onCreate}
-      />,
-    );
+    render(<CreateCampaignModal open={true} onClose={vi.fn()} onCreate={onCreate} />);
 
     await user.type(screen.getByLabelText('Name *'), 'Test');
     await user.click(screen.getByText('Create'));

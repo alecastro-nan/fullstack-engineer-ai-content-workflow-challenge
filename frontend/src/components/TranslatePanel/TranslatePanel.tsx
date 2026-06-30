@@ -21,9 +21,7 @@ export function TranslatePanel({ currentLanguage, onTranslate }: TranslatePanelP
   const [translating, setTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const availableLanguages = Object.entries(LANGUAGES).filter(
-    ([code]) => code !== currentLanguage,
-  );
+  const availableLanguages = Object.entries(LANGUAGES).filter(([code]) => code !== currentLanguage);
 
   const handleTranslate = async () => {
     if (!targetLanguage) return;
@@ -52,10 +50,7 @@ export function TranslatePanel({ currentLanguage, onTranslate }: TranslatePanelP
         </button>
       ) : (
         <div className="space-y-3">
-          <label
-            htmlFor="target-language"
-            className="block text-xs font-medium text-gray-700"
-          >
+          <label htmlFor="target-language" className="block text-xs font-medium text-gray-700">
             Target Language
           </label>
           <select
@@ -82,8 +77,20 @@ export function TranslatePanel({ currentLanguage, onTranslate }: TranslatePanelP
               {translating ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                   Translating...
                 </span>
@@ -104,9 +111,7 @@ export function TranslatePanel({ currentLanguage, onTranslate }: TranslatePanelP
               Cancel
             </button>
           </div>
-          {error && (
-            <p className="text-xs text-red-600">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
       )}
     </div>

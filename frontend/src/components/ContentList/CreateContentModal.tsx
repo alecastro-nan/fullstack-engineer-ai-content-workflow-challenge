@@ -80,10 +80,7 @@ export function CreateContentModal({ open, onClose, onCreate }: CreateContentMod
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="content-headline"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="content-headline" className="block text-sm font-medium text-gray-700">
               Headline *
             </label>
             <input
@@ -97,9 +94,7 @@ export function CreateContentModal({ open, onClose, onCreate }: CreateContentMod
               placeholder="Content headline"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {validationError && (
-              <p className="mt-1 text-xs text-red-600">{validationError}</p>
-            )}
+            {validationError && <p className="mt-1 text-xs text-red-600">{validationError}</p>}
           </div>
 
           <div>

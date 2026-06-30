@@ -6,11 +6,7 @@ interface CreateCampaignModalProps {
   onCreate: (name: string, description: string) => Promise<void>;
 }
 
-export function CreateCampaignModal({
-  open,
-  onClose,
-  onCreate,
-}: CreateCampaignModalProps) {
+export function CreateCampaignModal({ open, onClose, onCreate }: CreateCampaignModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -49,25 +45,25 @@ export function CreateCampaignModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            New Campaign
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">New Campaign</h2>
           <button
             type="button"
             onClick={handleClose}
             className="text-gray-400 transition-colors hover:text-gray-600"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="campaign-name"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="campaign-name" className="block text-sm font-medium text-gray-700">
               Name *
             </label>
             <input
@@ -96,9 +92,7 @@ export function CreateCampaignModal({
               rows={3}
             />
           </div>
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex justify-end gap-3">
             <button
               type="button"

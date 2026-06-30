@@ -7,7 +7,11 @@ interface ContentListProps {
   onSelect: (id: string) => void;
   onUpdate: (id: string, headline: string, description: string) => Promise<void>;
   onGenerateDraft?: (id: string) => Promise<void>;
-  onReview?: (id: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => Promise<void>;
+  onReview?: (
+    id: string,
+    action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS',
+    feedback: string,
+  ) => Promise<void>;
   onEditContent?: (id: string) => Promise<void>;
   onTranslate?: (id: string, targetLanguage: string) => Promise<void>;
   loading: boolean;
@@ -63,11 +67,11 @@ export function ContentList({
           isSelected={selectedId === piece.id}
           onSelect={onSelect}
           onUpdate={onUpdate}
-           onGenerateDraft={onGenerateDraft}
-           onReview={onReview}
-           onEditContent={onEditContent}
-           onTranslate={onTranslate}
-         />
+          onGenerateDraft={onGenerateDraft}
+          onReview={onReview}
+          onEditContent={onEditContent}
+          onTranslate={onTranslate}
+        />
       ))}
     </div>
   );

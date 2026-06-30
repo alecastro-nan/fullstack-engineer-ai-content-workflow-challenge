@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ContentPieceCard } from './ContentPieceCard';
 import type { ContentPiece } from '../../types/content';
+import { ContentPieceCard } from './ContentPieceCard';
 
 const mockContent: ContentPiece = {
   id: '1',
@@ -197,7 +197,9 @@ describe('ContentPieceCard', () => {
       />,
     );
     await user.click(screen.getByText('Approve'));
-    expect(screen.getByText((c) => c.includes('Are you sure you want to approve'))).toBeInTheDocument();
+    expect(
+      screen.getByText((c) => c.includes('Are you sure you want to approve')),
+    ).toBeInTheDocument();
     await user.click(screen.getAllByText('Approve')[1]);
     expect(onReview).toHaveBeenCalledWith('1', 'APPROVE', '');
   });

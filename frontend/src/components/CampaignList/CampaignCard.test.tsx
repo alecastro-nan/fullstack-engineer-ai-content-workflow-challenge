@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { CampaignCard } from './CampaignCard';
 import type { Campaign } from '../../types/campaign';
+import { CampaignCard } from './CampaignCard';
 
 const mockCampaign: Campaign = {
   id: '1',
@@ -19,26 +19,20 @@ function renderWithRouter(ui: React.ReactElement) {
 
 describe('CampaignCard', () => {
   it('renders campaign name and description', () => {
-    renderWithRouter(
-      <CampaignCard campaign={mockCampaign} onDelete={vi.fn()} />,
-    );
+    renderWithRouter(<CampaignCard campaign={mockCampaign} onDelete={vi.fn()} />);
     expect(screen.getByText('Test Campaign')).toBeInTheDocument();
     expect(screen.getByText('A test description')).toBeInTheDocument();
   });
 
   it('renders status badge', () => {
-    renderWithRouter(
-      <CampaignCard campaign={mockCampaign} onDelete={vi.fn()} />,
-    );
+    renderWithRouter(<CampaignCard campaign={mockCampaign} onDelete={vi.fn()} />);
     expect(screen.getByText('active')).toBeInTheDocument();
   });
 
   it('calls onDelete when delete button is clicked', async () => {
     const onDelete = vi.fn();
     const user = userEvent.setup();
-    renderWithRouter(
-      <CampaignCard campaign={mockCampaign} onDelete={onDelete} />,
-    );
+    renderWithRouter(<CampaignCard campaign={mockCampaign} onDelete={onDelete} />);
     await user.click(screen.getByText('Delete'));
     expect(onDelete).toHaveBeenCalledWith('1');
   });
@@ -48,9 +42,7 @@ describe('CampaignCard', () => {
       ...mockCampaign,
       description: undefined,
     };
-    renderWithRouter(
-      <CampaignCard campaign={campaignWithoutDesc} onDelete={vi.fn()} />,
-    );
+    renderWithRouter(<CampaignCard campaign={campaignWithoutDesc} onDelete={vi.fn()} />);
     expect(screen.getByText('Test Campaign')).toBeInTheDocument();
   });
 });
