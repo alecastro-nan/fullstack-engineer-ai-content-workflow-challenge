@@ -1,8 +1,10 @@
 import json
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from django.test import TestCase, override_settings
+from openai import APIError
 
 from apps.ai.exceptions import (
     ConfigurationError,
@@ -69,8 +71,8 @@ class TestAiService(TestCase):
         self, mock_anthropic: MagicMock, mock_openai: MagicMock
     ) -> None:
         mock_openai_instance = MagicMock()
-        mock_openai_instance.chat.completions.create.side_effect = Exception(
-            "OpenAI API timeout"
+        mock_openai_instance.chat.completions.create.side_effect = APIError(
+            "OpenAI API timeout", httpx.Request("POST", "https://api.openai.com"), body=None
         )
         mock_openai.return_value = mock_openai_instance
 
@@ -143,8 +145,8 @@ class TestAiService(TestCase):
         self, mock_anthropic: MagicMock, mock_openai: MagicMock
     ) -> None:
         mock_openai_instance = MagicMock()
-        mock_openai_instance.chat.completions.create.side_effect = Exception(
-            "Rate limit exceeded: 429"
+        mock_openai_instance.chat.completions.create.side_effect = APIError(
+            "Rate limit exceeded: 429", httpx.Request("POST", "https://api.openai.com"), body=None
         )
         mock_openai.return_value = mock_openai_instance
 
@@ -165,8 +167,8 @@ class TestAiService(TestCase):
     @patch("apps.ai.providers.openai_provider.OpenAI")
     def test_rate_limit_raises_exception(self, mock_openai: MagicMock) -> None:
         mock_instance = MagicMock()
-        mock_instance.chat.completions.create.side_effect = Exception(
-            "429 Too Many Requests"
+        mock_instance.chat.completions.create.side_effect = APIError(
+            "429 Too Many Requests", httpx.Request("POST", "https://api.openai.com"), body=None
         )
         mock_openai.return_value = mock_instance
 

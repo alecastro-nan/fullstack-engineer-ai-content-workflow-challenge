@@ -20,6 +20,7 @@ env = environ.Env(
     AI_TEMPERATURE=(float, 0.7),
     AI_MAX_TOKENS=(int, 2048),
     AUTH_REQUIRED=(bool, True),
+    SKIP_RATE_LIMIT=(bool, False),
     JWT_SIGNING_KEY=(str, ""),
 )
 
@@ -30,6 +31,8 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 CORS_ALLOWED_ORIGINS = env.list("FRONTEND_URL", default=["http://localhost:5173"])
 CORS_ALLOW_CREDENTIALS = False  # No cookie-based auth used; Bearer token auth only
+
+SKIP_RATE_LIMIT = env("SKIP_RATE_LIMIT")
 
 # AI provider settings — must be explicitly read for getattr(settings, ...) to work
 AI_PROVIDER = env("AI_PROVIDER")

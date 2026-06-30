@@ -1,5 +1,5 @@
-import { authService } from './auth';
 import type { ConnectionStatus, WSInboundEvent, WSSubscriber } from '../types/websocket';
+import { authService } from './auth';
 
 const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30_000;
@@ -21,10 +21,7 @@ class WebSocketService {
     return import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
   }
 
-  subscribe(
-    contentId: string,
-    subscriber: WSSubscriber,
-  ): () => void {
+  subscribe(contentId: string, subscriber: WSSubscriber): () => void {
     let state = this.connections.get(contentId);
     if (!state) {
       state = {
@@ -56,6 +53,17 @@ class WebSocketService {
 
   getStatus(contentId: string): ConnectionStatus {
     return this.connections.get(contentId)?.status ?? 'disconnected';
+  }
+
+  send(contentId: string, data: Record<string, unknown>): void {
+    const state = this.connections.get(contentId);
+    if (!state?.ws || state.ws.readyState !== WebSocket.OPEN) {
+      if (import.meta.env.DEV) {
+        console.warn(`WebSocket not open for contentId=${contentId}`);
+      }
+      return;
+    }
+    state.ws.send(JSON.stringify(data));
   }
 
   disconnectAll(): void {
@@ -101,7 +109,9 @@ class WebSocketService {
           sub.onEvent(data);
         }
       } catch (e) {
-        console.warn('Malformed WebSocket message:', e);
+        if (import.meta.env.DEV) {
+          console.warn('Malformed WebSocket message:', e);
+        }
       }
     };
 

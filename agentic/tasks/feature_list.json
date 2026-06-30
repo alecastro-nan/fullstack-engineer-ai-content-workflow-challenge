@@ -1431,5 +1431,42 @@
       "Database reviewer has confirmed CRIT-3 and CRIT-4 resolved",
       "branch pushed against feat/agentic-plan"
     ]
+  },
+  {
+    "id": "F-035",
+    "title": "Address 7 remaining medium/major code quality issues from PR review",
+    "description": "Fix 7 issues found by subagent review that were never tracked or addressed: 1 major (unhandled promise rejections in CampaignDetail async handlers) and 6 medium (console.error in ErrorBoundary, console.warn in websocket, missing WebSocket send(), broad except Exception in AI providers, rate limiting uses local memory cache, AUTH_REQUIRED toggle bypasses all auth).",
+    "dependencies": [],
+    "stack": "fullstack",
+    "role": "builder",
+    "status": "pending",
+    "acceptance_criteria": [
+      "AC-1: All 6 async handlers in CampaignDetail.tsx (handleCreate, handleUpdate, handleGenerateDraft, handleReview, handleTranslate, handleEditContent) wrapped in try-catch with user-facing error state",
+      "AC-2: ErrorBoundary.tsx console.error gated behind import.meta.env.DEV or replaced with structured logging",
+      "AC-3: websocket.ts console.warn on malformed messages gated behind import.meta.env.DEV",
+      "AC-4: WebSocketService gains a send(contentId, data) method for client-to-server communication",
+      "AC-5: AI providers (openai_provider.py, anthropic_provider.py) narrow except Exception to specific SDK exception types",
+      "AC-6: Rate limiting uses a shared cache backend in production (Redis) OR at minimum documented limitation with LocMemCache fallback",
+      "AC-7: AUTH_REQUIRED=False is overridden to True in production.py with a startup guardrail",
+      "All existing tests pass after all changes (ruff + mypy + pytest + vitest + tsc)"
+    ],
+    "test_requirements": [
+      "Add test for WebSocket send() method (mock websocket, verify message payload)",
+      "Add test for AI provider error narrowing (verify SDK-specific exceptions are caught, generic exceptions propagate)",
+      "Add test for production.py raising RuntimeError when AUTH_REQUIRED=False (if implemented)",
+      "Verify existing tests: pytest 172/172, vitest >=92/92, tsc 0, biome lint 0"
+    ],
+    "documentation_requirements": [
+      "docs/adrs/ADR-010-production-hardening.md: update if rate limiting cache backend documented",
+      "frontend/src/services/websocket.ts: add JSDoc for the new send() method",
+      "README.md: no changes needed unless new env vars added"
+    ],
+    "done_when": [
+      "All 7 acceptance criteria pass with code changes committed",
+      "All test_requirements pass",
+      "Code reviewer has approved",
+      "Security reviewer has confirmed AC-6 (rate limiting) and AC-7 (AUTH_REQUIRED guard)",
+      "branch pushed against feat/agentic-plan"
+    ]
   }
 ]
