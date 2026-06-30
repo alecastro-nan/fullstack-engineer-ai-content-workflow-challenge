@@ -219,8 +219,8 @@ reviewers: pending
 
 ---
 
-## F-035 — Address 7 remaining medium/major code quality issues from PR review — PLANNED
-branch → `feat/F-035-address-quality-issues`
-plan → `agentic/runs/F-035-address-quality-issues/plan.md`
-*7 issues: 1 major (unhandled promise rejections in CampaignDetail async handlers), 6 medium (console.error in ErrorBoundary, console.warn in websocket, missing WebSocket send(), broad except Exception in AI providers, rate limiting local cache, AUTH_REQUIRED bypass). Plan written with per-issue file/line refs.*
+## F-035 — Address 7 remaining medium/major code quality issues from PR review — DONE
+branch → `feat/F-035-address-quality-issues` (commit `a1231d0`)
+handoff → `agentic/runs/F-035-address-quality-issues/handoff.md`
+*7 issues fixed: AC-1 (try-catch in 6 async handlers), AC-2 (DEV-gated console.error), AC-3 (DEV-gated console.warn), AC-4 (WebSocket.send()), AC-5 (narrowed except in AI providers), AC-6 (_should_skip uses settings + env fallback), AC-7 (AUTH_REQUIRED forced True in production). All 172 backend + 92 frontend tests pass, lint/typecheck clean.*
 deps: none | stack: fullstack
