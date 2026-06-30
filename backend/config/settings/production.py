@@ -3,6 +3,7 @@ from config.settings.base import env
 from .base import *  # noqa: F403
 
 AUTH_REQUIRED = True  # Always enforce auth in production
+SKIP_RATE_LIMIT = False  # Always enforce rate limiting in production
 
 DEBUG = False
 

@@ -146,7 +146,7 @@ export function CampaignDetail() {
         );
         setPieces((prev) => [data.createContentPiece, ...prev]);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create content piece');
+        setError('Failed to create content piece. Please try again.');
       }
     },
     [id],
@@ -163,7 +163,7 @@ export function CampaignDetail() {
         setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.updateContentPiece : p)));
         setSelectedPieceId(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to update content piece');
+        setError('Failed to update content piece. Please try again.');
       }
     },
     [],
@@ -177,7 +177,7 @@ export function CampaignDetail() {
       });
       setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.generateDraft : p)));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate draft');
+      setError('Failed to generate draft. Please try again.');
     }
   }, []);
 
@@ -194,7 +194,7 @@ export function CampaignDetail() {
           setSelectedPieceId(null);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to review content');
+        setError('Failed to review content. Please try again.');
       }
     },
     [],
@@ -209,7 +209,7 @@ export function CampaignDetail() {
       );
       setPieces((prev) => [...prev, data.translateContent]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to translate content');
+      setError('Failed to translate content. Please try again.');
     }
   }, []);
 
@@ -221,7 +221,7 @@ export function CampaignDetail() {
       });
       setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.editContent : p)));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to edit content');
+      setError('Failed to edit content. Please try again.');
     }
   }, []);
 
