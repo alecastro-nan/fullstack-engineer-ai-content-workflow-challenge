@@ -1,10 +1,9 @@
 import json
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from django.test import TestCase, override_settings
-
-import httpx
 from openai import APIError
 
 from apps.ai.exceptions import (

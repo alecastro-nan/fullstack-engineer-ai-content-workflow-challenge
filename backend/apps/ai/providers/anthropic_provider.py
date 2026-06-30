@@ -1,7 +1,7 @@
 import json
 import logging
 
-from anthropic import APIError, Anthropic
+from anthropic import Anthropic, APIError
 
 from apps.ai.exceptions import MalformedResponseError, RateLimitError
 from apps.ai.prompts import format_draft_prompt, format_translation_prompt
