@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { CampaignDashboard } from './CampaignDashboard';
 import { graphqlRequest } from '../services/api';
 import type { Campaign } from '../types/campaign';
+import { CampaignDashboard } from './CampaignDashboard';
 
 vi.mock('../services/api', () => ({
   graphqlRequest: vi.fn(),

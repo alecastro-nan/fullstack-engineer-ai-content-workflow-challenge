@@ -24,13 +24,9 @@ export function CampaignCard({ campaign, onDelete }: CampaignCardProps) {
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {campaign.name}
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">{campaign.name}</h3>
           {campaign.description && (
-            <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-              {campaign.description}
-            </p>
+            <p className="mt-1 text-sm text-gray-500 line-clamp-2">{campaign.description}</p>
           )}
         </div>
         <StatusBadge status={campaign.status} />

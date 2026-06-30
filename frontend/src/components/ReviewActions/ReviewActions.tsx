@@ -59,10 +59,7 @@ export function ReviewActions({ state, onReview, onEditContent, disabled }: Revi
     <div className="mt-3 border-t border-gray-100 pt-3">
       {feedbackVisible && pendingAction && (
         <div className="mb-3">
-          <label
-            htmlFor="review-feedback"
-            className="block text-xs font-medium text-gray-700"
-          >
+          <label htmlFor="review-feedback" className="block text-xs font-medium text-gray-700">
             {pendingAction === 'REJECT' ? 'Reason for rejection' : 'Feedback for edits'}
           </label>
           <textarea

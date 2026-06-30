@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { ContentList } from './ContentList';
 import type { ContentPiece } from '../../types/content';
+import { ContentList } from './ContentList';
 
 const mockPieces: ContentPiece[] = [
   {

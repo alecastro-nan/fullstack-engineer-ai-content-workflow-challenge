@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { StatusBadge } from './StatusBadge';
 import type { CampaignStatus } from '../../types/campaign';
+import { StatusBadge } from './StatusBadge';
 
 describe('StatusBadge', () => {
   it('renders active status with correct styling', () => {

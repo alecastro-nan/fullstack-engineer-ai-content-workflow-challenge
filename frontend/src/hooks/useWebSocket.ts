@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ConnectionStatus, WSInboundEvent, WSSubscriber } from '../types/websocket';
 import { wsService } from '../services/websocket';
+import type { ConnectionStatus, WSInboundEvent, WSSubscriber } from '../types/websocket';
 
 export interface UseWebSocketResult {
   status: ConnectionStatus;
@@ -42,12 +42,8 @@ export function useWebSocket(contentId: string | null): UseWebSocketResult {
   return { status, lastEvent };
 }
 
-export function useMultipleWebSockets(
-  contentIds: string[],
-): Map<string, ConnectionStatus> {
-  const [statuses, setStatuses] = useState<Map<string, ConnectionStatus>>(
-    () => new Map(),
-  );
+export function useMultipleWebSockets(contentIds: string[]): Map<string, ConnectionStatus> {
+  const [statuses, setStatuses] = useState<Map<string, ConnectionStatus>>(() => new Map());
 
   const cleanupRef = useRef<Map<string, () => void>>(new Map());
 

@@ -36,10 +36,7 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>;
 }
 
-async function graphqlRequest<T>(
-  query: string,
-  variables?: Record<string, unknown>,
-): Promise<T> {
+async function graphqlRequest<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   const response = await apiClient.post<GraphQLResponse<T>>('/graphql', {
     query,
     variables,

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import { ConnectionIndicator } from './ConnectionIndicator';
+import { describe, expect, it } from 'vitest';
 import type { ConnectionStatus } from '../../types/websocket';
+import { ConnectionIndicator } from './ConnectionIndicator';
 
 describe('ConnectionIndicator', () => {
   const cases: Array<{ status: ConnectionStatus; label: string }> = [

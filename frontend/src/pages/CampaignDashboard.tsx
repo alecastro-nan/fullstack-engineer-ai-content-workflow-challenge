@@ -69,26 +69,20 @@ export function CampaignDashboard() {
   }, [fetchCampaigns]);
 
   const handleCreate = useCallback(async (name: string, description: string) => {
-    const data = await graphqlRequest<CreateCampaignData>(
-      CREATE_CAMPAIGN_MUTATION,
-      { input: { name, description } },
-    );
+    const data = await graphqlRequest<CreateCampaignData>(CREATE_CAMPAIGN_MUTATION, {
+      input: { name, description },
+    });
     setCampaigns((prev) => [data.createCampaign, ...prev]);
     setTotalCount((prev) => prev + 1);
   }, []);
 
   const handleDelete = useCallback(async (id: string) => {
     try {
-      await graphqlRequest<{ deleteCampaign: boolean }>(
-        DELETE_CAMPAIGN_MUTATION,
-        { id },
-      );
+      await graphqlRequest<{ deleteCampaign: boolean }>(DELETE_CAMPAIGN_MUTATION, { id });
       setCampaigns((prev) => prev.filter((c) => c.id !== id));
       setTotalCount((prev) => prev - 1);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to delete campaign',
-      );
+      setError(err instanceof Error ? err.message : 'Failed to delete campaign');
     }
   }, []);
 
@@ -142,11 +136,7 @@ export function CampaignDashboard() {
         <>
           <div className="space-y-4">
             {campaigns.map((campaign) => (
-              <CampaignCard
-                key={campaign.id}
-                campaign={campaign}
-                onDelete={handleDelete}
-              />
+              <CampaignCard key={campaign.id} campaign={campaign} onDelete={handleDelete} />
             ))}
           </div>
 

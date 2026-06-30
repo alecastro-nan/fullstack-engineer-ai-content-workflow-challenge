@@ -1,7 +1,7 @@
-import { render, screen, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import { StateChangeToast } from './StateChangeToast';
+import { act, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import type { StateChangeEvent } from '../../types/websocket';
+import { StateChangeToast } from './StateChangeToast';
 
 describe('StateChangeToast', () => {
   beforeEach(() => {

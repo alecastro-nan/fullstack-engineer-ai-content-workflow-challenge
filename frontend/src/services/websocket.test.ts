@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { wsService } from './websocket';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WSSubscriber } from '../types/websocket';
+import { wsService } from './websocket';
 
 class MockWebSocket {
   url: string;
@@ -8,7 +8,7 @@ class MockWebSocket {
   onclose: ((event: { code: number }) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: (() => void) | null = null;
-  readyState: number = 0;
+  readyState = 0;
 
   constructor(url: string) {
     this.url = url;

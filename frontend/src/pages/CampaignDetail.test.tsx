@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { CampaignDetail } from './CampaignDetail';
 import { graphqlRequest } from '../services/api';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece } from '../types/content';
+import { CampaignDetail } from './CampaignDetail';
 
 vi.mock('../services/api', () => ({
   graphqlRequest: vi.fn(),
@@ -65,7 +65,9 @@ describe('CampaignDetail', () => {
   it('renders campaign header with name and description', async () => {
     vi.mocked(graphqlRequest)
       .mockResolvedValueOnce({ campaign: mockCampaign })
-      .mockResolvedValueOnce({ contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 } });
+      .mockResolvedValueOnce({
+        contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 },
+      });
 
     renderWithRoute('/campaigns/camp-1');
 
@@ -76,7 +78,9 @@ describe('CampaignDetail', () => {
   it('renders content piece list', async () => {
     vi.mocked(graphqlRequest)
       .mockResolvedValueOnce({ campaign: mockCampaign })
-      .mockResolvedValueOnce({ contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 } });
+      .mockResolvedValueOnce({
+        contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 },
+      });
 
     renderWithRoute('/campaigns/camp-1');
 
@@ -95,8 +99,7 @@ describe('CampaignDetail', () => {
   });
 
   it('shows error message on fetch failure', async () => {
-    vi.mocked(graphqlRequest)
-      .mockRejectedValueOnce(new Error('Network error'));
+    vi.mocked(graphqlRequest).mockRejectedValueOnce(new Error('Network error'));
 
     renderWithRoute('/campaigns/camp-1');
 
@@ -115,7 +118,9 @@ describe('CampaignDetail', () => {
 
     vi.mocked(graphqlRequest)
       .mockResolvedValueOnce({ campaign: mockCampaign })
-      .mockResolvedValueOnce({ contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 } })
+      .mockResolvedValueOnce({
+        contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 },
+      })
       .mockResolvedValueOnce({ generateDraft: updatedPiece });
 
     const user = userEvent.setup();
@@ -146,7 +151,9 @@ describe('CampaignDetail', () => {
 
     vi.mocked(graphqlRequest)
       .mockResolvedValueOnce({ campaign: mockCampaign })
-      .mockResolvedValueOnce({ contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 } })
+      .mockResolvedValueOnce({
+        contentPieces: { items: mockPieces, totalCount: 2, page: 1, perPage: 50 },
+      })
       .mockResolvedValueOnce({ createContentPiece: newPiece });
 
     const user = userEvent.setup();
