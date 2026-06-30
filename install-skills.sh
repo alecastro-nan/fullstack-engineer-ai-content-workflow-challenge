@@ -1,0 +1,1 @@
+agentic/install-skills.sh

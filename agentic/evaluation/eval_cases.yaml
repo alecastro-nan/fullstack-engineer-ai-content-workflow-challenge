@@ -1,0 +1,79 @@
+# Eval Cases for AI Prompt Quality
+
+# These test cases verify that the prompts sent to OpenAI/Anthropic
+# produce expected results. Run these against the AI service with
+# real API calls (separate from unit tests) to validate prompt quality.
+
+draft_generation:
+  - name: basic_product_draft
+    brief: "Write a headline and description for a summer sale campaign with 50% off"
+    expected:
+      - headline_mentions_summer
+      - headline_mentions_sale
+      - description_mentions_discount
+      - description_under_200_chars
+    severity: critical
+
+  - name: empty_brief
+    brief: ""
+    expected:
+      - returns_400_or_error
+      - graceful_error_handling
+    severity: critical
+
+  - name: very_long_brief
+    brief: "A" * 5000
+    expected:
+      - truncates_or_handles_gracefully
+    severity: medium
+
+translation:
+  - name: english_to_spanish
+    text: "Summer Sale - 50% off all products"
+    target_language: es
+    expected:
+      - contains_verano_or_rebaja
+      - does_not_contain_english_words
+    severity: critical
+
+  - name: english_to_french
+    text: "Limited time offer"
+    target_language: fr
+    expected:
+      - contains_offre_limitee_or_similar
+    severity: medium
+
+  - name: unsupported_language
+    text: "Hello"
+    target_language: xx
+    expected:
+      - returns_400_or_error
+    severity: high
+
+state_machine:
+  - name: valid_draft_to_ai
+    from_state: draft
+    to_state: suggested_by_ai
+    expected: success
+    severity: critical
+
+  - name: invalid_approved_to_draft
+    from_state: approved
+    to_state: draft
+    expected: 422_error
+    severity: high
+
+  - name: valid_ai_to_reviewed
+    from_state: suggested_by_ai
+    to_state: reviewed
+    expected: success
+    severity: critical
+
+real_time:
+  - name: state_change_triggers_event
+    action: approve_content
+    expected:
+      - websocket_event_received
+      - payload_contains_new_state
+      - timestamp_is_valid_iso
+    severity: high

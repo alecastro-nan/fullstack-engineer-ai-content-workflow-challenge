@@ -1,0 +1,332 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ContentList, CreateContentModal } from '../components/ContentList';
+import { ConnectionIndicator, StateChangeToast } from '../components/RealtimeStatus';
+import { graphqlRequest } from '../services/api';
+import {
+  CAMPAIGN_QUERY,
+  CONTENT_PIECES_QUERY,
+  CREATE_CONTENT_PIECE_MUTATION,
+  EDIT_CONTENT_MUTATION,
+  GENERATE_DRAFT_MUTATION,
+  REVIEW_CONTENT_MUTATION,
+  TRANSLATE_CONTENT_MUTATION,
+  UPDATE_CONTENT_PIECE_MUTATION,
+} from '../services/queries';
+import { wsService } from '../services/websocket';
+import type { Campaign } from '../types/campaign';
+import type { ContentPiece, ContentPiecePage } from '../types/content';
+import type {
+  ConnectionStatus,
+  StateChangeEvent,
+  WSInboundEvent,
+  WSSubscriber,
+} from '../types/websocket';
+
+interface CampaignDetailData {
+  campaign: Campaign | null;
+}
+
+export function CampaignDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [pieces, setPieces] = useState<ContentPiece[]>([]);
+  const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [stateChangeEvent, setStateChangeEvent] = useState<StateChangeEvent | null>(null);
+  const unsubscribersRef = useRef<Map<string, () => void>>(new Map());
+
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const fetchDetail = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [campaignData, piecesData] = await Promise.all([
+        graphqlRequest<CampaignDetailData>(CAMPAIGN_QUERY, { id }),
+        graphqlRequest<{ contentPieces: ContentPiecePage }>(CONTENT_PIECES_QUERY, {
+          campaignId: id,
+          page: 1,
+          perPage: 50,
+        }),
+      ]);
+      if (!mountedRef.current) return;
+
+      if (!campaignData.campaign) {
+        setError('Campaign not found');
+        return;
+      }
+
+      setCampaign(campaignData.campaign);
+      setPieces(piecesData.contentPieces.items);
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setError(err instanceof Error ? err.message : 'Failed to load campaign');
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]);
+
+  const pieceIds = useMemo(() => pieces.map((p) => p.id), [pieces]);
+
+  useEffect(() => {
+    const unsubscribers = unsubscribersRef.current;
+    const currentIds = new Set(pieceIds);
+
+    for (const [id, unsub] of unsubscribers) {
+      if (!currentIds.has(id)) {
+        unsub();
+        unsubscribers.delete(id);
+      }
+    }
+
+    if (pieceIds.length === 0) {
+      setConnectionStatus('disconnected');
+      return;
+    }
+
+    const subscriber: WSSubscriber = {
+      onEvent: (event: WSInboundEvent) => {
+        if (!mountedRef.current) return;
+        if (event.type === 'state.change') {
+          setPieces((prev) =>
+            prev.map((p) =>
+              p.id === event.contentId
+                ? { ...p, state: event.newState as ContentPiece['state'] }
+                : p,
+            ),
+          );
+          setStateChangeEvent(event);
+        }
+      },
+      onStatusChange: (status: ConnectionStatus) => {
+        if (mountedRef.current) setConnectionStatus(status);
+      },
+    };
+
+    for (const id of pieceIds) {
+      if (!unsubscribers.has(id)) {
+        const unsub = wsService.subscribe(id, subscriber);
+        unsubscribers.set(id, unsub);
+      }
+    }
+
+    return () => {
+      for (const [, unsub] of unsubscribers) {
+        unsub();
+      }
+      unsubscribers.clear();
+    };
+  }, [pieceIds]);
+
+  const handleCreate = useCallback(
+    async (headline: string, description: string) => {
+      try {
+        setError(null);
+        if (!id) return;
+        const data = await graphqlRequest<{ createContentPiece: ContentPiece }>(
+          CREATE_CONTENT_PIECE_MUTATION,
+          { input: { campaignId: id, headline, description } },
+        );
+        setPieces((prev) => [data.createContentPiece, ...prev]);
+      } catch (err) {
+        setError('Failed to create content piece. Please try again.');
+      }
+    },
+    [id],
+  );
+
+  const handleUpdate = useCallback(
+    async (pieceId: string, headline: string, description: string) => {
+      try {
+        setError(null);
+        const data = await graphqlRequest<{ updateContentPiece: ContentPiece }>(
+          UPDATE_CONTENT_PIECE_MUTATION,
+          { id: pieceId, input: { headline, description } },
+        );
+        setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.updateContentPiece : p)));
+        setSelectedPieceId(null);
+      } catch (err) {
+        setError('Failed to update content piece. Please try again.');
+      }
+    },
+    [],
+  );
+
+  const handleGenerateDraft = useCallback(async (pieceId: string) => {
+    try {
+      setError(null);
+      const data = await graphqlRequest<{ generateDraft: ContentPiece }>(GENERATE_DRAFT_MUTATION, {
+        contentId: pieceId,
+      });
+      setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.generateDraft : p)));
+    } catch (err) {
+      setError('Failed to generate draft. Please try again.');
+    }
+  }, []);
+
+  const handleReview = useCallback(
+    async (pieceId: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => {
+      try {
+        setError(null);
+        const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
+          REVIEW_CONTENT_MUTATION,
+          { contentId: pieceId, action, feedback },
+        );
+        setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.reviewContent : p)));
+        if (action === 'APPROVE') {
+          setSelectedPieceId(null);
+        }
+      } catch (err) {
+        setError('Failed to review content. Please try again.');
+      }
+    },
+    [],
+  );
+
+  const handleTranslate = useCallback(async (pieceId: string, targetLanguage: string) => {
+    try {
+      setError(null);
+      const data = await graphqlRequest<{ translateContent: ContentPiece }>(
+        TRANSLATE_CONTENT_MUTATION,
+        { contentId: pieceId, targetLanguage },
+      );
+      setPieces((prev) => [...prev, data.translateContent]);
+    } catch (err) {
+      setError('Failed to translate content. Please try again.');
+    }
+  }, []);
+
+  const handleEditContent = useCallback(async (pieceId: string) => {
+    try {
+      setError(null);
+      const data = await graphqlRequest<{ editContent: ContentPiece }>(EDIT_CONTENT_MUTATION, {
+        contentId: pieceId,
+      });
+      setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.editContent : p)));
+    } catch (err) {
+      setError('Failed to edit content. Please try again.');
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-6">
+          <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg border border-gray-200 bg-gray-100"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          &larr; Back to campaigns
+        </button>
+      </div>
+    );
+  }
+
+  if (!campaign) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <p className="text-gray-500">Campaign not found</p>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          &larr; Back to campaigns
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        className="mb-6 text-sm text-gray-500 hover:text-gray-700"
+      >
+        &larr; Back to campaigns
+      </button>
+
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
+          {pieces.length > 0 && <ConnectionIndicator status={connectionStatus} />}
+        </div>
+        {campaign.description && (
+          <p className="mt-1 text-sm text-gray-500">{campaign.description}</p>
+        )}
+      </div>
+
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">Content Pieces ({pieces.length})</h2>
+        <button
+          type="button"
+          onClick={() => setCreateModalOpen(true)}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        >
+          + New Piece
+        </button>
+      </div>
+
+      <ContentList
+        pieces={pieces}
+        selectedId={selectedPieceId}
+        onSelect={setSelectedPieceId}
+        onUpdate={handleUpdate}
+        onGenerateDraft={handleGenerateDraft}
+        onReview={handleReview}
+        onEditContent={handleEditContent}
+        onTranslate={handleTranslate}
+        loading={false}
+        onCreateClick={() => setCreateModalOpen(true)}
+      />
+
+      <CreateContentModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreate}
+      />
+
+      <StateChangeToast event={stateChangeEvent} />
+    </div>
+  );
+}

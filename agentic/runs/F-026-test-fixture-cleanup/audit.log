@@ -1,0 +1,18 @@
+2026-06-26 10:30:00 | INFO | Running: rg -n "sk-test|sk-ant" (verify no sk- patterns remain)
+2026-06-26 10:30:01 | INFO | Result: 0 matches (14 occurrences renamed)
+2026-06-26 10:31:00 | INFO | Running: pytest apps/reviews/tests/test_review_graphql.py
+2026-06-26 10:32:00 | INFO | Result: 13/13 passed (7 new tests added)
+2026-06-26 10:32:05 | INFO | Running: pytest --cov=apps.reviews.schema
+2026-06-26 10:33:00 | INFO | Result: 97% coverage (62 stmts, 2 miss — lines 84, 114)
+2026-06-26 10:33:05 | INFO | Running: pytest apps/ai/tests/test_anthropic_provider.py
+2026-06-26 10:33:30 | INFO | Result: 10/10 passed (10 new tests added)
+2026-06-26 10:33:35 | INFO | Running: pytest --cov=apps.ai.providers.anthropic_provider
+2026-06-26 10:34:00 | INFO | Result: 100% coverage (57 stmts, 0 miss)
+2026-06-26 10:35:00 | INFO | Running: ruff check backend/
+2026-06-26 10:35:30 | INFO | Result: 0 errors (5 SIM117/E501 fixed)
+2026-06-26 10:35:35 | INFO | Running: mypy backend/
+2026-06-26 10:36:00 | INFO | Result: 0 errors (82 files)
+2026-06-26 10:36:05 | INFO | Running: pytest backend/ (full suite)
+2026-06-26 10:41:00 | INFO | Result: 161/161 passed
+2026-06-26 10:41:05 | INFO | Running: pnpm typecheck + pnpm test (frontend)
+2026-06-26 10:42:00 | INFO | Result: 0 typecheck errors, 88/88 tests passed
