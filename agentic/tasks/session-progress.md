@@ -219,6 +219,8 @@ reviewers: pending
 
 ---
 
-## F-035 — Address 7 remaining medium/major code quality issues from PR review — PENDING
-*7 issues: 1 major (unhandled promise rejections in CampaignDetail async handlers), 6 medium (console.error in ErrorBoundary, console.warn in websocket, missing WebSocket send(), broad except Exception in AI providers, rate limiting local cache, AUTH_REQUIRED bypass). Planned, not yet implemented.*
+## F-035 — Address 7 remaining medium/major code quality issues from PR review — PLANNED
+branch → `feat/F-035-address-quality-issues`
+plan → `agentic/runs/F-035-address-quality-issues/plan.md`
+*7 issues: 1 major (unhandled promise rejections in CampaignDetail async handlers), 6 medium (console.error in ErrorBoundary, console.warn in websocket, missing WebSocket send(), broad except Exception in AI providers, rate limiting local cache, AUTH_REQUIRED bypass). Plan written with per-issue file/line refs.*
 deps: none | stack: fullstack
