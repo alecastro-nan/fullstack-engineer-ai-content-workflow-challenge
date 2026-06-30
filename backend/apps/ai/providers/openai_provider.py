@@ -1,10 +1,13 @@
 import json
+import logging
 
-from openai import OpenAI
+from openai import APIError, OpenAI
 
 from apps.ai.exceptions import MalformedResponseError, RateLimitError
 from apps.ai.prompts import format_draft_prompt, format_translation_prompt
 from apps.ai.providers.base import AIProvider, DraftResult, TranslationResult
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIProvider(AIProvider):
@@ -52,12 +55,13 @@ class OpenAIProvider(AIProvider):
                 max_tokens=self.max_tokens,
                 timeout=30,
             )
-        except Exception as exc:
+        except APIError as exc:
             error_msg = str(exc).lower()
             if "rate" in error_msg or "429" in error_msg:
                 raise RateLimitError(
                     f"OpenAI rate limit exceeded: {exc}"
                 ) from exc
+            logger.error("OpenAI API error: %s", exc)
             raise
 
         choice = resp.choices[0]

@@ -1,22 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ContentList, CreateContentModal } from '../components/ContentList';
+import { ConnectionIndicator, StateChangeToast } from '../components/RealtimeStatus';
 import { graphqlRequest } from '../services/api';
-import { wsService } from '../services/websocket';
 import {
   CAMPAIGN_QUERY,
   CONTENT_PIECES_QUERY,
   CREATE_CONTENT_PIECE_MUTATION,
-  UPDATE_CONTENT_PIECE_MUTATION,
+  EDIT_CONTENT_MUTATION,
   GENERATE_DRAFT_MUTATION,
   REVIEW_CONTENT_MUTATION,
-  EDIT_CONTENT_MUTATION,
   TRANSLATE_CONTENT_MUTATION,
+  UPDATE_CONTENT_PIECE_MUTATION,
 } from '../services/queries';
+import { wsService } from '../services/websocket';
 import type { Campaign } from '../types/campaign';
 import type { ContentPiece, ContentPiecePage } from '../types/content';
-import type { ConnectionStatus, StateChangeEvent, WSInboundEvent, WSSubscriber } from '../types/websocket';
-import { ContentList, CreateContentModal } from '../components/ContentList';
-import { ConnectionIndicator, StateChangeToast } from '../components/RealtimeStatus';
+import type {
+  ConnectionStatus,
+  StateChangeEvent,
+  WSInboundEvent,
+  WSSubscriber,
+} from '../types/websocket';
 
 interface CampaignDetailData {
   campaign: Campaign | null;
@@ -132,75 +137,92 @@ export function CampaignDetail() {
 
   const handleCreate = useCallback(
     async (headline: string, description: string) => {
-      if (!id) return;
-      const data = await graphqlRequest<{ createContentPiece: ContentPiece }>(
-        CREATE_CONTENT_PIECE_MUTATION,
-        { input: { campaignId: id, headline, description } },
-      );
-      setPieces((prev) => [data.createContentPiece, ...prev]);
+      try {
+        setError(null);
+        if (!id) return;
+        const data = await graphqlRequest<{ createContentPiece: ContentPiece }>(
+          CREATE_CONTENT_PIECE_MUTATION,
+          { input: { campaignId: id, headline, description } },
+        );
+        setPieces((prev) => [data.createContentPiece, ...prev]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to create content piece');
+      }
     },
     [id],
   );
 
   const handleUpdate = useCallback(
     async (pieceId: string, headline: string, description: string) => {
-      const data = await graphqlRequest<{ updateContentPiece: ContentPiece }>(
-        UPDATE_CONTENT_PIECE_MUTATION,
-        { id: pieceId, input: { headline, description } },
-      );
-      setPieces((prev) =>
-        prev.map((p) => (p.id === pieceId ? data.updateContentPiece : p)),
-      );
-      setSelectedPieceId(null);
-    },
-    [],
-  );
-
-  const handleGenerateDraft = useCallback(async (pieceId: string) => {
-    const data = await graphqlRequest<{ generateDraft: ContentPiece }>(
-      GENERATE_DRAFT_MUTATION,
-      { contentId: pieceId },
-    );
-    setPieces((prev) =>
-      prev.map((p) => (p.id === pieceId ? data.generateDraft : p)),
-    );
-  }, []);
-
-  const handleReview = useCallback(
-    async (pieceId: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => {
-      const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
-        REVIEW_CONTENT_MUTATION,
-        { contentId: pieceId, action, feedback },
-      );
-      setPieces((prev) =>
-        prev.map((p) => (p.id === pieceId ? data.reviewContent : p)),
-      );
-      if (action === 'APPROVE') {
+      try {
+        setError(null);
+        const data = await graphqlRequest<{ updateContentPiece: ContentPiece }>(
+          UPDATE_CONTENT_PIECE_MUTATION,
+          { id: pieceId, input: { headline, description } },
+        );
+        setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.updateContentPiece : p)));
         setSelectedPieceId(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to update content piece');
       }
     },
     [],
   );
 
-  const handleTranslate = useCallback(
-    async (pieceId: string, targetLanguage: string) => {
+  const handleGenerateDraft = useCallback(async (pieceId: string) => {
+    try {
+      setError(null);
+      const data = await graphqlRequest<{ generateDraft: ContentPiece }>(GENERATE_DRAFT_MUTATION, {
+        contentId: pieceId,
+      });
+      setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.generateDraft : p)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate draft');
+    }
+  }, []);
+
+  const handleReview = useCallback(
+    async (pieceId: string, action: 'APPROVE' | 'REJECT' | 'REQUEST_EDITS', feedback: string) => {
+      try {
+        setError(null);
+        const data = await graphqlRequest<{ reviewContent: ContentPiece }>(
+          REVIEW_CONTENT_MUTATION,
+          { contentId: pieceId, action, feedback },
+        );
+        setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.reviewContent : p)));
+        if (action === 'APPROVE') {
+          setSelectedPieceId(null);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to review content');
+      }
+    },
+    [],
+  );
+
+  const handleTranslate = useCallback(async (pieceId: string, targetLanguage: string) => {
+    try {
+      setError(null);
       const data = await graphqlRequest<{ translateContent: ContentPiece }>(
         TRANSLATE_CONTENT_MUTATION,
         { contentId: pieceId, targetLanguage },
       );
       setPieces((prev) => [...prev, data.translateContent]);
-    },
-    [],
-  );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to translate content');
+    }
+  }, []);
 
   const handleEditContent = useCallback(async (pieceId: string) => {
-    const data = await graphqlRequest<{ editContent: ContentPiece }>(
-      EDIT_CONTENT_MUTATION,
-      { contentId: pieceId },
-    );
-    setPieces((prev) =>
-      prev.map((p) => (p.id === pieceId ? data.editContent : p)),
-    );
+    try {
+      setError(null);
+      const data = await graphqlRequest<{ editContent: ContentPiece }>(EDIT_CONTENT_MUTATION, {
+        contentId: pieceId,
+      });
+      setPieces((prev) => prev.map((p) => (p.id === pieceId ? data.editContent : p)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to edit content');
+    }
   }, []);
 
   if (loading) {
@@ -212,7 +234,10 @@ export function CampaignDetail() {
         </div>
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg border border-gray-200 bg-gray-100" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg border border-gray-200 bg-gray-100"
+            />
           ))}
         </div>
       </div>
@@ -272,9 +297,7 @@ export function CampaignDetail() {
       </div>
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Content Pieces ({pieces.length})
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900">Content Pieces ({pieces.length})</h2>
         <button
           type="button"
           onClick={() => setCreateModalOpen(true)}

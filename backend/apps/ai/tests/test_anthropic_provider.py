@@ -2,6 +2,8 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+import httpx
+from anthropic import APIError
 
 from apps.ai.exceptions import MalformedResponseError, RateLimitError
 from apps.ai.providers.anthropic_provider import AnthropicProvider
@@ -44,7 +46,7 @@ class TestAnthropicProviderGenerateDraft:
         with patch.object(
             provider.client.messages,
             "create",
-            side_effect=Exception("rate limit exceeded 429"),
+            side_effect=APIError("rate limit exceeded 429", httpx.Request("POST", "https://api.anthropic.com"), body=None),
         ), pytest.raises(RateLimitError):
             provider._call_api("prompt")
 

@@ -1,10 +1,13 @@
 import json
+import logging
 
-from anthropic import Anthropic
+from anthropic import APIError, Anthropic
 
 from apps.ai.exceptions import MalformedResponseError, RateLimitError
 from apps.ai.prompts import format_draft_prompt, format_translation_prompt
 from apps.ai.providers.base import AIProvider, DraftResult, TranslationResult
+
+logger = logging.getLogger(__name__)
 
 
 class AnthropicProvider(AIProvider):
@@ -48,12 +51,13 @@ class AnthropicProvider(AIProvider):
                 messages=[{"role": "user", "content": prompt}],
                 timeout=60,
             )
-        except Exception as exc:
+        except APIError as exc:
             error_msg = str(exc).lower()
             if "rate" in error_msg or "429" in error_msg:
                 raise RateLimitError(
                     f"Anthropic rate limit exceeded: {exc}"
                 ) from exc
+            logger.error("Anthropic API error: %s", exc)
             raise
 
         content = ""

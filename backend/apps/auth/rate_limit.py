@@ -1,6 +1,7 @@
 import os
 import time
 
+from django.conf import settings
 from django.core.cache import cache
 
 
@@ -9,7 +10,10 @@ class RateLimitError(Exception):
 
 
 def _should_skip() -> bool:
-    return os.environ.get("SKIP_RATE_LIMIT", "").lower() in ("1", "true", "yes")
+    env_skip = os.environ.get("SKIP_RATE_LIMIT", "").lower()
+    if env_skip in ("1", "true", "yes"):
+        return True
+    return getattr(settings, "SKIP_RATE_LIMIT", False)
 
 
 def check_rate_limit(key_prefix: str, max_attempts: int, window: int, request: object) -> None:
